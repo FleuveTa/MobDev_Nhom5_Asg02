@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "476449533184",
+    "project_id": "healthy-plan-27c38",
+    "storage_bucket": "healthy-plan-27c38.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476449533184:android:ff346b38d33b11381557e5",
+        "android_client_info": {
+          "package_name": "com.example.healthyplan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOHsYERc4B889c69Vo_hgTx5OFe6qt4Aw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476449533184:android:038ab3ef30f5e5691557e5",
+        "android_client_info": {
+          "package_name": "com.example.prj02_healthy_plan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOHsYERc4B889c69Vo_hgTx5OFe6qt4Aw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
