@@ -12,7 +12,20 @@
           "package_name": "com.example.healthyplan"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "476449533184-oj47bl1im7579oicpbjrku8u43ddcgr4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.healthyplan",
+            "certificate_hash": "4ee0374aa62ddc08f380f898672802f5023ef6bd"
+          }
+        },
+        {
+          "client_id": "476449533184-cu56he7609keukdf9ncbnad0dot2291i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAOHsYERc4B889c69Vo_hgTx5OFe6qt4Aw"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476449533184-cu56he7609keukdf9ncbnad0dot2291i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +49,20 @@
           "package_name": "com.example.prj02_healthy_plan"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "476449533184-bbfn9mhji6ittgns64lu8q9va6o6bavr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.prj02_healthy_plan",
+            "certificate_hash": "4ee0374aa62ddc08f380f898672802f5023ef6bd"
+          }
+        },
+        {
+          "client_id": "476449533184-cu56he7609keukdf9ncbnad0dot2291i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAOHsYERc4B889c69Vo_hgTx5OFe6qt4Aw"
@@ -39,7 +70,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476449533184-cu56he7609keukdf9ncbnad0dot2291i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
