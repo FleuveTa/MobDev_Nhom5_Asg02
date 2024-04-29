@@ -1,7 +1,6 @@
 package com.example.prj02_healthy_plan.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -31,14 +30,12 @@ class SignUpActivity : ComponentActivity() {
                         auth.createUserWithEmailAndPassword(username.value, password.value)
                                 .addOnCompleteListener(this@SignUpActivity) { task ->
                                     if (task.isSuccessful) {
-                                        val user = auth.currentUser
-                                        if (user != null) {
+                                            auth.signOut()
                                             Toast.makeText(
                                                 baseContext,
-                                                "Success create user with email: " + user.email.toString(),
+                                                "Success create user with email",
                                                 Toast.LENGTH_SHORT,
                                             ).show()
-                                        }
                                         startActivity(Intent(context, MainActivity::class.java))
                                     } else {
                                         Toast.makeText(
