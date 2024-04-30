@@ -77,7 +77,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
 
         Text(
             text = "Random Girl Name",
-            color = Color.White,
+            color = Color.Black,
             textAlign = TextAlign.Center,
             lineHeight = 1.27.em,
             style = MaterialTheme.typography.titleLarge,
@@ -86,7 +86,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
 
         Text(
             text = "randomemail@email.com",
-            color = Color.White,
+            color = Color.Black,
             textAlign = TextAlign.Center,
             lineHeight = 1.43.em,
             style = TextStyle(
@@ -107,7 +107,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .fillMaxWidth()
                         .requiredHeight(height = 120.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
-                        .background(color = Color.White))
+                        .background(color = Color.LightGray))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -242,7 +242,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .fillMaxWidth()
                         .requiredHeight(height = 90.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
-                        .background(color = Color.White)
+                        .background(color = Color.LightGray)
                 )
                 Box(
                     modifier = Modifier
@@ -250,7 +250,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .align(alignment = Alignment.TopStart)
                         .offset(
                             x = 16.dp,
-                            y = 12.dp
+                            y = 14.dp
                         )
                         .requiredHeight(height = 24.dp)
                 ) {
@@ -282,7 +282,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .align(alignment = Alignment.TopStart)
                         .offset(
                             x = 16.dp,
-                            y = 48.dp
+                            y = 52.dp
                         )
                         .requiredHeight(height = 24.dp)
                 ) {
@@ -341,7 +341,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .fillMaxWidth()
                         .requiredHeight(height = 120.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
-                        .background(color = Color.White))
+                        .background(color = Color.LightGray))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
