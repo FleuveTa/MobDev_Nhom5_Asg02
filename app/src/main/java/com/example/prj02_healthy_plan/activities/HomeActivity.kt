@@ -42,11 +42,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.ui.theme.MoreTabUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.Screens
 import com.google.firebase.Firebase
@@ -141,7 +143,7 @@ fun AppNavBar() {
                 composable(Screens.Home.screen) {TungAnh()}
                 composable(Screens.Diary.screen) { Giang()}
                 composable(Screens.Explore.screen) { ChienTa()}
-                composable(Screens.More.screen) { DongDuong(auth = FirebaseAuth.getInstance(), context = context)}
+                composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context) }
         }
     }
 }
@@ -170,34 +172,34 @@ fun Giang() {
     }
 }
 
-@Composable
-fun DongDuong(auth: FirebaseAuth, context: Context) {
-    Column {
-        Text(text = " Xin chao : " + auth.currentUser?.email.toString())
-        Button(
-            onClick = {
-                auth.signOut()
-                if (context is Activity) {
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                    context.startActivity(intent)
-                    context.finish()
-                }
-            }
-        ) {
-            Text(text = "Log Out")
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "DongDuong")
-        }
-    }
 
-}
+//@Composable
+//fun DongDuong(auth: FirebaseAuth, context: Context) {
+//    Column {
+//        Text(text = " Xin chao : " + auth.currentUser?.email.toString())
+//        Button(
+//            onClick = {
+//                auth.signOut()
+//                if (context is Activity) {
+//                    val intent = Intent(context, MainActivity::class.java)
+//                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+//                    context.startActivity(intent)
+//                    context.finish()
+//                }
+//            }
+//        ) {
+//            Text(text = "Log Out")
+//        }
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(32.dp),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Text(text = "DongDuong")
+//        }
+//    }
+//}
 
 @Composable
 fun ChienTa() {
