@@ -138,14 +138,68 @@ fun TabScreen() {
 
 @Composable
 fun MacrosScreen() {
-    Column (
+    val progress1 = Color(android.graphics.Color.parseColor("#FA9B31"))
+    val progress2 = Color(android.graphics.Color.parseColor("#2CB9B0"))
+    val progress3 = Color(android.graphics.Color.parseColor("#6C0D8F"))
+
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        verticalArrangement = Arrangement.SpaceEvenly
+            .fillMaxWidth()
+            .height(300.dp)
+            .clip(shape = RoundedCornerShape(30.dp))
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(Color(0xFFF0F0FF), Color.White),
+                    start = Offset(200f, 200f),
+                    end = Offset(0f, 100f)
+                ),
+                shape = RoundedCornerShape(30.dp)
+            ),
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "This is Macros Screen")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp, 0.dp, 20.dp, 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MacrosProgress(progress = 0.6, number = "245", color = progress1)
+
+            MacrosProgress(progress = 0.6, number = "0", color = progress2)
+
+            MacrosProgress(progress = 0.6, number = "12", color = progress3)
+        }
+
+        MacrosStats()
     }
+}
+
+@Composable
+fun MacrosProgress(progress: Double, number: String, color: Color) {
+    val textProgressColor = Color(android.graphics.Color.parseColor("#3B3B3B"))
+
+    Box(contentAlignment = Alignment.Center) {
+        Text(
+            text = number + "g",
+            fontWeight = FontWeight.ExtraBold,
+            color = textProgressColor,
+            fontSize = 22.sp)
+
+        CircularProgressIndicator(
+            progress = progress.toFloat(),
+            color = color,
+            strokeWidth = 8.dp,
+            modifier = Modifier.size(100.dp)
+        )
+    }
+}
+
+@Preview
+@Composable
+fun PreviewMacrosProgress() {
+    MacrosScreen()
 }
 
 @Composable
@@ -211,21 +265,37 @@ fun CaloriesStats() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Stats(name = "Consumed", color = Color.Green, number = 1600)
+        Stats(name = "Consumed", color = Color.Green, number = "1600")
 
-        Stats(name = "Burned", color = Color.Blue, number = 600)
+        Stats(name = "Burned", color = Color.Blue, number = "600")
 
-        Stats(name = "Heart Points", color = color, number = 30)
+        Stats(name = "Heart Points", color = color, number = "30")
     }
 }
 
 @Composable
 fun MacrosStats() {
+    val color1 = Color(android.graphics.Color.parseColor("#FA9B31"))
+    val color2 = Color(android.graphics.Color.parseColor("#2CB9B0"))
+    val color3 = Color(android.graphics.Color.parseColor("#6C0D8F"))
 
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(45.dp, 0.dp, 45.dp, 0.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Stats(name = "Protein", color = color1, number = "245g")
+
+        Stats(name = "Carbs", color = color2, number = "0g")
+
+        Stats(name = "Fats", color = color3, number = "12g")
+    }
 }
 
 @Composable
-fun Stats(name: String, color: Color, number: Number) {
+fun Stats(name: String, color: Color, number: String) {
     Column (
         modifier = Modifier
     ) {
@@ -242,7 +312,7 @@ fun Stats(name: String, color: Color, number: Number) {
                 color = color)
 
             Text(
-                text = number.toString(),
+                text = number,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -260,12 +330,6 @@ fun Square(shape: Shape, color: Color) {
             .clip(shape)
             .background(color)
     )
-}
-
-@Preview
-@Composable
-fun PreviewCaloriesScreen() {
-    CaloriesScreen()
 }
 
 @Preview
