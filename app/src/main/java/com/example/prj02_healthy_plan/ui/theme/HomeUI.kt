@@ -1,12 +1,10 @@
 package com.example.prj02_healthy_plan.ui.theme
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,8 +35,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeCap.Companion.Square
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -83,7 +79,7 @@ fun Header() {
             Text(
                 text = "Today",
                 fontSize = 10.sp,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.fillMaxWidth(1f)
             )
         }
@@ -94,7 +90,7 @@ fun Header() {
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(3F, true),
             color = Color.Green,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
+            fontWeight = FontWeight.Medium)
 
         IconButton(
             onClick = { /*TODO*/ },
