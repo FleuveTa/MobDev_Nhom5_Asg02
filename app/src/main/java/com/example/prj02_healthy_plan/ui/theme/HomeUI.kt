@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Notifications
@@ -24,14 +23,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -259,9 +256,9 @@ fun TabScreen() {
 
 @Composable
 fun MacrosScreen() {
-    val progress1 = Color(android.graphics.Color.parseColor("#FA9B31"))
-    val progress2 = Color(android.graphics.Color.parseColor("#2CB9B0"))
-    val progress3 = Color(android.graphics.Color.parseColor("#6C0D8F"))
+    val progress1 = Color(parseColor("#FA9B31"))
+    val progress2 = Color(parseColor("#2CB9B0"))
+    val progress3 = Color(parseColor("#6C0D8F"))
 
     Column(
         modifier = Modifier
@@ -319,8 +316,8 @@ fun MacrosProgress(progress: Double, number: String, color: Color) {
 
 @Composable
 fun CaloriesScreen() {
-    val innerProgressColor = Color(android.graphics.Color.parseColor("#F58BA4"))
-    val outerProgressColor = Color(android.graphics.Color.parseColor("#4ED22D"))
+    val innerProgressColor = Color(parseColor("#F58BA4"))
+    val outerProgressColor = Color(parseColor("#4ED22D"))
 
 
     Column(
@@ -371,7 +368,7 @@ fun CaloriesScreen() {
 
 @Composable
 fun CaloriesStats() {
-    val color = Color(android.graphics.Color.parseColor("#F58BA4"))
+    val color = Color(parseColor("#F58BA4"))
 
     Row (
         modifier = Modifier
@@ -390,9 +387,9 @@ fun CaloriesStats() {
 
 @Composable
 fun MacrosStats() {
-    val color1 = Color(android.graphics.Color.parseColor("#FA9B31"))
-    val color2 = Color(android.graphics.Color.parseColor("#2CB9B0"))
-    val color3 = Color(android.graphics.Color.parseColor("#6C0D8F"))
+    val color1 = Color(parseColor("#FA9B31"))
+    val color2 = Color(parseColor("#2CB9B0"))
+    val color3 = Color(parseColor("#6C0D8F"))
 
     Row (
         modifier = Modifier
