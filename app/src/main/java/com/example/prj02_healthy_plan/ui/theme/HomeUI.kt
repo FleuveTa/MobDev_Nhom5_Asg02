@@ -1,17 +1,22 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import android.graphics.Color.parseColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ButtonDefaults
@@ -19,11 +24,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,12 +43,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.TungAnh
+
+val textProgressColor = Color(parseColor("#3B3B3B"))
 
 @Composable
 fun HomeUI() {
@@ -105,6 +116,8 @@ fun Header() {
 
 @Composable
 fun Content() {
+    val waterColor = Color(parseColor("#63e5ff"))
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -112,12 +125,120 @@ fun Content() {
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         TabScreen()
+
+        Row(
+            modifier = Modifier
+                .padding(15.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(160.dp)
+                    .clip(shape = RoundedCornerShape(30.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color(0xFFF0F0FF), Color.White),
+                            start = Offset(200f, 200f),
+                            end = Offset(0f, 100f)
+                        ),
+                        shape = RoundedCornerShape(30.dp)
+                    )
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Remove",
+                        modifier = Modifier.size(30.dp),
+                        tint = Color(parseColor("#FFFFFF")))
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_water_drop_24),
+                        contentDescription = "Water",
+                        modifier = Modifier.size(60.dp),
+                        tint = waterColor)
+
+                    Text(text = "1.25l",
+                        color = textProgressColor,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium)
+
+                    Text(text = "Daily Water",
+                        color = textProgressColor,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold)
+                }
+
+                IconButton(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_add_circle_24),
+                        contentDescription = "Add",
+                        modifier = Modifier.size(30.dp),
+                        tint = Color.Green)
+                }
+            }
+
+            Spacer(modifier = Modifier.width(15.dp))
+
+            Column(
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(160.dp)
+                    .clip(shape = RoundedCornerShape(30.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color(0xFFF0F0FF), Color.White),
+                            start = Offset(200f, 200f),
+                            end = Offset(0f, 100f)
+                        ),
+                        shape = RoundedCornerShape(30.dp)
+                    )
+                    .padding(25.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "7,550",
+                        fontWeight = FontWeight.ExtraBold,
+                        color = textProgressColor,
+                        fontSize = 16.sp)
+
+                    CircularProgressIndicator(
+                        progress = 0.3f,
+                        color = Color.Green,
+                        strokeWidth = 10.dp,
+                        modifier = Modifier.size(70.dp)
+                    )
+                }
+
+                Text(text = "Steps Walked",
+                    color = textProgressColor,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }
 
 @Composable
 fun TabScreen() {
-    var tabIndex by remember { mutableStateOf(0) }
+    var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Macros", "Calories")
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -178,7 +299,7 @@ fun MacrosScreen() {
 
 @Composable
 fun MacrosProgress(progress: Double, number: String, color: Color) {
-    val textProgressColor = Color(android.graphics.Color.parseColor("#3B3B3B"))
+
 
     Box(contentAlignment = Alignment.Center) {
         Text(
@@ -196,17 +317,11 @@ fun MacrosProgress(progress: Double, number: String, color: Color) {
     }
 }
 
-@Preview
-@Composable
-fun PreviewMacrosProgress() {
-    MacrosScreen()
-}
-
 @Composable
 fun CaloriesScreen() {
     val innerProgressColor = Color(android.graphics.Color.parseColor("#F58BA4"))
     val outerProgressColor = Color(android.graphics.Color.parseColor("#4ED22D"))
-    val textProgressColor = Color(android.graphics.Color.parseColor("#3B3B3B"))
+
 
     Column(
         modifier = Modifier
