@@ -37,6 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.ui.theme.Giang
+import com.example.prj02_healthy_plan.ui.theme.HomeUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.Screens
 import com.google.firebase.Firebase
@@ -149,14 +150,7 @@ fun AppNavBar() {
 
 @Composable
 fun TungAnh() {
-    Box(
-modifier = Modifier
-    .fillMaxWidth()
-    .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Tung Anh")
-    }
+    HomeUI()
 }
 
 @Composable
