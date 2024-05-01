@@ -3,8 +3,6 @@ package com.example.prj02_healthy_plan.activities
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,13 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
@@ -32,21 +25,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.ui.theme.Giang
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.Screens
 import com.google.firebase.Firebase
@@ -72,6 +62,17 @@ fun AppNavBar() {
     val navigationController = rememberNavController()
     val context = LocalContext.current
     val selected = remember { mutableStateOf(Icons.Default.Home) }
+
+    LaunchedEffect(navigationController) {
+        navigationController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.route) {
+                Screens.Home.screen -> selected.value = Icons.Default.Home
+                Screens.Diary.screen -> selected.value = Icons.Default.DateRange
+                Screens.Explore.screen -> selected.value = Icons.Default.Search
+                Screens.More.screen -> selected.value = Icons.Default.Settings
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -139,7 +140,7 @@ fun AppNavBar() {
             startDestination = Screens.Home.screen,
             modifier = Modifier.padding(paddingValues)) {
                 composable(Screens.Home.screen) {TungAnh()}
-                composable(Screens.Diary.screen) { Giang()}
+                composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa()}
                 composable(Screens.More.screen) { DongDuong(auth = FirebaseAuth.getInstance(), context = context)}
         }
@@ -155,18 +156,6 @@ modifier = Modifier
         contentAlignment = Alignment.Center
     ) {
         Text(text = "Tung Anh")
-    }
-}
-
-@Composable
-fun Giang() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Giang")
     }
 }
 
