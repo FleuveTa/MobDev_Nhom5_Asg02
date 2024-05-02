@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +55,7 @@ fun Giang(nav: NavHostController) {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(245, 250, 255)),
                 title = {
-                    Text("Diary")
+                    Text("Diary", style = TextStyle(fontSize = 25.sp, fontWeight = FontWeight.Bold))
                 },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
@@ -105,7 +107,7 @@ fun Giang(nav: NavHostController) {
                         }
                         Box(modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 20.dp)
+                            .padding(top = 15.dp)
                             .height(30.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(GreenMain)
@@ -189,10 +191,13 @@ fun HeaderRoundedBox(heading: String, content: @Composable () -> Unit) {
                     .padding(5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.ShoppingCart, contentDescription = null)
-                Column {
-                    Text(text = heading, style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black))
-                    Text(text = "2 tỷ calories on 200 calories")
+                Icon(Icons.Outlined.ShoppingCart, contentDescription = null, tint = Color.White, modifier = Modifier.fillMaxHeight())
+                Column (
+                    modifier = Modifier.padding(start = 10.dp)
+
+                ) {
+                    Text(text = heading, style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White))
+                    Text(text = "2 tỷ calories on 200 calories", style = TextStyle(fontSize = 15.sp, color = Color.White))
                 }
             }
             Column(modifier = Modifier
