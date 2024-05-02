@@ -118,8 +118,8 @@ fun Content() {
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
-        verticalArrangement = Arrangement.SpaceEvenly
+            .background(Color(parseColor("#FBFAF2"))),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         TabScreen()
 
@@ -132,7 +132,7 @@ fun Content() {
             Row(
                 modifier = Modifier
                     .width(180.dp)
-                    .height(160.dp)
+                    .height(130.dp)
                     .clip(shape = RoundedCornerShape(30.dp))
                     .background(
                         brush = Brush.linearGradient(
@@ -141,8 +141,7 @@ fun Content() {
                             end = Offset(0f, 100f)
                         ),
                         shape = RoundedCornerShape(30.dp)
-                    )
-                    .padding(10.dp),
+                    ),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -153,7 +152,7 @@ fun Content() {
                         imageVector = Icons.Filled.Close,
                         contentDescription = "Remove",
                         modifier = Modifier.size(30.dp),
-                        tint = Color(parseColor("#FFFFFF")))
+                        tint = Color.Black)
                 }
 
                 Column(
@@ -193,7 +192,7 @@ fun Content() {
             Column(
                 modifier = Modifier
                     .width(180.dp)
-                    .height(160.dp)
+                    .height(130.dp)
                     .clip(shape = RoundedCornerShape(30.dp))
                     .background(
                         brush = Brush.linearGradient(
@@ -202,8 +201,7 @@ fun Content() {
                             end = Offset(0f, 100f)
                         ),
                         shape = RoundedCornerShape(30.dp)
-                    )
-                    .padding(25.dp),
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -228,6 +226,146 @@ fun Content() {
                     color = textProgressColor,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold)
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .clip(shape = RoundedCornerShape(30.dp))
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(parseColor("#FF53B0")), Color(parseColor("#FFFFFF"))),
+                        start = Offset(200f, 200f),
+                        end = Offset(0f, 100f)
+                    ),
+                    shape = RoundedCornerShape(30.dp)
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(15.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Exercise",
+                        color = textProgressColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp)
+
+                    Icon(painter = painterResource(R.drawable.outline_sensor_occupied_24),
+                        contentDescription = "Personal",
+                        tint = Color.Red,
+                        modifier = Modifier.size(40.dp))
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row {
+                        Icon(painter = painterResource(R.drawable.baseline_access_time_24),
+                            contentDescription = "Amount of Time",
+                            tint = Color.Blue,
+                            modifier = Modifier
+                                .size(25.dp)
+                                .padding(end = 5.dp))
+
+                        Text(
+                            text = "75 minutes",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium)
+                    }
+
+                    Row {
+                        Icon(painter = painterResource(R.drawable.baseline_local_fire_department_24),
+                            contentDescription = "Amount of Time",
+                            tint = Color(parseColor("#FA9B31")),
+                            modifier = Modifier
+                                .size(25.dp)
+                                .padding(end = 5.dp))
+
+                        Text(
+                            text = "350 Cals",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium)
+                    }
+                }
+
+                IconButton(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_add_circle_24),
+                        contentDescription = "Add",
+                        modifier = Modifier.size(40.dp),
+                        tint = Color.Green)
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .clip(shape = RoundedCornerShape(30.dp))
+                .background(
+                    Color.White,
+                    shape = RoundedCornerShape(30.dp)
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(15.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        progress = 0.8f,
+                        color = Color.Green,
+                        strokeWidth = 6.dp,
+                        modifier = Modifier.size(60.dp))
+
+                    Icon(painter = painterResource(R.drawable.outline_scale_24),
+                        contentDescription = "Scale",
+                        tint = Color.Blue,
+                        modifier = Modifier.size(35.dp))
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "70 kg",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold)
+
+                    Text(
+                        text = "You have a healthy BMI",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Light)
+                }
+
+                IconButton(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_add_circle_24),
+                        contentDescription = "Add",
+                        modifier = Modifier.size(40.dp),
+                        tint = Color.Green)
+                }
             }
         }
     }
@@ -263,7 +401,7 @@ fun MacrosScreen() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(200.dp)
             .clip(shape = RoundedCornerShape(30.dp))
             .background(
                 brush = Brush.linearGradient(
@@ -323,7 +461,7 @@ fun CaloriesScreen() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(200.dp)
             .clip(shape = RoundedCornerShape(30.dp))
             .background(
                 brush = Brush.linearGradient(
