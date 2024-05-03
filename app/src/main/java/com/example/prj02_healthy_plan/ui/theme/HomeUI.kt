@@ -56,6 +56,7 @@ fun HomeUI() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(245, 250, 255))
     ) {
         Header()
         Content()
@@ -67,8 +68,7 @@ fun Header() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .background(Color.White),
+            .height(50.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -118,7 +118,7 @@ fun Content() {
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(parseColor("#FBFAF2"))),
+            .background(Color(245, 250, 255)),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         TabScreen()
