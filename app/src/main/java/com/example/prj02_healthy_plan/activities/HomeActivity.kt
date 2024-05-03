@@ -1,8 +1,5 @@
 package com.example.prj02_healthy_plan.activities
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -10,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,7 +19,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.FloatingActionButton
@@ -49,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.ui.theme.Giang
 import com.example.prj02_healthy_plan.ui.theme.GreenMain
 import com.example.prj02_healthy_plan.ui.theme.HomeUI
+import com.example.prj02_healthy_plan.ui.theme.MoreTabUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.Screens
 import com.google.firebase.Firebase
@@ -156,7 +152,7 @@ fun AppNavBar() {
                 composable(Screens.Home.screen) {TungAnh()}
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa()}
-                composable(Screens.More.screen) { DongDuong(auth = FirebaseAuth.getInstance(), context = context)}
+                composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context) }
             }
         }
         DropdownMenu(
@@ -234,35 +230,6 @@ fun AppNavBar() {
 @Composable
 fun TungAnh() {
     HomeUI()
-}
-
-@Composable
-fun DongDuong(auth: FirebaseAuth, context: Context) {
-    Column {
-        Text(text = " Xin chao : " + auth.currentUser?.email.toString())
-        Button(
-            onClick = {
-                auth.signOut()
-                if (context is Activity) {
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                    context.startActivity(intent)
-                    context.finish()
-                }
-            }
-        ) {
-            Text(text = "Log Out")
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "DongDuong")
-        }
-    }
-
 }
 
 @Composable
