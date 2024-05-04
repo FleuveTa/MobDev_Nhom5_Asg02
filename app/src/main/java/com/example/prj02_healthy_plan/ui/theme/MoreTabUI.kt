@@ -44,7 +44,15 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun MoreTabUI(auth: FirebaseAuth, context: Context) {
-    Column {
+    val transparentButtonColors = ButtonDefaults.buttonColors(
+        containerColor = Color.Transparent,
+        contentColor = Color.Black // Set text color
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(245, 250, 255))) {
+        Header()
 
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Image(
@@ -84,16 +92,20 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
             modifier = Modifier
                 .fillMaxWidth())
 
-        Text(
-            text = "randomemail@email.com",
-            color = Color.Black,
-            textAlign = TextAlign.Center,
-            lineHeight = 1.43.em,
-            style = TextStyle(
-                fontSize = 14.sp,
-                letterSpacing = 0.25.sp),
-            modifier = Modifier
-                .fillMaxWidth())
+        auth.currentUser?.let {
+            it.email?.let { it1 ->
+                Text(
+                    text = it1,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 1.43.em,
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        letterSpacing = 0.25.sp),
+                    modifier = Modifier
+                        .fillMaxWidth())
+            }
+        }
 
         Spacer(modifier = Modifier.height(30.dp))
         Box(Modifier.fillMaxWidth()) {
@@ -108,126 +120,142 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .requiredHeight(height = 120.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
                         .background(color = Color.LightGray))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 12.dp
-                        )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.edit_profile_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart))
-                    Text(
-                        text = "Edit profile information",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
+                Button(colors = transparentButtonColors, onClick = { /*TODO*/ }) {
+                    Box(
                         modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight())
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+//                            .offset(
+//                                x = 16.dp,
+//                                y = 12.dp
+//                            )
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.edit_profile_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart))
+                        Text(
+                            text = "Edit profile information",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight())
+                    }
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 48.dp
-                        )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.sand_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart))
-                    Text(
-                        text = "Intermitten Fasting",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight())
 
-                    Text(
-                        text = "ON",
-                        color = Color(0xff1573fe),
-                        textAlign = TextAlign.End,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
+                Button(colors = transparentButtonColors,
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier.offset(
+                        x = 0.dp, y = 36.dp
+                    )) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+//                            .offset(
+//                                x = 16.dp,
+//                                y = 48.dp
+//                            )
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.sand_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart))
+                        Text(
+                            text = "Intermitten Fasting",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight())
+
+                        Text(
+                            text = "ON",
+                            color = Color(0xff1573fe),
+                            textAlign = TextAlign.End,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
                             modifier = Modifier
                                 .fillMaxSize()
-                                .offset(
-                                    x = -35.dp,
-                                    y = 2.dp
-                                ))
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 84.dp
+//                                .offset(
+//                                    x = -35.dp,
+//                                    y = 2.dp
+//                                )
                         )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.language_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart))
-                    Text(
-                        text = "Language",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight())
-
-                    Text(
-                        text = "English",
-                        color = Color(0xff1573fe),
-                        textAlign = TextAlign.End,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .offset(
-                                x = -35.dp,
-                                y = 2.dp
-                            ))
+                    }
                 }
 
-            }
+                Button(colors = transparentButtonColors,
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier.offset(
+                        x = 0.dp, y = 72.dp
+                    )) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+//                            .offset(
+//                                x = 16.dp,
+//                                y = 84.dp
+//                            )
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.language_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart))
+                        Text(
+                            text = "Language",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight())
 
+                        Text(
+                            text = "English",
+                            color = Color(0xff1573fe),
+                            textAlign = TextAlign.End,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .fillMaxSize()
+//                                .offset(
+//                                    x = -35.dp,
+//                                    y = 2.dp)
+                        )
+                    }
+
+                }
+                }
         }
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -235,96 +263,96 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .requiredHeight(height = 90.dp)
+                    .requiredHeight(height = 86.dp)
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .requiredHeight(height = 90.dp)
+                        .requiredHeight(height = 86.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
                         .background(color = Color.LightGray)
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 14.dp
-                        )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.security_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart)
-                    )
-                    Text(
-                        text = "Security",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp
-                        ),
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight()
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 52.dp
-                        )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.theme_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart)
-                    )
-                    Text(
-                        text = "Theme",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp
-                        ),
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight()
-                    )
 
-                    Text(
-                        text = "Light Mode",
-                        color = Color(0xff1573fe),
-                        textAlign = TextAlign.End,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp
-                        ),
+                Button(colors = transparentButtonColors,
+                    onClick = { /*TODO*/ })
+                {
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .offset(
-                                x = -35.dp,
-                                y = 2.dp
-                            )
-                    )
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.security_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                        Text(
+                            text = "Security",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp
+                            ),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight()
+                        )
+                    }
                 }
+
+
+                Button(colors = transparentButtonColors,
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier.offset(x = 0.dp, y = 38.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.theme_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                        Text(
+                            text = "Theme",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp
+                            ),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight()
+                        )
+
+                        Text(
+                            text = "Light Mode",
+                            color = Color(0xff1573fe),
+                            textAlign = TextAlign.End,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp
+                            ),
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
+                }
+
 
             }
         }
@@ -342,107 +370,111 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .requiredHeight(height = 120.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
                         .background(color = Color.LightGray))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 12.dp
-                        )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.help_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart))
-                    Text(
-                        text = "Help & Support",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight())
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 48.dp
-                        )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.contact_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart))
-                    Text(
-                        text = "Contact us",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight())
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(alignment = Alignment.TopStart)
-                        .offset(
-                            x = 16.dp,
-                            y = 84.dp
-                        )
-                        .requiredHeight(height = 24.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.policy_icon),
-                        contentDescription = "line/business/profile-line",
-                        modifier = Modifier.align(Alignment.CenterStart))
-                    Text(
-                        text = "Language",
-                        color = Color.Black,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterStart)
-                            .offset(
-                                x = 35.dp,
-                                y = 2.dp
-                            )
-                            .fillMaxHeight())
 
-                    Text(
-                        text = "Privacy policy",
-                        color = Color(0xff1573fe),
-                        textAlign = TextAlign.End,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            letterSpacing = 0.25.sp),
+                Button(colors = transparentButtonColors,
+                    onClick = { /*TODO*/ })
+                {
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .offset(
-                                x = -35.dp,
-                                y = 2.dp
-                            ))
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.help_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart))
+                        Text(
+                            text = "Help & Support",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight())
+                    }
+                }
+
+
+                Button(colors = transparentButtonColors,
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier.offset(
+                        x = 0.dp, y = 36.dp))
+                {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.contact_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart))
+                        Text(
+                            text = "Contact us",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight())
+                    }
+                }
+
+                Button(colors = transparentButtonColors,
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier.offset(
+                        x = 0.dp, y = 72.dp))
+                {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Top)
+                            .requiredHeight(height = 24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.policy_icon),
+                            contentDescription = "line/business/profile-line",
+                            modifier = Modifier.align(Alignment.CenterStart))
+                        Text(
+                            text = "Language",
+                            color = Color.Black,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterStart)
+                                .offset(
+                                    x = 35.dp,
+                                    y = 2.dp
+                                )
+                                .fillMaxHeight())
+
+                        Text(
+                            text = "Privacy policy",
+                            color = Color(0xff1573fe),
+                            textAlign = TextAlign.End,
+                            lineHeight = 1.43.em,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                letterSpacing = 0.25.sp),
+                            modifier = Modifier
+                                .fillMaxSize())
+                    }
                 }
 
             }
