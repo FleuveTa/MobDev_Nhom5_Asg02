@@ -38,16 +38,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun MoreTabUI(auth: FirebaseAuth, context: Context) {
+fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
     val transparentButtonColors = ButtonDefaults.buttonColors(
         containerColor = Color.Transparent,
         contentColor = Color.Black // Set text color
     )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -120,7 +125,10 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context) {
                         .requiredHeight(height = 120.dp)
                         .clip(shape = RoundedCornerShape(8.dp))
                         .background(color = Color.LightGray))
-                Button(colors = transparentButtonColors, onClick = { /*TODO*/ }) {
+                Button(colors = transparentButtonColors,
+                    onClick = {
+                        nav.navigate("userInfor")
+                     }) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
