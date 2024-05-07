@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FoodBank
 import androidx.compose.material.icons.outlined.HeartBroken
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -180,7 +182,7 @@ fun SearchBar() {
 fun ExploreTabScreen() {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
-    val scrollState = rememberScrollState()
+    val tabScreenScrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
@@ -192,14 +194,16 @@ fun ExploreTabScreen() {
             }
         }
         when (tabIndex) {
-            0 -> RecommendedScreen(scrollState = scrollState)
-            1 -> MyRecipesScreen(scrollState = scrollState)
+            0 -> RecommendedScreen(scrollState = tabScreenScrollState)
+            1 -> MyRecipesScreen(scrollState = tabScreenScrollState)
         }
     }
 }
 
 @Composable
 fun RecommendedScreen(scrollState: ScrollState) {
+    val recommendedFoodScrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -292,9 +296,33 @@ fun RecommendedScreen(scrollState: ScrollState) {
                 .fillMaxHeight()
                 .fillMaxWidth()
                 .background(Color.White)
+                .horizontalScroll(recommendedFoodScrollState)
         ) {
-            RecommendedFoods(image = painterResource(id = R.drawable.tunasaladfood), title = "Tuna Salad", cal = 443)
-            RecommendedFoods(image = painterResource(id = R.drawable.tunasaladfood), title = "Tuna Salad", cal = 443)
+            RecommendedFoods(
+                image = painterResource(id = R.drawable.tunasaladfood),
+                title = "Tuna Salad",
+                cal = 443
+            )
+            RecommendedFoods(
+                image = painterResource(id = R.drawable.tunasaladfood),
+                title = "Tuna Salad",
+                cal = 443
+            )
+            RecommendedFoods(
+                image = painterResource(id = R.drawable.tunasaladfood),
+                title = "Tuna Salad",
+                cal = 443
+            )
+            RecommendedFoods(
+                image = painterResource(id = R.drawable.tunasaladfood),
+                title = "Tuna Salad",
+                cal = 443
+            )
+            RecommendedFoods(
+                image = painterResource(id = R.drawable.tunasaladfood),
+                title = "Tuna Salad",
+                cal = 443
+            )
         }
     }
 }
@@ -342,19 +370,17 @@ fun RecommendedFoods(image: Painter, title: String, cal: Number) {
                 fontSize = 12.sp
             )
 
-            Icon(
-                imageVector = Icons.Outlined.HeartBroken,
-                contentDescription = "Heart Icon"
-            )
+            IconButton(
+                onClick = { /*TODO*/ }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.HeartBroken,
+                    contentDescription = "Heart Icon"
+                )
+            }
         }
     }
 }
-
-//@Preview
-//@Composable
-//fun PreviewRecommendedFoods() {
-//    RecommendedFoods()
-//}
 
 @Composable
 fun Ingredients(name: String, amount: Number) {
@@ -394,7 +420,105 @@ fun MyRecipesScreen(scrollState: ScrollState) {
             .padding(5.dp)
             .verticalScroll(scrollState)
     ) {
-        Text(text = "clg day")
+        MyRecipes(
+            image = painterResource(R.drawable.tunasaladfood),
+            title = "Tuna Salad",
+            description = "This is Tuna Salad."
+        )
+        MyRecipes(
+            image = painterResource(R.drawable.tunasaladfood),
+            title = "Tuna Salad",
+            description = "This is Tuna Salad."
+        )
+        MyRecipes(
+            image = painterResource(R.drawable.tunasaladfood),
+            title = "Tuna Salad",
+            description = "This is Tuna Salad."
+        )
+        MyRecipes(
+            image = painterResource(R.drawable.tunasaladfood),
+            title = "Tuna Salad",
+            description = "This is Tuna Salad."
+        )
+        MyRecipes(
+            image = painterResource(R.drawable.tunasaladfood),
+            title = "Tuna Salad",
+            description = "This is Tuna Salad."
+        )
+        MyRecipes(
+            image = painterResource(R.drawable.tunasaladfood),
+            title = "Tuna Salad",
+            description = "This is Tuna Salad."
+        )
+        MyRecipes(
+            image = painterResource(R.drawable.tunasaladfood),
+            title = "Tuna Salad",
+            description = "This is Tuna Salad."
+        )
+    }
+}
+
+@Composable
+fun MyRecipes(image: Painter, title: String, description: String) {
+    Row(
+        modifier = Modifier
+            .padding(5.dp)
+            .background(Color.White)
+            .fillMaxWidth()
+            .height(150.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(160.dp)
+        ) {
+            Image(
+                painter = image,
+                contentDescription = "Food Image",
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = description,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Light
+            )
+
+            Row {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = "Info Icon"
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Outlined.HeartBroken,
+                        contentDescription = "Heart Icon"
+                    )
+                }
+            }
+
+
+        }
     }
 }
 
