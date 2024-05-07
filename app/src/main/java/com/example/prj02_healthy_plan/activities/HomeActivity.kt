@@ -48,6 +48,7 @@ import com.example.prj02_healthy_plan.ui.theme.HomeUI
 import com.example.prj02_healthy_plan.ui.theme.MoreTabUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.Screens
+import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -156,7 +157,7 @@ fun AppNavBar() {
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController)}
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
-
+                composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
             }
         }
         DropdownMenu(

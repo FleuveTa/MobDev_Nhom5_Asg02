@@ -182,7 +182,7 @@ fun SearchBar() {
 fun ExploreTabScreen() {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
-    val tabScreenScrollState = rememberScrollState()
+    val exploreTabScreenScrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
@@ -194,8 +194,8 @@ fun ExploreTabScreen() {
             }
         }
         when (tabIndex) {
-            0 -> RecommendedScreen(scrollState = tabScreenScrollState)
-            1 -> MyRecipesScreen(scrollState = tabScreenScrollState)
+            0 -> RecommendedScreen(scrollState = exploreTabScreenScrollState)
+            1 -> MyRecipesScreen(scrollState = exploreTabScreenScrollState)
         }
     }
 }

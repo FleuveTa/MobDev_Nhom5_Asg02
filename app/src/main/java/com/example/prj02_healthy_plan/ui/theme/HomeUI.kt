@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Notifications
@@ -26,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -72,24 +74,19 @@ fun Header() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ElevatedButton(
+        TextButton(
             onClick = { /*TODO*/ },
-            modifier = Modifier.weight(1.5F, true),
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            )
+            modifier = Modifier.weight(1.5F, true)
         ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Time")
-
             Text(
                 text = "Today",
                 fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.fillMaxWidth(1f)
+                fontWeight = FontWeight.ExtraBold
             )
+
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "DropDown Icon")
         }
 
         Text(
