@@ -121,7 +121,7 @@ fun Content() {
             .background(Color(245, 250, 255)),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        TabScreen()
+        HomeTabScreen()
 
         Row(
             modifier = Modifier
@@ -372,7 +372,7 @@ fun Content() {
 }
 
 @Composable
-fun TabScreen() {
+fun HomeTabScreen() {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Macros", "Calories")
 

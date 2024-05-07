@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.Giang
 import com.example.prj02_healthy_plan.ui.theme.GreenMain
 import com.example.prj02_healthy_plan.ui.theme.HomeUI
@@ -152,9 +153,10 @@ fun AppNavBar() {
                 modifier = Modifier.padding(paddingValues)) {
                 composable(Screens.Home.screen) {TungAnh()}
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
-                composable(Screens.Explore.screen) { ChienTa()}
+                composable(Screens.Explore.screen) { ChienTa(nav = navigationController)}
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
+
             }
         }
         DropdownMenu(
@@ -240,16 +242,4 @@ fun AppNavBar() {
 @Composable
 fun TungAnh() {
     HomeUI()
-}
-
-@Composable
-fun ChienTa() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Chien Ta")
-    }
 }
