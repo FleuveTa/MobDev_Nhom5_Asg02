@@ -47,6 +47,7 @@ import com.example.prj02_healthy_plan.ui.theme.HomeUI
 import com.example.prj02_healthy_plan.ui.theme.MoreTabUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.Screens
+import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -152,7 +153,8 @@ fun AppNavBar() {
                 composable(Screens.Home.screen) {TungAnh()}
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa()}
-                composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context) }
+                composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
+                composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
             }
         }
         DropdownMenu(
@@ -168,7 +170,9 @@ fun AppNavBar() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        Toast.makeText(context, "Track Food", Toast.LENGTH_SHORT).show()
+                        Toast
+                            .makeText(context, "Track Food", Toast.LENGTH_SHORT)
+                            .show()
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -183,7 +187,9 @@ fun AppNavBar() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        Toast.makeText(context, "Track Workout", Toast.LENGTH_SHORT).show()
+                        Toast
+                            .makeText(context, "Track Workout", Toast.LENGTH_SHORT)
+                            .show()
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -198,7 +204,9 @@ fun AppNavBar() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        Toast.makeText(context, "Share", Toast.LENGTH_SHORT).show()
+                        Toast
+                            .makeText(context, "Share", Toast.LENGTH_SHORT)
+                            .show()
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -213,7 +221,9 @@ fun AppNavBar() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        Toast.makeText(context, "Scan Food", Toast.LENGTH_SHORT).show()
+                        Toast
+                            .makeText(context, "Scan Food", Toast.LENGTH_SHORT)
+                            .show()
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically

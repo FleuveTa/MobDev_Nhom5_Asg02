@@ -93,7 +93,7 @@ fun Header() {
         }
 
         Text(
-            text = "HealthyPLans",
+            text = "HealthyPlans",
             fontSize = 30.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(3F, true),
