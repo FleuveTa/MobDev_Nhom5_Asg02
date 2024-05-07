@@ -1,5 +1,7 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,28 +9,32 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FoodBank
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FoodBank
+import androidx.compose.material.icons.outlined.HeartBroken
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -45,6 +51,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,7 +98,7 @@ fun ChienTa(nav: NavHostController) {
         ) {
             SearchBar()
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             ExploreTabScreen()
         }
@@ -170,6 +180,7 @@ fun SearchBar() {
 fun ExploreTabScreen() {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
+    val scrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
@@ -181,18 +192,19 @@ fun ExploreTabScreen() {
             }
         }
         when (tabIndex) {
-            0 -> RecommendedScreen()
-            1 -> MyRecipesScreen()
+            0 -> RecommendedScreen(scrollState = scrollState)
+            1 -> MyRecipesScreen(scrollState = scrollState)
         }
     }
 }
 
 @Composable
-fun RecommendedScreen() {
+fun RecommendedScreen(scrollState: ScrollState) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(5.dp)
+            .verticalScroll(scrollState)
     ) {
         Box(
             modifier = Modifier
@@ -204,7 +216,10 @@ fun RecommendedScreen() {
                     RoundedCornerShape(20.dp)
                 )
         ) {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -238,22 +253,116 @@ fun RecommendedScreen() {
                     }
                 }
 
-                IngredientsRow(name = "Butter", amount = 100)
-                IngredientsRow(name = "Shrimps, boiled", amount = 200)
-                IngredientsRow(name = "Garlics", amount = 2)
-                IngredientsRow(name = "Sugar", amount = 50)
+                Ingredients(name = "Butter", amount = 100)
+                Ingredients(name = "Shrimps, boiled", amount = 200)
+                Ingredients(name = "Garlics", amount = 2)
             }
+        }
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Button(
+            onClick = { /*TODO*/ },
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.White,
+                containerColor = Color.Green
+            ),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
+                .height(45.dp)
+        ) {
+            Text(
+                text = "View 140+ results",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+        }
+
+        Text(
+            text = "Recommended for you:",
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(5.dp)
+        )
+
+        Row(
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            RecommendedFoods(image = painterResource(id = R.drawable.tunasaladfood), title = "Tuna Salad", cal = 443)
+            RecommendedFoods(image = painterResource(id = R.drawable.tunasaladfood), title = "Tuna Salad", cal = 443)
         }
     }
 }
 
 @Composable
-fun IngredientsRow(name: String, amount: Number) {
+fun RecommendedFoods(image: Painter, title: String, cal: Number) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(160.dp)
+            .padding(end = 5.dp),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp)
+        ) {
+            Image(
+                painter = image,
+                contentDescription = "Food Image",
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(5.dp)
+        )
+
+        Row(
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "$cal CALS",
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp
+            )
+
+            Icon(
+                imageVector = Icons.Outlined.HeartBroken,
+                contentDescription = "Heart Icon"
+            )
+        }
+    }
+}
+
+//@Preview
+//@Composable
+//fun PreviewRecommendedFoods() {
+//    RecommendedFoods()
+//}
+
+@Composable
+fun Ingredients(name: String, amount: Number) {
     Row(
         modifier = Modifier
             .padding(12.dp)
             .fillMaxWidth()
-            .height(40.dp)
+            .height(60.dp)
             .background(Color.White),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -278,13 +387,14 @@ fun IngredientsRow(name: String, amount: Number) {
 }
 
 @Composable
-fun MyRecipesScreen() {
-    Box(
+fun MyRecipesScreen(scrollState: ScrollState) {
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp)
+            .padding(5.dp)
+            .verticalScroll(scrollState)
     ) {
-        Text(text = "CLG ddaay?")
+        Text(text = "clg day")
     }
 }
 
