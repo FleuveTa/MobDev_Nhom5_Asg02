@@ -48,25 +48,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.TungAnh
 
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
 @Composable
-fun HomeUI() {
+fun HomeUI(nav: NavController, date: String = "Today") {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(245, 250, 255))
     ) {
-        Header()
+        Header(nav, date)
         Content()
     }
 }
 
 @Composable
-fun Header() {
+fun Header(nav: NavController, date: String = "Today") {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -75,11 +77,11 @@ fun Header() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextButton(
-            onClick = { /*TODO*/ },
+            onClick = { nav.navigate("calendar")},
             modifier = Modifier.weight(1.5F, true)
         ) {
             Text(
-                text = "Today",
+                text = date,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -579,8 +581,8 @@ fun Square(shape: Shape, color: Color) {
     )
 }
 
-@Preview
-@Composable
-fun PreviewHomeUI() {
-    TungAnh()
-}
+//@Preview
+//@Composable
+//fun PreviewHomeUI() {
+//    TungAnh(nav)
+//}
