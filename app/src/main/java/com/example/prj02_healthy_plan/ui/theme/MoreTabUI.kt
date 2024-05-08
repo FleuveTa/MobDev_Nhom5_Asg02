@@ -57,7 +57,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(245, 250, 255))) {
-        Header()
+        Header(nav)
 
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Image(
