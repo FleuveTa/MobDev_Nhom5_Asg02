@@ -1,5 +1,7 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import android.annotation.SuppressLint
+import android.media.browse.MediaBrowser
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -17,26 +19,36 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FoodBank
 import androidx.compose.material.icons.outlined.HeartBroken
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -58,11 +70,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +100,7 @@ fun ChienTa(nav: NavHostController) {
                 },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 })
         }) { innerPadding ->
@@ -102,7 +114,7 @@ fun ChienTa(nav: NavHostController) {
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            ExploreTabScreen()
+            ExploreTabScreen(nav)
         }
     }
 }
@@ -179,7 +191,7 @@ fun SearchBar() {
 }
 
 @Composable
-fun ExploreTabScreen() {
+fun ExploreTabScreen(nav: NavHostController) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
     val tabScreenScrollState = rememberScrollState()
@@ -195,7 +207,7 @@ fun ExploreTabScreen() {
         }
         when (tabIndex) {
             0 -> RecommendedScreen(scrollState = tabScreenScrollState)
-            1 -> MyRecipesScreen(scrollState = tabScreenScrollState)
+            1 -> MyRecipesScreen(scrollState = tabScreenScrollState, nav = nav)
         }
     }
 }
@@ -374,7 +386,7 @@ fun RecommendedFoods(image: Painter, title: String, cal: Number) {
                 onClick = { /*TODO*/ }
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.HeartBroken,
+                    imageVector = Icons.Default.Favorite,
                     contentDescription = "Heart Icon"
                 )
             }
@@ -413,7 +425,7 @@ fun Ingredients(name: String, amount: Number) {
 }
 
 @Composable
-fun MyRecipesScreen(scrollState: ScrollState) {
+fun MyRecipesScreen(scrollState: ScrollState, nav: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -423,43 +435,50 @@ fun MyRecipesScreen(scrollState: ScrollState) {
         MyRecipes(
             image = painterResource(R.drawable.tunasaladfood),
             title = "Tuna Salad",
-            description = "This is Tuna Salad."
+            description = "This is Tuna Salad.",
+            nav = nav
         )
         MyRecipes(
             image = painterResource(R.drawable.tunasaladfood),
             title = "Tuna Salad",
-            description = "This is Tuna Salad."
+            description = "This is Tuna Salad.",
+            nav = nav
         )
         MyRecipes(
             image = painterResource(R.drawable.tunasaladfood),
             title = "Tuna Salad",
-            description = "This is Tuna Salad."
+            description = "This is Tuna Salad.",
+            nav = nav
         )
         MyRecipes(
             image = painterResource(R.drawable.tunasaladfood),
             title = "Tuna Salad",
-            description = "This is Tuna Salad."
+            description = "This is Tuna Salad.",
+            nav = nav
         )
         MyRecipes(
             image = painterResource(R.drawable.tunasaladfood),
             title = "Tuna Salad",
-            description = "This is Tuna Salad."
+            description = "This is Tuna Salad.",
+            nav = nav
         )
         MyRecipes(
             image = painterResource(R.drawable.tunasaladfood),
             title = "Tuna Salad",
-            description = "This is Tuna Salad."
+            description = "This is Tuna Salad.",
+            nav = nav
         )
         MyRecipes(
             image = painterResource(R.drawable.tunasaladfood),
             title = "Tuna Salad",
-            description = "This is Tuna Salad."
+            description = "This is Tuna Salad.",
+            nav = nav
         )
     }
 }
 
 @Composable
-fun MyRecipes(image: Painter, title: String, description: String) {
+fun MyRecipes(image: Painter, title: String, description: String, nav: NavHostController) {
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -500,7 +519,7 @@ fun MyRecipes(image: Painter, title: String, description: String) {
             )
 
             Row {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { nav.navigate("detailRecipe") }) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
                         contentDescription = "Info Icon"
@@ -511,7 +530,7 @@ fun MyRecipes(image: Painter, title: String, description: String) {
 
                 IconButton(onClick = { /*TODO*/ }) {
                     Icon(
-                        imageVector = Icons.Outlined.HeartBroken,
+                        imageVector = Icons.Default.Favorite,
                         contentDescription = "Heart Icon"
                     )
                 }
@@ -522,10 +541,182 @@ fun MyRecipes(image: Painter, title: String, description: String) {
     }
 }
 
-@Preview
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreviewExploreScreen() {
-    val navigationController = rememberNavController()
-
-    ChienTa(nav = navigationController)
+fun DetailRecipeScreen(nav: NavHostController
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(245, 250, 255)
+                ),
+                title = {
+                    Text(
+                        text = "Recipe Details",
+                        style = TextStyle(
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { nav.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+            )
+        }
+    ) {
+        DetailRecipeContent(
+            recipe = Recipe(
+            title = "Tuna Salad",
+            ingredients = listOf("Tuna", "Salad", "Mayo"),
+            instructions = listOf("Mix all ingredients", "Serve")
+        ))
+    }
 }
+
+@Composable
+fun DetailRecipeContent(
+    recipe: Recipe,
+) {
+    var checkedIngredients by remember { mutableStateOf(listOf<Boolean>(false, false, false, false, false, false)) }
+    val detailRecipeContentScrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 50.dp)
+            .background(Color(245, 250, 255))
+            .verticalScroll(detailRecipeContentScrollState)
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            // Image
+            Image(
+                painter = painterResource(id = R.drawable.tunasaladfood),
+                contentDescription = "Recipe Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+            ) {
+                // Name of food
+                Text(
+                    text = "Tuna Salad",
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                // Calories
+                Text(
+                    text = "1 bowl - 443 cals",
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 15.sp
+                )
+            }
+
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Description
+        Text(
+            text = "This is a healthy and delicious tuna salad recipe. It's perfect for a light lunch or dinner. Enjoy!",
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
+                .wrapContentHeight(),
+            color = Color.Gray,
+            fontSize = 16.sp
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+
+        // Title: Ingredients
+        Text(
+            text = "Ingredients",
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp),
+            style = MaterialTheme.typography.titleMedium
+        )
+        // Ingredients List
+        Column (
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .background(Color.White),
+        ){
+            listOf(
+                "Tuna",
+                "Salad",
+                "Mayo",
+                "Something",
+                "Something",
+                "Something"
+            ).forEachIndexed { index, ingredient ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(start = 5.dp)
+                ) {
+                    Checkbox(
+                        checked = checkedIngredients[index],
+                        onCheckedChange = {
+                            checkedIngredients =
+                                checkedIngredients.toMutableList().apply { set(index, it) }
+                        }
+                    )
+                    Text(
+                        text = ingredient,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 15.sp
+                    )
+                }
+            }
+        }
+        // Title: Instructions
+        Text(
+            text = "Instructions",
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp),
+            style = MaterialTheme.typography.titleMedium,
+            fontSize = 15.sp
+        )
+
+        // Instructions List
+        Column (
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .background(Color.White),
+        ) {
+            listOf("Mix all ingredients", "Serve", "Do something", "Do something", "Do something", "Do something", "Do something").forEachIndexed { index, instruction ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp)
+                ) {
+                    Text(
+                        text = "${index + 1}. $instruction",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 15.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+data class Recipe(
+    val title: String,
+    val ingredients: List<String>,
+    val instructions: List<String>
+)
+
