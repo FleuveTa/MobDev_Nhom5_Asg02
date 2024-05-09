@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Notifications
@@ -26,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -46,25 +48,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.TungAnh
 
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
 @Composable
-fun HomeUI() {
+fun HomeUI(nav: NavController, date: String = "Today") {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(245, 250, 255))
     ) {
-        Header()
+        Header(nav, date)
         Content()
     }
 }
 
 @Composable
-fun Header() {
+fun Header(nav: NavController, date: String = "Today") {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -72,24 +76,19 @@ fun Header() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ElevatedButton(
-            onClick = { /*TODO*/ },
-            modifier = Modifier.weight(1.5F, true),
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            )
+        TextButton(
+            onClick = { nav.navigate("calendar")},
+            modifier = Modifier.weight(1.5F, true)
         ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Time")
-
             Text(
-                text = "Today",
+                text = date,
                 fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.fillMaxWidth(1f)
+                fontWeight = FontWeight.ExtraBold
             )
+
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "DropDown Icon")
         }
 
         Text(
@@ -582,8 +581,8 @@ fun Square(shape: Shape, color: Color) {
     )
 }
 
-@Preview
-@Composable
-fun PreviewHomeUI() {
-    TungAnh()
-}
+//@Preview
+//@Composable
+//fun PreviewHomeUI() {
+//    TungAnh(nav)
+//}

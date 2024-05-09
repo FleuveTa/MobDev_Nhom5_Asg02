@@ -1,6 +1,7 @@
 package com.example.prj02_healthy_plan.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,9 +39,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.prj02_healthy_plan.ui.theme.CalendarUI
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
 import com.example.prj02_healthy_plan.ui.theme.Giang
@@ -49,6 +54,7 @@ import com.example.prj02_healthy_plan.ui.theme.HomeUI
 import com.example.prj02_healthy_plan.ui.theme.MoreTabUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.Screens
+import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -152,13 +158,19 @@ fun AppNavBar() {
             NavHost(navController = navigationController,
                 startDestination = Screens.Home.screen,
                 modifier = Modifier.padding(paddingValues)) {
-                composable(Screens.Home.screen) {TungAnh()}
+                composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
+                composable(route = "home/{date}") {
+                    val date = navigationController.currentBackStackEntry?.arguments?.getString("date") ?: "Today"
+                    TungAnh(nav = navigationController, date)
+                }
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController)}
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
                 composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController)}
-
+                composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
+                composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
+             
             }
         }
         DropdownMenu(
@@ -242,6 +254,6 @@ fun AppNavBar() {
 }
 
 @Composable
-fun TungAnh() {
-    HomeUI()
+fun TungAnh(nav: NavController, date: String = "Today") {
+    HomeUI(nav, date)
 }

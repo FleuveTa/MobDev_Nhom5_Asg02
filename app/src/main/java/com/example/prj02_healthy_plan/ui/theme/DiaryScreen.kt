@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,7 +24,9 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -134,25 +138,25 @@ fun Giang(nav: NavHostController) {
                         }
                     }
                 }
-                HeaderRoundedBox (heading = "Breakfast") {
+                HeaderRoundedBox (heading = "Breakfast", nav = nav) {
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
                 }
 
-                HeaderRoundedBox (heading = "Lunch") {
+                HeaderRoundedBox (heading = "Lunch", nav = nav) {
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
                 }
 
-                HeaderRoundedBox(heading = "Dinner") {
+                HeaderRoundedBox(heading = "Dinner", nav = nav) {
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
                 }
 
-                HeaderRoundedBox(heading = "Snack") {
+                HeaderRoundedBox(heading = "Snack", nav = nav) {
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
                     FoodDescriptionDiary()
@@ -177,7 +181,7 @@ fun RoundedBox(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun HeaderRoundedBox(heading: String, content: @Composable () -> Unit) {
+fun HeaderRoundedBox(heading: String, nav: NavHostController, content: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = Color.White,
@@ -189,15 +193,28 @@ fun HeaderRoundedBox(heading: String, content: @Composable () -> Unit) {
                     .fillMaxWidth()
                     .background(GreenMain)
                     .padding(5.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(Icons.Outlined.ShoppingCart, contentDescription = null, tint = Color.White, modifier = Modifier.fillMaxHeight())
-                Column (
-                    modifier = Modifier.padding(start = 10.dp)
-
+                Row(
+                    modifier = Modifier
+                        .width(160.dp)
+                        .fillMaxHeight(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = heading, style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White))
-                    Text(text = "2 tỷ calories on 200 calories", style = TextStyle(fontSize = 15.sp, color = Color.White))
+                    Icon(Icons.Outlined.ShoppingCart, contentDescription = null, tint = Color.White, modifier = Modifier.fillMaxHeight())
+                    Column (
+                        modifier = Modifier.padding(start = 10.dp)
+
+                    ) {
+                        Text(text = heading, style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White))
+                        Text(text = "2 tỷ calories on 200 calories", style = TextStyle(fontSize = 15.sp, color = Color.White))
+                    }
+                }
+
+                IconButton(onClick = { nav.navigate("userAddFood") }) {
+                    Icon(imageVector = Icons.Outlined.AddCircle, contentDescription = "Add Icon",
+                        tint = Color.White)
                 }
             }
             Column(modifier = Modifier
