@@ -45,7 +45,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.prj02_healthy_plan.ui.theme.CalendarUI
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.Giang
 import com.example.prj02_healthy_plan.ui.theme.GreenMain
@@ -167,7 +166,7 @@ fun AppNavBar() {
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
-                composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
+//                composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
             }
         }
         DropdownMenu(
