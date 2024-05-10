@@ -75,6 +75,7 @@ class AdminActivity : ComponentActivity() {
 
         setContent {
             Prj02_Healthy_PlanTheme {
+                val localContext = LocalContext.current
                 Column(
                     modifier = Modifier
                         .padding(5.dp)
@@ -163,7 +164,8 @@ class AdminActivity : ComponentActivity() {
 
                             IconButton(
                                 onClick = {
-
+                                    val intent = Intent(localContext, AddFoodActivity::class.java)
+                                    startActivity(intent)
                                 }
                             ) {
                                 Icon(
@@ -182,6 +184,14 @@ class AdminActivity : ComponentActivity() {
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                     ) {
+                        FoodCanRemove(
+                            name = "Large Size Egg",
+                            amount = "3 eggs", cal = 273
+                        )
+                        FoodCanRemove(
+                            name = "Large Size Egg",
+                            amount = "3 eggs", cal = 273
+                        )
                         FoodCanRemove(
                             name = "Large Size Egg",
                             amount = "3 eggs", cal = 273
