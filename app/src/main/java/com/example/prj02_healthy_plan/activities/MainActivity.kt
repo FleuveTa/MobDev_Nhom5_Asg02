@@ -31,7 +31,11 @@ class MainActivity : ComponentActivity() {
                     auth.signInWithEmailAndPassword(username.value, password.value)
                         .addOnCompleteListener(this@MainActivity) { task ->
                             if (task.isSuccessful) {
-                                startActivity(Intent(context, HomeActivity::class.java))
+                                if (auth.currentUser?.email == "admin@gmail.com") {
+                                    startActivity(Intent(context, AdminActivity::class.java))
+                                } else {
+                                    startActivity(Intent(context, HomeActivity::class.java))
+                                }
                                 Toast.makeText(
                                     baseContext,
                                     "Dang nhap thanh cong",
@@ -62,7 +66,12 @@ class MainActivity : ComponentActivity() {
                 "Already logged in",
                 Toast.LENGTH_SHORT,
             ).show()
-            startActivity(Intent(baseContext, HomeActivity::class.java))
+            if (currentUser.email == "admin@gmail.com") {
+                startActivity(Intent(baseContext, AdminActivity::class.java))
+            } else {
+                startActivity(Intent(baseContext, HomeActivity::class.java))
+            }
+
         }
     }
 
