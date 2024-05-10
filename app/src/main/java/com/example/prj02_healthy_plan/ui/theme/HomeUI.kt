@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import PastOrPresentSelectableDates
 import android.graphics.Color.parseColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,16 +22,23 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +60,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.TungAnh
+import convertMillisToDate
 
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
@@ -67,8 +76,17 @@ fun HomeUI(nav: NavController, date: String = "Today") {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Header(nav: NavController, date: String = "Today") {
+fun Header(nav: NavController) {
+    val datePickerState = rememberDatePickerState(
+        selectableDates = PastOrPresentSelectableDates
+    )
+    val selectedDateLabel = remember { mutableStateOf("Today") }
+    val openDialog = remember { mutableStateOf(false) }
+    val calendarPickerMainColor = Color(0xFF722276)
+
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,11 +95,12 @@ fun Header(nav: NavController, date: String = "Today") {
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextButton(
-            onClick = { nav.navigate("calendar")},
+            onClick = {openDialog.value = true},
             modifier = Modifier.weight(1.5F, true)
         ) {
+
             Text(
-                text = date,
+                text = selectedDateLabel.value,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.ExtraBold
             )
@@ -106,6 +125,54 @@ fun Header(nav: NavController, date: String = "Today") {
             Icon(
                 imageVector = Icons.Outlined.Notifications,
                 contentDescription = "Notification")
+        }
+    }
+
+    if (openDialog.value) {
+        DatePickerDialog(
+            colors = DatePickerDefaults.colors(
+                containerColor = Color(0xFFF5F0FF),
+            ),
+            onDismissRequest = {
+                // Action when the dialog is dismissed without selecting a date
+                openDialog.value = false
+            },
+            confirmButton = {
+                // Confirm button with custom action and styling
+                TextButton(
+                    onClick = {
+                        // Action to set the selected date and close the dialog
+                        openDialog.value = false
+                        selectedDateLabel.value =
+                            datePickerState.selectedDateMillis?.convertMillisToDate() ?: ""
+                    }
+                ) {
+                    Text("OK", color = calendarPickerMainColor)
+                }
+            },
+            dismissButton = {
+                // Dismiss button to close the dialog without selecting a date
+                TextButton(
+                    onClick = {
+                        openDialog.value = false
+                    }
+                ) {
+                    Text("CANCEL", color = calendarPickerMainColor)
+                }
+            }
+        ) {
+            // The actual DatePicker component within the dialog
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    selectedDayContainerColor = calendarPickerMainColor,
+                    selectedDayContentColor = Color.White,
+                    selectedYearContainerColor = calendarPickerMainColor,
+                    selectedYearContentColor = Color.White,
+                    todayContentColor = calendarPickerMainColor,
+                    todayDateBorderColor = calendarPickerMainColor
+                )
+            )
         }
     }
 }
