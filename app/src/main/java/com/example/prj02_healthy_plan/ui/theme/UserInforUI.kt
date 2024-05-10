@@ -26,6 +26,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +39,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +51,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -74,6 +82,8 @@ fun UserInforUI(navController: NavController) {
         fullNameBox()
         Spacer(Modifier.height(30.dp))
         heightBox()
+        Spacer(Modifier.height(30.dp))
+        genderAndDOB()
         Spacer(Modifier.height(30.dp))
         activityLevelRow()
         Spacer(Modifier.height(30.dp))
@@ -131,6 +141,117 @@ fun heightBox() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun genderAndDOB() {
+
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var gender by remember {
+        mutableStateOf("Male")
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(height = 60.dp)
+    ) {
+
+        //// Gender
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .align(alignment = Alignment.TopStart)
+                .fillMaxWidth()
+        )
+        {
+            ExposedDropdownMenuBox(
+                expanded = isExpanded,
+                onExpandedChange = { isExpanded = it },
+                modifier = Modifier.weight(1F)
+            ) {
+                OutlinedTextField(
+                    value = gender,
+                    label = { Text("Gender") },
+                    onValueChange = {},
+                    readOnly = true,
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent
+                    ),
+                    modifier = Modifier.menuAnchor(),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                    })
+                ExposedDropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = { isExpanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(text = "Male") },
+                        onClick = {
+                            gender = "Male"
+                            isExpanded = false
+                        })
+                    DropdownMenuItem(
+                        text = { Text(text = "Female") },
+                        onClick = {
+                            gender = "Female"
+                            isExpanded = false
+                        })
+                    DropdownMenuItem(
+                        text = { Text(text = "Other") },
+                        onClick = {
+                            gender = "Other"
+                            isExpanded = false
+                        })
+                }
+            }
+
+            // DOB
+            setDOB("17-11-2003")
+            var dobd by remember {
+                mutableStateOf(dob)
+            }
+
+            var showDatePicker by remember { mutableStateOf(false) }
+
+            val transparentButtonColors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+            )
+
+            Box(modifier = Modifier.weight(1F))
+            {
+                OutlinedTextField(
+                    value = dobd,
+                    onValueChange = {},
+                    label = { Text("DoB") },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .requiredHeight(60.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Black,
+                        unfocusedBorderColor = Black)
+                )
+                Button(onClick = { showDatePicker = true },
+                    colors = transparentButtonColors,
+                    modifier = Modifier.fillMaxSize())
+                {}
+            }
+
+            if (showDatePicker) {
+                CustomDatePickerDialog(label = "DOB", dateStr = dobd) {
+                    dobd = dob
+                    showDatePicker = false
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun activityLevelRow() {
 
     var isExpanded by remember {
@@ -146,6 +267,8 @@ fun activityLevelRow() {
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
+
+        //// Active Level
         Row (
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
@@ -198,6 +321,8 @@ fun activityLevelRow() {
             var value by remember {
                 mutableStateOf("-0.5")
             }
+
+            /// Weekly Goal
             OutlinedTextField(
                 value = value,
                 onValueChange = {value = it},
@@ -234,6 +359,8 @@ fun caloriesRow() {
                 .align(alignment = Alignment.TopStart)
                 .fillMaxWidth())
         {
+
+            // Calories Goal
             var value by remember {
                 mutableStateOf("2234")
             }
@@ -245,6 +372,9 @@ fun caloriesRow() {
                     .requiredHeight(60.dp)
                     .weight(1F)
             )
+
+
+            // Nutrient Goal
             ExposedDropdownMenuBox(
                 expanded = isExpanded,
                 onExpandedChange = {isExpanded = it},
@@ -305,6 +435,8 @@ fun weightRow() {
                 .align(alignment = Alignment.TopStart)
                 .fillMaxWidth())
         {
+
+            // Starting Weight
             var startValue by remember {
                 mutableStateOf("80")
             }
@@ -320,6 +452,7 @@ fun weightRow() {
                 mutableStateOf("70")
             }
 
+            // Target Weight
             OutlinedTextField(
                 value = goalValue,
                 onValueChange = {goalValue = it},
