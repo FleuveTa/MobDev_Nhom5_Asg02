@@ -71,7 +71,7 @@ fun HomeUI(nav: NavController, date: String = "Today") {
             .fillMaxSize()
             .background(Color(245, 250, 255))
     ) {
-        Header(nav, date)
+        Header(nav)
         Content()
     }
 }

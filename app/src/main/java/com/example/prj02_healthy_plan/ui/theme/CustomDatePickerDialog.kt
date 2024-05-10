@@ -45,7 +45,7 @@ fun CustomDatePickerDialog(
 ) {
     val converted = convertToDate(dateStr)
     currentDay = converted.get(0)
-    currentMonth = converted.get(1)
+    currentMonth = converted.get(1) - 1
     currentYear = converted.get(2)
     Dialog(onDismissRequest = { onDismissRequest() }) {
         DatePickerUI(label, onDismissRequest)
