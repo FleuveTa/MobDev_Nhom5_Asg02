@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import PastOrPresentSelectableDates
 import android.graphics.Color.parseColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -77,8 +78,10 @@ fun HomeUI(nav: NavController, date: String = "Today") {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Header(nav: NavController, date: String = "Today") {
-    val datePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Picker)
+fun Header(nav: NavController) {
+    val datePickerState = rememberDatePickerState(
+        selectableDates = PastOrPresentSelectableDates
+    )
     val selectedDateLabel = remember { mutableStateOf("Today") }
     val openDialog = remember { mutableStateOf(false) }
     val calendarPickerMainColor = Color(0xFF722276)

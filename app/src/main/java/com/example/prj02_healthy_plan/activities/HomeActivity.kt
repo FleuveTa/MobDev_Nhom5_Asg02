@@ -157,10 +157,6 @@ fun AppNavBar() {
                 startDestination = Screens.Home.screen,
                 modifier = Modifier.padding(paddingValues)) {
                 composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
-                composable(route = "home/{date}") {
-                    val date = navigationController.currentBackStackEntry?.arguments?.getString("date") ?: "Today"
-                    TungAnh(nav = navigationController, date)
-                }
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController)}
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
@@ -250,6 +246,6 @@ fun AppNavBar() {
 }
 
 @Composable
-fun TungAnh(nav: NavController, date: String = "Today") {
-    HomeUI(nav, date)
+fun TungAnh(nav: NavController) {
+    HomeUI(nav)
 }
