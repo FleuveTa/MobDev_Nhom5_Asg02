@@ -27,7 +27,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -377,7 +377,9 @@ class AddFoodActivity : ComponentActivity() {
                             Icon(Icons.Filled.Add, contentDescription = "Localized description")
                             Text(text = "Add Recipe", modifier = Modifier.padding(start = 8.dp))
                             if (savingRecipeState.value) {
-                                CircularProgressIndicator(modifier = Modifier.size(30.dp).padding(start = 8.dp))
+                                CircularProgressIndicator(modifier = Modifier
+                                    .size(30.dp)
+                                    .padding(start = 8.dp))
                             }
                         }
                     }
