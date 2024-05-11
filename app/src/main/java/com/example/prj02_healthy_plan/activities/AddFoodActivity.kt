@@ -26,10 +26,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -96,16 +98,17 @@ class AddFoodActivity : ComponentActivity() {
             Prj02_Healthy_PlanTheme {
                 val context = LocalContext.current
                 val ingredients = remember {
-                    mutableIntStateOf(1)
+                    mutableIntStateOf(0)
                 }
                 val nameState = remember { mutableStateOf("Chicken Salad") }
                 val descriptionState = remember { mutableStateOf("Mon ngon moi ngay") }
                 val buttonEnabled = remember { mutableStateOf(true) }
                 val ingredientStates = remember {
-                    mutableStateListOf(mutableDoubleStateOf(1.0))
+                    mutableStateListOf<MutableState<Double>>()
                 }
+                val savingRecipeState =  remember { mutableStateOf(false) }
                 val nutritionStates = remember {
-                    mutableStateListOf(mutableIntStateOf(0))
+                    mutableStateListOf<MutableState<Int>>()
                 }
                 val reload = remember {
                     mutableStateOf(0)
@@ -130,13 +133,13 @@ class AddFoodActivity : ComponentActivity() {
                     fat.doubleValue = 0.0
 
                     for (i in 0 until ingredients.intValue) {
-                        if (ingredientList.isNotEmpty() && nutritionStates[i].intValue < ingredientList.size) {
-                            val nutrition = ingredientList[nutritionStates[i].intValue].nutrition
+                        if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
+                            val nutrition = ingredientList[nutritionStates[i].value].nutrition
                             if (nutrition != null) {
-                                calories.doubleValue += nutrition[0] * ingredientStates[i].doubleValue
-                                protein.doubleValue += nutrition[1] * ingredientStates[i].doubleValue
-                                carb.doubleValue += nutrition[2] * ingredientStates[i].doubleValue
-                                fat.doubleValue += nutrition[3] * ingredientStates[i].doubleValue
+                                calories.doubleValue += nutrition[0] * ingredientStates[i].value
+                                protein.doubleValue += nutrition[1] * ingredientStates[i].value
+                                carb.doubleValue += nutrition[2] * ingredientStates[i].value
+                                fat.doubleValue += nutrition[3] * ingredientStates[i].value
                             }
                         }
                     }
@@ -149,7 +152,7 @@ class AddFoodActivity : ComponentActivity() {
                 ) {
                     Text(text = "Add New Recipe", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold))
                     RecipeInputBox(title = "Name", des = "Chicken Salad", nameState)
-                    RecipeInputBox(title = "Description", des = "Recipe description", descriptionState)
+                    RecipeInputBox(title = "Description", des = "", descriptionState)
                     Row (
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -202,10 +205,10 @@ class AddFoodActivity : ComponentActivity() {
                             Text(text = "Carbs: ${carb.doubleValue}g")
                             Text(text = "Fat: ${fat.doubleValue}g")
                         }
-                        Text(text = "Detail : ")
+                        Text(text = "Detail : ", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black))
                         for (i in 0 until ingredients.intValue) {
-                            if (ingredientList.isNotEmpty() && nutritionStates[i].intValue < ingredientList.size) {
-                                Text(text = "${ingredientList[nutritionStates[i].intValue].name} : ${ingredientStates[i].doubleValue }, nutrition : ${ingredientList[nutritionStates[i].intValue].nutrition.toString()}")
+                            if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
+                                Text(text = "${ingredientList[nutritionStates[i].value].name} : ${ingredientStates[i].value }, nutrition : ${ingredientList[nutritionStates[i].value].nutrition.toString()}")
                             } else {
                                 Text(text = "Add more Ingredient and Quantity to see total nutrition")
                             }
@@ -252,7 +255,7 @@ class AddFoodActivity : ComponentActivity() {
                             Button(onClick = {
                                 launcher.launch("image/*")
                             }) {
-                                Text(text = "Choose Image $imageUri")
+                                Text(text = "Choose Image")
                             }
                         }
 
@@ -277,73 +280,91 @@ class AddFoodActivity : ComponentActivity() {
                             }
                         }
 
-
                         Button(
                             onClick = {
-                                val ingredientInputList = ArrayList<Map<String, Any>>()
-                                for (i in 0 until ingredients.intValue) {
-                                    if (ingredientList.isNotEmpty() && nutritionStates[i].intValue < ingredientList.size) {
-                                        val ingredient = hashMapOf(
-                                            "name" to (ingredientList[nutritionStates[i].intValue].name ?: ""),
-                                            "unit" to (ingredientList[nutritionStates[i].intValue].unit ?: ""),
-                                            "quantity" to ingredientStates[i].doubleValue
-                                        )
-                                        ingredientInputList.add(ingredient)
-                                    }
-                                }
-                                val recipeData = hashMapOf(
-                                    "name" to nameState.value,
-                                    "description" to descriptionState.value,
-                                    "ingredients" to ingredientInputList,
-                                    "nutrition" to arrayListOf(calories.doubleValue, protein.doubleValue, carb.doubleValue, fat.doubleValue),
-                                    "imageUrl" to "images/chicken_salad.jpg",
-                                    "instructionUrl" to "Cook the chicken, mix with corn and lettuce"
-                                )
-
-                                val imageRef = storageRef.child("images/${imageUri?.lastPathSegment}")
-                                val fileTextRef = storageRef.child("texts/${fileUri?.lastPathSegment}")
-
-                                val uploadImage = imageRef.putFile(imageUri!!)
-                                    .addOnSuccessListener {
-                                        Toast.makeText(context, "Upload Image Success, uploading file text", Toast.LENGTH_SHORT).show()
-                                        imageRef.downloadUrl.addOnSuccessListener { uri ->
-                                            recipeData["imageUrl"] = uri.toString()
-                                            val uploadFileText = fileTextRef.putFile(fileUri!!)
-                                                .addOnSuccessListener {
-                                                    Toast.makeText(context, "Upload File Text Success, saving recipe to database", Toast.LENGTH_SHORT).show()
-                                                    fileTextRef.downloadUrl.addOnSuccessListener { uri ->
-                                                        recipeData["instructionUrl"] = uri.toString()
-                                                        recipeRef.add(recipeData)
-                                                            .addOnSuccessListener { documentReference ->
-                                                                Toast.makeText(context, "Recipe saved to Firestore with ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
-                                                            }
-                                                            .addOnFailureListener { e ->
-                                                                Log.w("TAG", "Error saving document", e)
-                                                            }
-                                                    }
-                                                }
-                                                .addOnFailureListener {
-                                                    Log.d("TAG", "Upload File Text Failed")
-                                                }
+                                if (imageUri == null || fileUri == null) {
+                                    Toast.makeText(context, "Please choose image and file", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                } else {
+                                    savingRecipeState.value = true
+                                    val ingredientInputList = ArrayList<Map<String, Any>>()
+                                    for (i in 0 until ingredients.intValue) {
+                                        if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
+                                            val ingredient = hashMapOf(
+                                                "name" to (ingredientList[nutritionStates[i].value].name
+                                                    ?: ""),
+                                                "unit" to (ingredientList[nutritionStates[i].value].unit
+                                                    ?: ""),
+                                                "quantity" to ingredientStates[i].value
+                                            )
+                                            ingredientInputList.add(ingredient)
                                         }
                                     }
-                                    .addOnFailureListener {
-                                        Log.d("TAG", "Upload Image Failed")
-                                    }
-//                                val uploadImage = imageRef.putFile(imageUri!!)
-//                                    .addOnSuccessListener {
-//                                        Toast.makeText(context, "Upload Image Success", Toast.LENGTH_SHORT).show()
-//                                    }
-//                                    .addOnFailureListener {
-//                                        Log.d("TAG", "Upload Image Failed")
-//                                    }
-//                                val uploadFileText = fileTextRef.putFile(fileUri!!)
-//                                    .addOnSuccessListener {
-//                                        Toast.makeText(context, "Upload File Text Success", Toast.LENGTH_SHORT).show()
-//                                    }
-//                                    .addOnFailureListener {
-//                                        Log.d("TAG", "Upload File Text Failed")
-//                                    }
+                                    val recipeData = hashMapOf(
+                                        "name" to nameState.value,
+                                        "description" to descriptionState.value,
+                                        "ingredients" to ingredientInputList,
+                                        "nutrition" to arrayListOf(
+                                            calories.doubleValue,
+                                            protein.doubleValue,
+                                            carb.doubleValue,
+                                            fat.doubleValue
+                                        ),
+                                        "imageUrl" to "images/chicken_salad.jpg",
+                                        "instructionUrl" to "Cook the chicken, mix with corn and lettuce"
+                                    )
+
+                                    val imageRef =
+                                        storageRef.child("images/${imageUri?.lastPathSegment}")
+                                    val fileTextRef =
+                                        storageRef.child("texts/${fileUri?.lastPathSegment}")
+
+                                    val uploadImage = imageRef.putFile(imageUri!!)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(
+                                                context,
+                                                "Upload Image Success, uploading file text",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            imageRef.downloadUrl.addOnSuccessListener { uri ->
+                                                recipeData["imageUrl"] = uri.toString()
+                                                val uploadFileText = fileTextRef.putFile(fileUri!!)
+                                                    .addOnSuccessListener {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Upload File Text Success, saving recipe to database",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        fileTextRef.downloadUrl.addOnSuccessListener { uri ->
+                                                            recipeData["instructionUrl"] =
+                                                                uri.toString()
+                                                            recipeRef.add(recipeData)
+                                                                .addOnSuccessListener { documentReference ->
+                                                                    savingRecipeState.value = false
+                                                                    Toast.makeText(
+                                                                        context,
+                                                                        "Recipe saved to Firestore with ID: ${documentReference.id}",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
+                                                                .addOnFailureListener { e ->
+                                                                    Log.w(
+                                                                        "TAG",
+                                                                        "Error saving document",
+                                                                        e
+                                                                    )
+                                                                }
+                                                        }
+                                                    }
+                                                    .addOnFailureListener {
+                                                        Log.d("TAG", "Upload File Text Failed")
+                                                    }
+                                            }
+                                        }
+                                        .addOnFailureListener {
+                                            Log.d("TAG", "Upload Image Failed")
+                                        }
+                                }
                             },
                             modifier = Modifier
                                 .defaultMinSize(minWidth = 56.dp, minHeight = 56.dp)
@@ -353,8 +374,11 @@ class AddFoodActivity : ComponentActivity() {
                                 containerColor = if (buttonEnabled.value) Color.Green else Color.Gray
                             )
                         ){
-                            Icon(Icons.Filled.CheckCircleOutline, contentDescription = "Localized description")
+                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
                             Text(text = "Add Recipe", modifier = Modifier.padding(start = 8.dp))
+                            if (savingRecipeState.value) {
+                                CircularProgressIndicator(modifier = Modifier.size(30.dp).padding(start = 8.dp))
+                            }
                         }
                     }
                 }
@@ -362,6 +386,7 @@ class AddFoodActivity : ComponentActivity() {
         }
     }
 }
+
 
 @Composable
 fun RecipeInputBox(title: String, des: String, textState: MutableState<String>) {
@@ -460,7 +485,7 @@ fun IngredientRow(ingredient: List<Ingredient>, ingredientState: MutableState<Do
                     )
                     ingredientState.value = it.toDouble()
                                 },
-                label = { Text("Quantity") },
+                label = { Text("Qty") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
                     .requiredHeight(60.dp)
