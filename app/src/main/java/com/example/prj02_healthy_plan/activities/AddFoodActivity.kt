@@ -1,9 +1,11 @@
 package com.example.prj02_healthy_plan.activities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -13,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +26,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.Button
@@ -34,7 +34,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -53,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -67,18 +67,22 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
+import com.google.firebase.storage.storage
 
 class AddFoodActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
-    private val context: Context = this
+//    private val context: Context = this
     private val db = Firebase.firestore
+    private val storage = Firebase.storage
     private val ingredientList = arrayListOf<Ingredient>()
+    //Nếu Ingredient không thay đổi thì không cần tham chiếu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         val ingredientRef = db.collection("ingredients")
-
+        val storageRef = storage.reference
+        val recipeRef = db.collection("recipes")
         ingredientRef.get()
             .addOnSuccessListener {documents ->
                 for (document in documents) {
@@ -90,9 +94,12 @@ class AddFoodActivity : ComponentActivity() {
 
         setContent {
             Prj02_Healthy_PlanTheme {
+                val context = LocalContext.current
                 val ingredients = remember {
                     mutableIntStateOf(1)
                 }
+                val nameState = remember { mutableStateOf("Chicken Salad") }
+                val descriptionState = remember { mutableStateOf("Mon ngon moi ngay") }
                 val buttonEnabled = remember { mutableStateOf(true) }
                 val ingredientStates = remember {
                     mutableStateListOf(mutableDoubleStateOf(1.0))
@@ -141,8 +148,8 @@ class AddFoodActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(text = "Add New Recipe", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold))
-                    RecipeInputBox(title = "Name", des = "Chicken Salad")
-                    RecipeInputBox(title = "Description", des = "Chicken with corn and lettuce, to day i feel so good")
+                    RecipeInputBox(title = "Name", des = "Chicken Salad", nameState)
+                    RecipeInputBox(title = "Description", des = "Recipe description", descriptionState)
                     Row (
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -270,8 +277,74 @@ class AddFoodActivity : ComponentActivity() {
                             }
                         }
 
+
                         Button(
-                            onClick = { /* do something */},
+                            onClick = {
+                                val ingredientInputList = ArrayList<Map<String, Any>>()
+                                for (i in 0 until ingredients.intValue) {
+                                    if (ingredientList.isNotEmpty() && nutritionStates[i].intValue < ingredientList.size) {
+                                        val ingredient = hashMapOf(
+                                            "name" to (ingredientList[nutritionStates[i].intValue].name ?: ""),
+                                            "unit" to (ingredientList[nutritionStates[i].intValue].unit ?: ""),
+                                            "quantity" to ingredientStates[i].doubleValue
+                                        )
+                                        ingredientInputList.add(ingredient)
+                                    }
+                                }
+                                val recipeData = hashMapOf(
+                                    "name" to nameState.value,
+                                    "description" to descriptionState.value,
+                                    "ingredients" to ingredientInputList,
+                                    "nutrition" to arrayListOf(calories.doubleValue, protein.doubleValue, carb.doubleValue, fat.doubleValue),
+                                    "imageUrl" to "images/chicken_salad.jpg",
+                                    "instructionUrl" to "Cook the chicken, mix with corn and lettuce"
+                                )
+
+                                val imageRef = storageRef.child("images/${imageUri?.lastPathSegment}")
+                                val fileTextRef = storageRef.child("texts/${fileUri?.lastPathSegment}")
+
+                                val uploadImage = imageRef.putFile(imageUri!!)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(context, "Upload Image Success, uploading file text", Toast.LENGTH_SHORT).show()
+                                        imageRef.downloadUrl.addOnSuccessListener { uri ->
+                                            recipeData["imageUrl"] = uri.toString()
+                                            val uploadFileText = fileTextRef.putFile(fileUri!!)
+                                                .addOnSuccessListener {
+                                                    Toast.makeText(context, "Upload File Text Success, saving recipe to database", Toast.LENGTH_SHORT).show()
+                                                    fileTextRef.downloadUrl.addOnSuccessListener { uri ->
+                                                        recipeData["instructionUrl"] = uri.toString()
+                                                        recipeRef.add(recipeData)
+                                                            .addOnSuccessListener { documentReference ->
+                                                                Toast.makeText(context, "Recipe saved to Firestore with ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                            .addOnFailureListener { e ->
+                                                                Log.w("TAG", "Error saving document", e)
+                                                            }
+                                                    }
+                                                }
+                                                .addOnFailureListener {
+                                                    Log.d("TAG", "Upload File Text Failed")
+                                                }
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        Log.d("TAG", "Upload Image Failed")
+                                    }
+//                                val uploadImage = imageRef.putFile(imageUri!!)
+//                                    .addOnSuccessListener {
+//                                        Toast.makeText(context, "Upload Image Success", Toast.LENGTH_SHORT).show()
+//                                    }
+//                                    .addOnFailureListener {
+//                                        Log.d("TAG", "Upload Image Failed")
+//                                    }
+//                                val uploadFileText = fileTextRef.putFile(fileUri!!)
+//                                    .addOnSuccessListener {
+//                                        Toast.makeText(context, "Upload File Text Success", Toast.LENGTH_SHORT).show()
+//                                    }
+//                                    .addOnFailureListener {
+//                                        Log.d("TAG", "Upload File Text Failed")
+//                                    }
+                            },
                             modifier = Modifier
                                 .defaultMinSize(minWidth = 56.dp, minHeight = 56.dp)
                                 .padding(top = 20.dp),
@@ -291,7 +364,7 @@ class AddFoodActivity : ComponentActivity() {
 }
 
 @Composable
-fun RecipeInputBox(title: String, des: String) {
+fun RecipeInputBox(title: String, des: String, textState: MutableState<String>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -302,7 +375,10 @@ fun RecipeInputBox(title: String, des: String) {
         }
         OutlinedTextField(
             value = value,
-            onValueChange = {value = it},
+            onValueChange = {
+                value = it
+                textState.value = it
+                            },
             label = { Text(title) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -312,6 +388,7 @@ fun RecipeInputBox(title: String, des: String) {
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientRow(ingredient: List<Ingredient>, ingredientState: MutableState<Double>, nutritionIndexState: MutableState<Int>, reload: MutableState<Int>) {
