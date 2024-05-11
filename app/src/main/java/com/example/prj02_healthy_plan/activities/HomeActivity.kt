@@ -43,8 +43,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+<<<<<<< HEAD
 import androidx.navigation.navArgument
 import com.example.prj02_healthy_plan.User
+=======
+import com.example.prj02_healthy_plan.ui.theme.CalendarUI
+>>>>>>> 71d8752 (add more Explore screens)
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
 import com.example.prj02_healthy_plan.ui.theme.Giang
@@ -52,7 +56,10 @@ import com.example.prj02_healthy_plan.ui.theme.GreenMain
 import com.example.prj02_healthy_plan.ui.theme.HomeUI
 import com.example.prj02_healthy_plan.ui.theme.MoreTabUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
+import com.example.prj02_healthy_plan.ui.theme.ScanScreen
+import com.example.prj02_healthy_plan.ui.theme.ViewRecipeResultScreen
 import com.example.prj02_healthy_plan.ui.theme.Screens
+import com.example.prj02_healthy_plan.ui.theme.SearchResultScreen
 import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
@@ -164,6 +171,9 @@ fun AppNavBar() {
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
                 composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController)}
+                composable(Screens.ViewRecipeResult.screen) { ViewRecipeResultScreen(nav = navigationController) }
+                composable(Screens.Scan.screen) { ScanScreen(nav = navigationController) }
+                composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
 //                composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
             }
