@@ -210,7 +210,7 @@ fun genderAndDOB() {
             }
 
             // DOB
-            setDOB("17-11-2003")
+//            setDOB("17-11-2003")
             var dobd by remember {
                 mutableStateOf(dob)
             }
@@ -244,6 +244,7 @@ fun genderAndDOB() {
                 CustomDatePickerDialog(label = "DOB", dateStr = dobd) {
                     dobd = dob
                     showDatePicker = false
+                    setDOB(dobd)
                 }
             }
         }

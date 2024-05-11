@@ -144,7 +144,7 @@ fun Header(nav: NavController) {
                         // Action to set the selected date and close the dialog
                         openDialog.value = false
                         selectedDateLabel.value =
-                            datePickerState.selectedDateMillis?.convertMillisToDate() ?: ""
+                            datePickerState.selectedDateMillis?.convertMillisToDate() ?: "Today"
                     }
                 ) {
                     Text("OK", color = calendarPickerMainColor)
