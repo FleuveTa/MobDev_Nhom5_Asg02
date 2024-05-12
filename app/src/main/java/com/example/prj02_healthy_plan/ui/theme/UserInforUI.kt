@@ -1,11 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,22 +9,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -38,8 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,27 +28,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.Yellow
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
-
+import com.example.prj02_healthy_plan.activities.UserInforViewModel
 
 @Composable
 fun UserInforUI(navController: NavController) {
@@ -79,31 +52,31 @@ fun UserInforUI(navController: NavController) {
     ) {
         UserInforHeader(navController)
         Spacer(Modifier.height(30.dp))
-        fullNameBox()
+        fullNameBox(name = "xxx")
         Spacer(Modifier.height(30.dp))
-        heightBox()
+        heightBox(height = 180)
         Spacer(Modifier.height(30.dp))
-        genderAndDOB()
+        genderAndDOB(genderNumber = 2, dob = "21/11/2003")
         Spacer(Modifier.height(30.dp))
-        activityLevelRow()
+        activityLevelRow(activityLevel = 0)
         Spacer(Modifier.height(30.dp))
-        caloriesRow()
+        caloriesRow(caloriesGoal = 2000, nutrientGoal = 0)
         Spacer(Modifier.height(30.dp))
-        weightRow()
+        weightRow(weight = 80, targetWeight = 60)
         Spacer(Modifier.height(30.dp))
-        goal()
+        goal(goalNumber = 0)
     }
 }
 
 @Composable
-fun fullNameBox() {
+fun fullNameBox(name: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
         var value by remember {
-            mutableStateOf("Doan Minh Hoang")
+            mutableStateOf(name)
         }
         OutlinedTextField(
             value = value,
@@ -118,14 +91,14 @@ fun fullNameBox() {
 }
 
 @Composable
-fun heightBox() {
+fun heightBox(height: Number?) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
         var value by remember {
-            mutableStateOf("175")
+            mutableStateOf(height.toString())
         }
         OutlinedTextField(
             value = value,
@@ -141,15 +114,24 @@ fun heightBox() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun genderAndDOB() {
+fun genderAndDOB(genderNumber: Number, dob: String) {
 
     var isExpanded by remember {
         mutableStateOf(false)
     }
 
     var gender by remember {
-        mutableStateOf("Male")
+        mutableStateOf("")
     }
+
+    if (genderNumber == 0) {
+        gender = "Male"
+    } else if (genderNumber == 1) {
+        gender = "Female"
+    } else if (genderNumber == 2) {
+        gender = "Not Specific"
+    }
+
 
     Box(
         modifier = Modifier
@@ -253,14 +235,22 @@ fun genderAndDOB() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun activityLevelRow() {
+fun activityLevelRow(activityLevel: Number) {
 
     var isExpanded by remember {
         mutableStateOf(false)
     }
 
     var level by remember {
-        mutableStateOf("Moderate")
+        mutableStateOf("")
+    }
+
+    if (activityLevel == 0) {
+        level = "Rarely"
+    } else if (activityLevel == 1) {
+        level = "Moderate"
+    } else if (activityLevel == 2) {
+        level = "Frequently"
     }
 
     Box(
@@ -338,14 +328,22 @@ fun activityLevelRow() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun caloriesRow() {
+fun caloriesRow(caloriesGoal: Number, nutrientGoal: Number) {
 
     var isExpanded by remember {
         mutableStateOf(false)
     }
 
     var goal by remember {
-        mutableStateOf("Balance")
+        mutableStateOf("")
+    }
+
+    if (nutrientGoal == 0) {
+        goal = "More Fiber"
+    } else if (nutrientGoal == 1) {
+        goal = "Balance"
+    } else if (nutrientGoal == 2) {
+        goal = "More Protein"
     }
 
     Box(
@@ -363,7 +361,7 @@ fun caloriesRow() {
 
             // Calories Goal
             var value by remember {
-                mutableStateOf("2234")
+                mutableStateOf(caloriesGoal.toString())
             }
             OutlinedTextField(
                 value = value,
@@ -423,7 +421,7 @@ fun caloriesRow() {
 }
 
 @Composable
-fun weightRow() {
+fun weightRow(weight: Number, targetWeight: Number) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -439,7 +437,7 @@ fun weightRow() {
 
             // Starting Weight
             var startValue by remember {
-                mutableStateOf("80")
+                mutableStateOf(weight.toString())
             }
             OutlinedTextField(
                 value = startValue,
@@ -450,7 +448,7 @@ fun weightRow() {
                     .weight(1F))
 
             var goalValue by remember {
-                mutableStateOf("70")
+                mutableStateOf(targetWeight.toString())
             }
 
             // Target Weight
@@ -467,13 +465,21 @@ fun weightRow() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun goal() {
+fun goal(goalNumber: Number) {
     var isExpanded by remember {
         mutableStateOf(false)
     }
 
     var goal by remember {
-        mutableStateOf("Lose weight, Gain muscles")
+        mutableStateOf("")
+    }
+
+    if (goalNumber == 0) {
+        goal = "Lose Weight"
+    } else if (goalNumber == 1) {
+        goal = "Lose Weight & Gain Muscles"
+    } else if (goalNumber == 2) {
+        goal = "Gain Muscles"
     }
 
     ExposedDropdownMenuBox(
@@ -557,3 +563,9 @@ fun UserInforHeader(navController: NavController) {
 
 }
 
+@Preview
+@Composable
+fun TestInforUI() {
+    val navigationController = rememberNavController()
+    UserInforUI(navController = navigationController)
+}
