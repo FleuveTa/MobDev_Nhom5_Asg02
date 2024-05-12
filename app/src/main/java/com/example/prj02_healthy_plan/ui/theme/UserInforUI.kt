@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +23,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,16 +39,64 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.User
+import com.example.prj02_healthy_plan.uiModel.UserViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
 @Composable
 fun UserInforUI(navController: NavController) {
+    val userViewModel: UserViewModel = viewModel()
+    val user = userViewModel.state.value
+    val auth: FirebaseAuth = Firebase.auth
+    val uId = auth.currentUser?.uid
+    val db = Firebase.firestore
+
+    Log.d("Tester5",
+                 user.toString()
+               )
+
+    val nameValue = remember(user.fullName) {
+        mutableStateOf(user.fullName ?: "")
+    }
+    val heightValue = remember(user.height) {
+        mutableIntStateOf(user.height ?: 0)
+    }
+    val genderValue = remember(user.gender) {
+        mutableIntStateOf(user.gender ?: 3)
+    }
+    val dobValue = remember(user.dob) {
+        mutableStateOf(user.dob ?: "")
+    }
+    val activityLevelValue = remember(user.activityLevel) {
+        mutableIntStateOf(user.activityLevel ?: 3)
+    }
+    val weeklyGoalValue = remember(user.weeklyGoal) {
+        mutableDoubleStateOf(user.weeklyGoal ?: 3.0)
+    }
+    val caloriesGoalValue = remember(user.caloriesGoal) {
+        mutableIntStateOf(user.caloriesGoal ?: 3)
+    }
+    val nutrientGoalValue = remember(user.nutrientGoal) {
+        mutableIntStateOf(user.nutrientGoal ?: 3)
+    }
+    val weightValue = remember(user.weight) {
+        mutableIntStateOf(user.weight ?: 0)
+    }
+    val targetWeightValue = remember(user.targetWeight) {
+        mutableIntStateOf(user.targetWeight ?: 0)
+    }
+    val goalValue = remember(user.goal) {
+        mutableIntStateOf(user.goal ?: 3)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,35 +104,53 @@ fun UserInforUI(navController: NavController) {
     ) {
         UserInforHeader(navController)
         Spacer(Modifier.height(30.dp))
-        fullNameBox(name = "xxx")
+        FullNameBox(nameState = nameValue)
         Spacer(Modifier.height(30.dp))
-        heightBox(height = 180)
+        HeightBox(heightState = heightValue)
         Spacer(Modifier.height(30.dp))
-        genderAndDOB(genderNumber = 2, dob = "21/11/2003")
+        GenderAndDOB(genderState = genderValue, dobState = dobValue)
         Spacer(Modifier.height(30.dp))
-        activityLevelRow(activityLevel = 0)
+        ActivityLevelRow(activityLevelState = activityLevelValue, weeklyGoalState = weeklyGoalValue)
         Spacer(Modifier.height(30.dp))
-        caloriesRow(caloriesGoal = 2000, nutrientGoal = 0)
+        CaloriesRow(caloriesGoalState = caloriesGoalValue, nutrientGoalState = nutrientGoalValue)
         Spacer(Modifier.height(30.dp))
-        weightRow(weight = 80, targetWeight = 60)
+        WeightRow(weightState = weightValue, targetWeightState = targetWeightValue)
         Spacer(Modifier.height(30.dp))
-        goal(goalNumber = 0)
+        Goal(goalState = goalValue)
+
+        Button(onClick = {
+            if (uId != null) {
+                db.collection("users").document(uId).set(
+                    hashMapOf(
+                        "fullName" to nameValue.value,
+                        "height" to heightValue.intValue,
+                        "gender" to genderValue.intValue,
+                        "dob" to dobValue.value,
+                        "activityLevel" to activityLevelValue.intValue,
+                        "weeklyGoal" to weeklyGoalValue.doubleValue,
+                        "caloriesGoal" to caloriesGoalValue.intValue,
+                        "nutrientGoal" to nutrientGoalValue.intValue,
+                        "weight" to weightValue.intValue,
+                        "targetWeight" to targetWeightValue.intValue,
+                        "goal" to goalValue.intValue,
+                ))
+            }
+        }) {
+            Text("Update")
+        }
     }
 }
 
 @Composable
-fun fullNameBox(name: String) {
+fun FullNameBox(nameState: MutableState<String>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
-        var value by remember {
-            mutableStateOf(name)
-        }
         OutlinedTextField(
-            value = value,
-            onValueChange = {value = it},
+            value = nameState.value,
+            onValueChange = {nameState.value = it},
             label = { Text("Full name") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,18 +161,15 @@ fun fullNameBox(name: String) {
 }
 
 @Composable
-fun heightBox(height: Number?) {
+fun HeightBox(heightState: MutableState<Int>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
-        var value by remember {
-            mutableStateOf(height.toString())
-        }
         OutlinedTextField(
-            value = value,
-            onValueChange = {value = it},
+            value = heightState.value.toString(),
+            onValueChange = {heightState.value = it.toInt()},
             label = { Text("Current Height (cm)") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,7 +181,7 @@ fun heightBox(height: Number?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun genderAndDOB(genderNumber: Number, dob: String) {
+fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>) {
 
     var isExpanded by remember {
         mutableStateOf(false)
@@ -123,12 +191,14 @@ fun genderAndDOB(genderNumber: Number, dob: String) {
         mutableStateOf("")
     }
 
-    if (genderNumber == 0) {
+    if (genderState.value == 0) {
         gender = "Male"
-    } else if (genderNumber == 1) {
+    } else if (genderState.value == 1) {
         gender = "Female"
-    } else if (genderNumber == 2) {
+    } else if (genderState.value == 2) {
         gender = "Not Specific"
+    } else {
+        gender = ""
     }
 
 
@@ -190,12 +260,6 @@ fun genderAndDOB(genderNumber: Number, dob: String) {
                 }
             }
 
-            // DOB
-//            setDOB("17-11-2003")
-            var dobd by remember {
-                mutableStateOf(dob)
-            }
-
             var showDatePicker by remember { mutableStateOf(false) }
 
             val transparentButtonColors = ButtonDefaults.buttonColors(
@@ -205,7 +269,7 @@ fun genderAndDOB(genderNumber: Number, dob: String) {
             Box(modifier = Modifier.weight(1F))
             {
                 OutlinedTextField(
-                    value = dobd,
+                    value = dobState.value,
                     onValueChange = {},
                     label = { Text("DoB") },
                     modifier = Modifier
@@ -222,10 +286,10 @@ fun genderAndDOB(genderNumber: Number, dob: String) {
             }
 
             if (showDatePicker) {
-                CustomDatePickerDialog(label = "DOB", dateStr = dobd) {
-                    dobd = dob
+                CustomDatePickerDialog(label = "DOB", dateStr = dobState.value) {
+                    dobState.value = dob
                     showDatePicker = false
-                    setDOB(dobd)
+                    setDOB(dobState.value)
                 }
             }
         }
@@ -234,7 +298,7 @@ fun genderAndDOB(genderNumber: Number, dob: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun activityLevelRow(activityLevel: Number) {
+fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: MutableState<Double>) {
 
     var isExpanded by remember {
         mutableStateOf(false)
@@ -244,12 +308,14 @@ fun activityLevelRow(activityLevel: Number) {
         mutableStateOf("")
     }
 
-    if (activityLevel == 0) {
+    if (activityLevelState.value == 0) {
         level = "Rarely"
-    } else if (activityLevel == 1) {
+    } else if (activityLevelState.value == 1) {
         level = "Moderate"
-    } else if (activityLevel == 2) {
+    } else if (activityLevelState.value == 2) {
         level = "Frequently"
+    } else {
+        level = ""
     }
 
     Box(
@@ -308,14 +374,11 @@ fun activityLevelRow(activityLevel: Number) {
                         })
                 }
             }
-            var value by remember {
-                mutableStateOf("-0.5")
-            }
 
             /// Weekly Goal
             OutlinedTextField(
-                value = value,
-                onValueChange = {value = it},
+                value = weeklyGoalState.value.toString(),
+                onValueChange = {weeklyGoalState.value = it.toDouble()},
                 label = { Text("Weekly Goal (kg)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
@@ -327,7 +390,7 @@ fun activityLevelRow(activityLevel: Number) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun caloriesRow(caloriesGoal: Number, nutrientGoal: Number) {
+fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: MutableState<Int>) {
 
     var isExpanded by remember {
         mutableStateOf(false)
@@ -337,12 +400,14 @@ fun caloriesRow(caloriesGoal: Number, nutrientGoal: Number) {
         mutableStateOf("")
     }
 
-    if (nutrientGoal == 0) {
+    if (nutrientGoalState.value == 0) {
         goal = "More Fiber"
-    } else if (nutrientGoal == 1) {
+    } else if (nutrientGoalState.value == 1) {
         goal = "Balance"
-    } else if (nutrientGoal == 2) {
+    } else if (nutrientGoalState.value == 2) {
         goal = "More Protein"
+    } else {
+        goal = ""
     }
 
     Box(
@@ -359,12 +424,9 @@ fun caloriesRow(caloriesGoal: Number, nutrientGoal: Number) {
         {
 
             // Calories Goal
-            var value by remember {
-                mutableStateOf(caloriesGoal.toString())
-            }
             OutlinedTextField(
-                value = value,
-                onValueChange = {value = it},
+                value = caloriesGoalState.value.toString(),
+                onValueChange = {caloriesGoalState.value = it.toInt()},
                 label = { Text("Calories Goal (cal)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
@@ -420,7 +482,7 @@ fun caloriesRow(caloriesGoal: Number, nutrientGoal: Number) {
 }
 
 @Composable
-fun weightRow(weight: Number, targetWeight: Number) {
+fun WeightRow(weightState: MutableState<Int>, targetWeightState: MutableState<Int>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -435,25 +497,18 @@ fun weightRow(weight: Number, targetWeight: Number) {
         {
 
             // Starting Weight
-            var startValue by remember {
-                mutableStateOf(weight.toString())
-            }
             OutlinedTextField(
-                value = startValue,
-                onValueChange = {startValue = it},
+                value = weightState.value.toString(),
+                onValueChange = {weightState.value = it.toInt()},
                 label = { Text("Starting Weight (kg)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
                     .weight(1F))
 
-            var goalValue by remember {
-                mutableStateOf(targetWeight.toString())
-            }
-
             // Target Weight
             OutlinedTextField(
-                value = goalValue,
-                onValueChange = {goalValue = it},
+                value = targetWeightState.value.toString(),
+                onValueChange = {targetWeightState.value = it.toInt()},
                 label = { Text("Target Weight (kg)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
@@ -464,7 +519,7 @@ fun weightRow(weight: Number, targetWeight: Number) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun goal(goalNumber: Number) {
+fun Goal(goalState: MutableState<Int>) {
     var isExpanded by remember {
         mutableStateOf(false)
     }
@@ -473,13 +528,16 @@ fun goal(goalNumber: Number) {
         mutableStateOf("")
     }
 
-    if (goalNumber == 0) {
-        goal = "Lose Weight"
-    } else if (goalNumber == 1) {
-        goal = "Lose Weight & Gain Muscles"
-    } else if (goalNumber == 2) {
-        goal = "Gain Muscles"
+    if (goalState.value == 0) {
+        goal = "Lose weight"
+    } else if (goalState.value == 1) {
+        goal = "Gain muscles"
+    } else if (goalState.value == 2) {
+        goal = "Lose weight, Gain muscles"
+    } else {
+        goal = ""
     }
+
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
@@ -560,11 +618,4 @@ fun UserInforHeader(navController: NavController) {
 
         }
 
-}
-
-@Preview
-@Composable
-fun TestInforUI() {
-    val navigationController = rememberNavController()
-    UserInforUI(navController = navigationController)
 }
