@@ -5,8 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color.parseColor
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +42,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -58,24 +63,48 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.RecipeFirebase
 import com.example.prj02_healthy_plan.ui.theme.Content
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
+import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class AdminActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val context: Context = this
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
+        val recipeRef = db.collection("recipes")
+//        recipeRef.get()
+//            .addOnSuccessListener { documents ->
+//                val recipes = documents.mapNotNull { it.toObject<RecipeFirebase>() }
+//                _recipeList.value = recipes
+//                Log.d("AdminActivity", "Recipe list: $recipeList")
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.w("AdminActivity", "Error getting documents: ", exception)
+//            }
 
         setContent {
             Prj02_Healthy_PlanTheme {
                 val localContext = LocalContext.current
+                val viewRecipeModel: RecipeViewModel = viewModel()
+                val recipeList by viewRecipeModel.recipeList.collectAsState()
+
+                LaunchedEffect(key1 = Unit) {
+                    viewRecipeModel.fetchRecipes()
+                }
                 Column(
                     modifier = Modifier
                         .padding(5.dp)
@@ -184,46 +213,13 @@ class AdminActivity : ComponentActivity() {
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
                     ) {
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
-                        FoodCanRemove(
-                            name = "Large Size Egg",
-                            amount = "3 eggs", cal = 273
-                        )
+                        for (recipe in recipeList) {
+                            FoodCanRemove(
+                                name = recipe.name ?: "",
+                                amount = recipe.description ?: "",
+                                cal = recipe.nutrition?.get(0) ?: 0
+                            )
+                        }
                     }
                 }
             }

@@ -96,6 +96,7 @@ class AddFoodActivity : ComponentActivity() {
 
         setContent {
             Prj02_Healthy_PlanTheme {
+
                 val context = LocalContext.current
                 val ingredients = remember {
                     mutableIntStateOf(0)
