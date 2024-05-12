@@ -41,7 +41,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
-import com.example.prj02_healthy_plan.activities.UserInforViewModel
 
 @Composable
 fun UserInforUI(navController: NavController) {
