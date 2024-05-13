@@ -13,6 +13,7 @@ data class IngredientInRecipe(
 )
 
 data class RecipeFirebase(
+    var id: String? = null,
     val name: String? = null,
     val description: String? = null,
     val imageUrl: String? = null,

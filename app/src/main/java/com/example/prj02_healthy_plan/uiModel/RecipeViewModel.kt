@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.uiModel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -16,10 +17,24 @@ class RecipeViewModel : ViewModel() {
     private val _recipeList = MutableStateFlow<List<RecipeFirebase>>(emptyList())
     val recipeList: StateFlow<List<RecipeFirebase>> = _recipeList.asStateFlow()
 
-    suspend fun fetchRecipes() {
+    fun fetchRecipes() {
         db.collection("recipes").get().addOnSuccessListener { result ->
-            val recipeList = result.documents.mapNotNull { it.toObject(RecipeFirebase::class.java) }
+            val recipeList = result.documents.mapNotNull { document ->
+                val recipe = document.toObject(RecipeFirebase::class.java)
+                recipe?.id = document.id
+                recipe
+            }
             _recipeList.value = recipeList
         }
+    }
+
+    fun deleteRecipe(id: String) {
+        db.collection("recipes").document(id).delete()
+            .addOnSuccessListener {
+                fetchRecipes()
+            }
+            .addOnFailureListener { e ->
+                Log.w("Delete", "Error deleting document", e)
+            }
     }
 }

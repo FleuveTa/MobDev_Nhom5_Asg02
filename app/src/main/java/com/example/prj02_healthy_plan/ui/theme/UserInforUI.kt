@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.User
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
@@ -209,6 +210,7 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
         gender = ""
     }
 
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -302,6 +304,7 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
                     dobState.value = dob
                     setDOB(dobState.value)
                     showDatePicker = false
+                    setDOB(dobd)
                 }
             }
         }
@@ -656,6 +659,5 @@ fun UserInforHeader(navController: NavController) {
             modifier = Modifier.weight(2F, true),
             fontWeight = FontWeight.Medium
         )
-
     }
 }

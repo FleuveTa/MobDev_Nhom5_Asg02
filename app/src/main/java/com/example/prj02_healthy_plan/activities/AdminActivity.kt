@@ -63,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.RecipeFirebase
@@ -80,21 +81,10 @@ import kotlinx.coroutines.flow.StateFlow
 class AdminActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val context: Context = this
-    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
-        val recipeRef = db.collection("recipes")
-//        recipeRef.get()
-//            .addOnSuccessListener { documents ->
-//                val recipes = documents.mapNotNull { it.toObject<RecipeFirebase>() }
-//                _recipeList.value = recipes
-//                Log.d("AdminActivity", "Recipe list: $recipeList")
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.w("AdminActivity", "Error getting documents: ", exception)
-//            }
 
         setContent {
             Prj02_Healthy_PlanTheme {
@@ -217,7 +207,9 @@ class AdminActivity : ComponentActivity() {
                             FoodCanRemove(
                                 name = recipe.name ?: "",
                                 amount = recipe.description ?: "",
-                                cal = recipe.nutrition?.get(0) ?: 0
+                                cal = recipe.nutrition?.get(0) ?: 0,
+                                id = recipe.id ?: "",
+                                model = viewRecipeModel
                             )
                         }
                     }
@@ -299,7 +291,7 @@ fun AdminSearchBar() {
 }
 
 @Composable
-fun FoodCanRemove(name: String, amount: String, cal: Number) {
+fun FoodCanRemove(name: String, amount: String, cal: Number, id: String, model: RecipeViewModel) {
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -343,11 +335,13 @@ fun FoodCanRemove(name: String, amount: String, cal: Number) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {
+               model.deleteRecipe(id)
+            }) {
                 Icon(
                     imageVector = Icons.Filled.RemoveCircleOutline,
                     contentDescription = "Add Icon",
-                    tint = Color.DarkGray,
+                    tint = Color.Red,
                     modifier = Modifier.size(30.dp)
                 )
             }
