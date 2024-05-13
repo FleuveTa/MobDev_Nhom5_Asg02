@@ -304,7 +304,6 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
                     dobState.value = dob
                     setDOB(dobState.value)
                     showDatePicker = false
-                    setDOB(dobd)
                 }
             }
         }
