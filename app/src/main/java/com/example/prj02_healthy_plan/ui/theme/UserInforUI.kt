@@ -59,9 +59,10 @@ fun UserInforUI(navController: NavController) {
     val uId = auth.currentUser?.uid
     val db = Firebase.firestore
 
-    Log.d("Tester5",
-                 user.toString()
-               )
+    Log.d(
+        "Tester5",
+        user.toString()
+    )
 
     val nameValue = remember(user.fullName) {
         mutableStateOf(user.fullName ?: "")
@@ -100,7 +101,8 @@ fun UserInforUI(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(245, 250, 255))
+            .background(Color(245, 250, 255)),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserInforHeader(navController)
         Spacer(Modifier.height(30.dp))
@@ -117,7 +119,7 @@ fun UserInforUI(navController: NavController) {
         WeightRow(weightState = weightValue, targetWeightState = targetWeightValue)
         Spacer(Modifier.height(30.dp))
         Goal(goalState = goalValue)
-
+        Spacer(Modifier.height(10.dp))
         Button(onClick = {
             if (uId != null) {
                 db.collection("users").document(uId).set(
@@ -133,10 +135,11 @@ fun UserInforUI(navController: NavController) {
                         "weight" to weightValue.intValue,
                         "targetWeight" to targetWeightValue.intValue,
                         "goal" to goalValue.intValue,
-                ))
+                    )
+                )
             }
         }) {
-            Text("Update")
+            Text("Save changes")
         }
     }
 }
@@ -150,7 +153,7 @@ fun FullNameBox(nameState: MutableState<String>) {
     ) {
         OutlinedTextField(
             value = nameState.value,
-            onValueChange = {nameState.value = it},
+            onValueChange = { nameState.value = it },
             label = { Text("Full name") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -168,8 +171,14 @@ fun HeightBox(heightState: MutableState<Int>) {
             .requiredHeight(height = 60.dp)
     ) {
         OutlinedTextField(
-            value = heightState.value.toString(),
-            onValueChange = {heightState.value = it.toInt()},
+            value = if (heightState.value == 0) "" else heightState.value.toString(),
+            onValueChange = {
+                if (it.isNotEmpty()) {
+                    heightState.value = it.toIntOrNull() ?: 0
+                } else {
+                    heightState.value = 0
+                }
+            },
             label = { Text("Current Height (cm)") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -182,7 +191,6 @@ fun HeightBox(heightState: MutableState<Int>) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>) {
-
     var isExpanded by remember {
         mutableStateOf(false)
     }
@@ -201,13 +209,11 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
         gender = ""
     }
 
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
-
         //// Gender
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
@@ -243,18 +249,21 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
                         text = { Text(text = "Male") },
                         onClick = {
                             gender = "Male"
+                            genderState.value = 0
                             isExpanded = false
                         })
                     DropdownMenuItem(
                         text = { Text(text = "Female") },
                         onClick = {
                             gender = "Female"
+                            genderState.value = 1
                             isExpanded = false
                         })
                     DropdownMenuItem(
-                        text = { Text(text = "Other") },
+                        text = { Text(text = "Not Specific") },
                         onClick = {
                             gender = "Other"
+                            genderState.value = 2
                             isExpanded = false
                         })
                 }
@@ -277,19 +286,22 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
                         .requiredHeight(60.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = Black,
-                        unfocusedBorderColor = Black)
+                        unfocusedBorderColor = Black
+                    )
                 )
-                Button(onClick = { showDatePicker = true },
+                Button(
+                    onClick = { showDatePicker = true },
                     colors = transparentButtonColors,
-                    modifier = Modifier.fillMaxSize())
+                    modifier = Modifier.fillMaxSize()
+                )
                 {}
             }
 
             if (showDatePicker) {
                 CustomDatePickerDialog(label = "DOB", dateStr = dobState.value) {
                     dobState.value = dob
-                    showDatePicker = false
                     setDOB(dobState.value)
+                    showDatePicker = false
                 }
             }
         }
@@ -299,7 +311,6 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: MutableState<Double>) {
-
     var isExpanded by remember {
         mutableStateOf(false)
     }
@@ -323,23 +334,23 @@ fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: Mut
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
-
         //// Active Level
-        Row (
+        Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .align(alignment = Alignment.TopStart)
-                .fillMaxWidth())
+                .fillMaxWidth()
+        )
         {
             ExposedDropdownMenuBox(
                 expanded = isExpanded,
-                onExpandedChange = {isExpanded = it},
-                modifier =  Modifier.weight(1F)
+                onExpandedChange = { isExpanded = it },
+                modifier = Modifier.weight(1F)
             ) {
                 OutlinedTextField(
                     value = level,
-                    label = {Text("Activity Level")},
+                    label = { Text("Activity Level") },
                     onValueChange = {},
                     readOnly = true,
                     colors = ExposedDropdownMenuDefaults.textFieldColors(
@@ -352,24 +363,27 @@ fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: Mut
                     })
                 ExposedDropdownMenu(
                     expanded = isExpanded,
-                    onDismissRequest = {isExpanded = false},
+                    onDismissRequest = { isExpanded = false },
                 ) {
                     DropdownMenuItem(
                         text = { Text(text = "Rarely") },
                         onClick = {
                             level = "Rarely"
+                            activityLevelState.value = 0
                             isExpanded = false
                         })
                     DropdownMenuItem(
                         text = { Text(text = "Moderate") },
                         onClick = {
                             level = "Moderate"
+                            activityLevelState.value = 1
                             isExpanded = false
                         })
                     DropdownMenuItem(
                         text = { Text(text = "Frequently") },
                         onClick = {
                             level = "Frequently"
+                            activityLevelState.value = 2
                             isExpanded = false
                         })
                 }
@@ -378,7 +392,13 @@ fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: Mut
             /// Weekly Goal
             OutlinedTextField(
                 value = weeklyGoalState.value.toString(),
-                onValueChange = {weeklyGoalState.value = it.toDouble()},
+                onValueChange = {
+                    if (it.isNotEmpty()) {
+                        weeklyGoalState.value = it.toDoubleOrNull() ?: 0.0
+                    } else {
+                        weeklyGoalState.value = 0.0
+                    }
+                },
                 label = { Text("Weekly Goal (kg)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
@@ -391,7 +411,6 @@ fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: Mut
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: MutableState<Int>) {
-
     var isExpanded by remember {
         mutableStateOf(false)
     }
@@ -415,34 +434,39 @@ fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: Mutable
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
-        Row (
+        Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .align(alignment = Alignment.TopStart)
-                .fillMaxWidth())
+                .fillMaxWidth()
+        )
         {
-
             // Calories Goal
             OutlinedTextField(
-                value = caloriesGoalState.value.toString(),
-                onValueChange = {caloriesGoalState.value = it.toInt()},
+                value = if (caloriesGoalState.value == 0) "" else caloriesGoalState.value.toString(),
+                onValueChange = {
+                    if (it.isNotEmpty()) {
+                        caloriesGoalState.value = it.toIntOrNull() ?: 0
+                    } else {
+                        caloriesGoalState.value = 0
+                    }
+                },
                 label = { Text("Calories Goal (cal)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
                     .weight(1F)
             )
 
-
             // Nutrient Goal
             ExposedDropdownMenuBox(
                 expanded = isExpanded,
-                onExpandedChange = {isExpanded = it},
-                modifier =  Modifier.weight(1F)
+                onExpandedChange = { isExpanded = it },
+                modifier = Modifier.weight(1F)
             ) {
                 OutlinedTextField(
                     value = goal,
-                    label = {Text("Nutrient Goal")},
+                    label = { Text("Nutrient Goal") },
                     onValueChange = {},
                     readOnly = true,
                     colors = ExposedDropdownMenuDefaults.textFieldColors(
@@ -455,24 +479,27 @@ fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: Mutable
                     })
                 ExposedDropdownMenu(
                     expanded = isExpanded,
-                    onDismissRequest = {isExpanded = false},
+                    onDismissRequest = { isExpanded = false },
                 ) {
                     DropdownMenuItem(
                         text = { Text(text = "Balance") },
                         onClick = {
                             goal = "Balance"
+                            nutrientGoalState.value = 1
                             isExpanded = false
                         })
                     DropdownMenuItem(
                         text = { Text(text = "More Protein") },
                         onClick = {
                             goal = "More Protein"
+                            nutrientGoalState.value = 2
                             isExpanded = false
                         })
                     DropdownMenuItem(
                         text = { Text(text = "More Fiber") },
                         onClick = {
                             goal = "More Fiber"
+                            nutrientGoalState.value = 0
                             isExpanded = false
                         })
                 }
@@ -488,31 +515,46 @@ fun WeightRow(weightState: MutableState<Int>, targetWeightState: MutableState<In
             .fillMaxWidth()
             .requiredHeight(height = 60.dp)
     ) {
-        Row (
+        Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .align(alignment = Alignment.TopStart)
-                .fillMaxWidth())
+                .fillMaxWidth()
+        )
         {
 
             // Starting Weight
             OutlinedTextField(
-                value = weightState.value.toString(),
-                onValueChange = {weightState.value = it.toInt()},
+                value = if (weightState.value == 0) "" else weightState.value.toString(),
+                onValueChange = {
+                    if (it.isNotEmpty()) {
+                        weightState.value = it.toIntOrNull() ?: 0
+                    } else {
+                        weightState.value = 0
+                    }
+                },
                 label = { Text("Starting Weight (kg)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
-                    .weight(1F))
+                    .weight(1F)
+            )
 
             // Target Weight
             OutlinedTextField(
-                value = targetWeightState.value.toString(),
-                onValueChange = {targetWeightState.value = it.toInt()},
+                value = if (targetWeightState.value == 0) "" else targetWeightState.value.toString(),
+                onValueChange = {
+                    if (it.isNotEmpty()) {
+                        targetWeightState.value = it.toIntOrNull() ?: 0
+                    } else {
+                        targetWeightState.value = 0
+                    }
+                },
                 label = { Text("Target Weight (kg)") },
                 modifier = Modifier
                     .requiredHeight(60.dp)
-                    .weight(1F))
+                    .weight(1F)
+            )
         }
     }
 }
@@ -541,11 +583,11 @@ fun Goal(goalState: MutableState<Int>) {
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
-        onExpandedChange = {isExpanded = it},
+        onExpandedChange = { isExpanded = it },
     ) {
         OutlinedTextField(
             value = goal,
-            label = {Text("Goal")},
+            label = { Text("Goal") },
             onValueChange = {},
             readOnly = true,
             colors = ExposedDropdownMenuDefaults.textFieldColors(
@@ -560,62 +602,60 @@ fun Goal(goalState: MutableState<Int>) {
             })
         ExposedDropdownMenu(
             expanded = isExpanded,
-            onDismissRequest = {isExpanded = false},
+            onDismissRequest = { isExpanded = false },
         ) {
             DropdownMenuItem(
                 text = { Text(text = "Lose weight") },
                 onClick = {
                     goal = "Lose weight"
+                    goalState.value = 0
                     isExpanded = false
                 })
             DropdownMenuItem(
                 text = { Text(text = "Gain muscles") },
                 onClick = {
                     goal = "Gain muscles"
+                    goalState.value = 1
                     isExpanded = false
                 })
             DropdownMenuItem(
                 text = { Text(text = "Lose weight, Gain muscles") },
                 onClick = {
                     goal = "Lose weight, Gain muscles"
+                    goalState.value = 2
                     isExpanded = false
                 })
         }
     }
 }
 
-//@Preview(widthDp = 342, heightDp = 50)
-//@Composable
-//private fun DefaultPreview() {
-//    goal()
-//}
-
-
 @Composable
 fun UserInforHeader(navController: NavController) {
-    Row (modifier = Modifier
-        .fillMaxWidth()
-        .height(50.dp),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically)
-        {
-            IconButton(onClick = { navController.navigate("more")}) {
-                Icon(
-                    painter = painterResource(id = R.drawable.left_arrow),
-                    contentDescription = "Vector",
-                )
-            }
-            Text(
-                text = "Edit profile",
-                color = Color(0xFF000000),
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                textAlign = TextAlign.Left,
-                modifier = Modifier.weight(2F, true),
-                fontWeight = FontWeight.Medium)
-
+        verticalAlignment = Alignment.CenterVertically
+    )
+    {
+        IconButton(onClick = { navController.navigate("more") }) {
+            Icon(
+                painter = painterResource(id = R.drawable.left_arrow),
+                contentDescription = "Vector",
+            )
         }
+        Text(
+            text = "Edit profile",
+            color = Color(0xFF000000),
+            style = TextStyle(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            textAlign = TextAlign.Left,
+            modifier = Modifier.weight(2F, true),
+            fontWeight = FontWeight.Medium
+        )
 
+    }
 }
