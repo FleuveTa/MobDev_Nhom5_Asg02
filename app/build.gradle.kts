@@ -81,4 +81,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
+    implementation("androidx.credentials:credentials:1.3.0-alpha03")
+    implementation ("androidx.credentials:credentials-play-services-auth:1.3.0-alpha03")
+    implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 }

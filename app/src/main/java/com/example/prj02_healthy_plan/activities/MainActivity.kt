@@ -1,10 +1,12 @@
 package com.example.prj02_healthy_plan.activities
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +21,7 @@ import com.google.firebase.auth.auth
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
@@ -52,7 +55,8 @@ class MainActivity : ComponentActivity() {
                 }, toSignup = {
                     val intent = Intent(context, SignUpActivity::class.java)
                     startActivity(intent)
-                })
+                },
+                    auth = auth)
             }
         }
     }
