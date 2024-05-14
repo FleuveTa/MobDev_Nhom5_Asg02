@@ -55,6 +55,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -74,8 +76,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.rememberImagePainter
 import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -215,6 +220,12 @@ fun ExploreTabScreen(nav: NavHostController) {
 @Composable
 fun RecommendedScreen(scrollState: ScrollState) {
     val recommendedFoodScrollState = rememberScrollState()
+    val viewRecipeModel: RecipeViewModel = viewModel()
+    val recipeList by viewRecipeModel.recipeList.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        viewRecipeModel.fetchRecipes()
+    }
 
     Column(
         modifier = Modifier
@@ -310,37 +321,30 @@ fun RecommendedScreen(scrollState: ScrollState) {
                 .background(Color.White)
                 .horizontalScroll(recommendedFoodScrollState)
         ) {
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443
-            )
+            for (recipe in recipeList) {
+                RecommendedFoods(
+                    url = recipe.imageUrl ?: "",
+                    title = recipe.name ?: "",
+                    cal = recipe.nutrition?.get(0) ?: 0.0
+                )
+            }
         }
     }
 }
 
 @Composable
-fun RecommendedFoods(image: Painter, title: String, cal: Number) {
+fun LoadImage(url: String) {
+    val painter = rememberImagePainter(data = url)
+    Image(
+        painter = painter,
+        contentDescription = "Food Image",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+@Composable
+fun RecommendedFoods(url: String, title: String, cal: Double) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -354,11 +358,7 @@ fun RecommendedFoods(image: Painter, title: String, cal: Number) {
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
-            Image(
-                painter = image,
-                contentDescription = "Food Image",
-                contentScale = ContentScale.Crop
-            )
+            LoadImage(url = url)
         }
 
         Text(
