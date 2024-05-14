@@ -181,6 +181,7 @@ fun AppNavBar() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
+                        navigationController.navigate("userAddFood")
                         Toast
                             .makeText(context, "Track Food", Toast.LENGTH_SHORT)
                             .show()
@@ -189,42 +190,8 @@ fun AppNavBar() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Track Food")
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { navigationController.navigate("userAddFood") }) {
                     Icon(Icons.Filled.Add, contentDescription = null, tint = GreenMain)
-                }
-            }
-            Divider()
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        Toast
-                            .makeText(context, "Track Workout", Toast.LENGTH_SHORT)
-                            .show()
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Track Workout")
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Filled.Add, contentDescription = null, tint = GreenMain)
-                }
-            }
-            Divider()
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        Toast
-                            .makeText(context, "Share", Toast.LENGTH_SHORT)
-                            .show()
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Share")
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Filled.Share, contentDescription = null, tint = GreenMain)
                 }
             }
             Divider()
