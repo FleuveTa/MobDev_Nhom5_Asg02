@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableDoubleState
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,13 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
-import com.example.prj02_healthy_plan.User
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 @Composable
@@ -75,7 +76,7 @@ fun UserInforUI(navController: NavController) {
         mutableIntStateOf(user.gender ?: 3)
     }
     val dobValue = remember(user.dob) {
-        mutableStateOf(user.dob ?: "")
+        mutableStateOf(user.dob ?: "1-1-1970")
     }
     val activityLevelValue = remember(user.activityLevel) {
         mutableIntStateOf(user.activityLevel ?: 3)
@@ -106,37 +107,37 @@ fun UserInforUI(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserInforHeader(navController)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         FullNameBox(nameState = nameValue)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         HeightBox(heightState = heightValue)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         GenderAndDOB(genderState = genderValue, dobState = dobValue)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         ActivityLevelRow(activityLevelState = activityLevelValue, weeklyGoalState = weeklyGoalValue)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         CaloriesRow(caloriesGoalState = caloriesGoalValue, nutrientGoalState = nutrientGoalValue)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         WeightRow(weightState = weightValue, targetWeightState = targetWeightValue)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(10.dp))
         Goal(goalState = goalValue)
         Spacer(Modifier.height(10.dp))
         Button(onClick = {
             if (uId != null) {
-                db.collection("users").document(uId).set(
-                    hashMapOf(
-                        "fullName" to nameValue.value,
-                        "height" to heightValue.intValue,
-                        "gender" to genderValue.intValue,
-                        "dob" to dobValue.value,
-                        "activityLevel" to activityLevelValue.intValue,
-                        "weeklyGoal" to weeklyGoalValue.value,
-                        "caloriesGoal" to caloriesGoalValue.intValue,
-                        "nutrientGoal" to nutrientGoalValue.intValue,
-                        "weight" to weightValue.intValue,
-                        "targetWeight" to targetWeightValue.intValue,
-                        "goal" to goalValue.intValue,
-                    )
+                saveUserChanges(
+                    uId,
+                    db,
+                    nameValue,
+                    heightValue,
+                    genderValue,
+                    dobValue,
+                    activityLevelValue,
+                    weeklyGoalValue,
+                    caloriesGoalValue,
+                    nutrientGoalValue,
+                    weightValue,
+                    targetWeightValue,
+                    goalValue
                 )
             }
         }) {
@@ -145,6 +146,37 @@ fun UserInforUI(navController: NavController) {
     }
 }
 
+
+fun saveUserChanges(
+    uId: String,
+    db: FirebaseFirestore,
+    nameValue: MutableState<String>,
+    heightValue: MutableIntState,
+    gender: MutableIntState,
+    dobValue: MutableState<String>,
+    activityLevelValue: MutableIntState,
+    weeklyGoalValue: MutableState<String>,
+    caloriesGoalValue: MutableIntState,
+    nutrientGoalValue: MutableIntState,
+    weightValue: MutableIntState,
+    targetWeightValue: MutableIntState,
+    goalValue: MutableIntState
+) {
+    db.collection("users").document(uId).set(
+        hashMapOf(
+            "fullName" to nameValue.value,
+            "height" to heightValue.intValue,
+            "gender" to gender.intValue,
+            "dob" to dobValue.value,
+            "activityLevel" to activityLevelValue.intValue,
+            "weeklyGoal" to weeklyGoalValue.value,
+            "caloriesGoal" to caloriesGoalValue.intValue,
+            "nutrientGoal" to nutrientGoalValue.intValue,
+            "weight" to weightValue.intValue,
+            "targetWeight" to targetWeightValue.intValue,
+            "goal" to goalValue.intValue,
+        ))
+}
 @Composable
 fun FullNameBox(nameState: MutableState<String>) {
     Box(
@@ -160,6 +192,7 @@ fun FullNameBox(nameState: MutableState<String>) {
                 .fillMaxWidth()
                 .requiredHeight(60.dp)
                 .align(Alignment.Center)
+                .testTag("fullNameTextField")
         )
     }
 }
