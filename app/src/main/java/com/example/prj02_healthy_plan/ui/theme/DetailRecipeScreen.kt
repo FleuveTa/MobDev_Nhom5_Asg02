@@ -29,6 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,15 +47,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import com.example.prj02_healthy_plan.IngredientInRecipe
 import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.RecipeFirebase
+import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okio.IOException
 import java.net.URL
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailRecipeScreen(nav: NavHostController) {
+fun DetailRecipeScreen(nav: NavHostController, selectedRecipeName: MutableState<String>) {
+    val viewRecipeModel: RecipeViewModel = viewModel()
+    val recipeList by viewRecipeModel.recipeList.collectAsState()
+    LaunchedEffect(key1 = Unit) {
+        viewRecipeModel.fetchRecipes()
+    }
+    val recipe = recipeList.find { it.name == selectedRecipeName.value } ?: return
+
     Scaffold(
         topBar = {
             TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
@@ -82,34 +105,18 @@ fun DetailRecipeScreen(nav: NavHostController) {
                 .padding(innerPadding)
                 .background(Color(245, 250, 255))
         ) {
-            DetailRecipeContent(recipe = Recipe(
-                name = "Tuna Salad",
-                description = "This is a healthy and delicious tuna salad recipe. It's perfect for a light lunch or dinner. Enjoy!",
-                totalCalorie = 430f,
-                image = "",
-                ingredients = listOf(
-                    Ingredient("Tuna", 1f, "can"),
-                    Ingredient("Salad", 1f, "bowl"),
-                    Ingredient("Mayo", 1f, "tbsp"),
-                    Ingredient("Something", 1f, "tbsp"),
-                    Ingredient("Something", 1f, "tbsp"),
-                    Ingredient("Something", 1f, "tbsp")
-                ),
-                instructions = "1.Mix all ingredients\n 2.Do something\n 3.Do something else",
-                nutrition = listOf(100f, 200f, 300f, 400f, 500f, 600f),
-                unit = "bowl"
-            ))
+            DetailRecipeContent(recipe = recipe)
         }
     }
 }
 
 @Composable
 fun DetailRecipeContent(
-    recipe: Recipe,
+    recipe: RecipeFirebase
 ) {
-    var checkedIngredients by remember { mutableStateOf(List(recipe.ingredients.size) { false }) }
+    val sizeOfIngredients = recipe.ingredients?.size ?: 0
+    var checkedIngredients: List<Boolean> by remember { mutableStateOf(List(sizeOfIngredients) { false }) }
     val detailRecipeContentScrollState = rememberScrollState()
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,32 +125,34 @@ fun DetailRecipeContent(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             // Image
+            val painter = rememberAsyncImagePainter(model = recipe.imageUrl)
             Image(
-                painter = painterResource(id = R.drawable.tunasaladfood),
-                contentDescription = "Recipe Image",
+                painter = painter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
+                    .height(300.dp)
             )
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomStart)
             ) {
                 // Name of food
-                Text(
-                    text = recipe.name,
-                    modifier = Modifier
-                        .padding(start = 16.dp, end = 16.dp),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
+                recipe.name?.let {
+                    Text(
+                        text = it,
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                }
                 // Calories
                 Text(
-                    text = "1 ${recipe.unit} - ${recipe.totalCalorie} Cal",
+                    text = "100 Cal",
                     modifier = Modifier
                         .padding(start = 16.dp, end = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
@@ -155,14 +164,16 @@ fun DetailRecipeContent(
         Spacer(modifier = Modifier.height(10.dp))
 
         // Description
-        Text(
-            text = recipe.description,
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
-                .wrapContentHeight(),
-            color = Color.Gray,
-            fontSize = 16.sp
-        )
+        recipe.description?.let {
+            Text(
+                text = it,
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+                    .wrapContentHeight(),
+                color = Color.Gray,
+                fontSize = 16.sp
+            )
+        }
         Spacer(modifier = Modifier.height(5.dp))
 
         // Title: Ingredients
@@ -178,28 +189,31 @@ fun DetailRecipeContent(
                 .wrapContentHeight()
                 .fillMaxWidth()
                 .background(Color.White),
-        ){
-            recipe.ingredients.map { "${it.name} - ${it.quantity} ${it.unit}" }.toMutableList(
-            ).forEachIndexed { index, ingredient ->
+        ) {
+            recipe.ingredients?.forEachIndexed { index, ingredient ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(start = 5.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
                         checked = checkedIngredients[index],
                         onCheckedChange = {
-                            checkedIngredients =
-                                checkedIngredients.toMutableList().apply { set(index, it) }
+                            checkedIngredients = checkedIngredients.toMutableList().also {
+                                it[index] = !it[index]
+                            }
                         }
                     )
                     Text(
-                        text = ingredient,
+                        // Quantity x first number in String unit (e.g. 1 x 100 g) + name
+                        text = calculateTotalQuantity(ingredient),
+                        modifier = Modifier.padding(start = 5.dp),
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 15.sp
-                    )
+                    )}
                 }
             }
-        }
         // Title: Instructions
         Text(
             text = "Instructions",
@@ -207,45 +221,69 @@ fun DetailRecipeContent(
             style = MaterialTheme.typography.titleMedium,
             fontSize = 15.sp
         )
-
-        // Instructions List
-        Column (
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .background(Color.White),
-        ) {
-            Text(
-                text = recipe.instructions,
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 15.sp
-            )
-        }
+         //Instructions
+        val instructionText = rememberUrlText(recipe.instructionUrl ?: "")
+        Text(
+            text = instructionText,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 15.sp
+        )
     }
 }
 
-data class Recipe(
-    val name: String,
-    val description: String,
-    val totalCalorie: Float = 0f,
-    val image: String,
-    val ingredients: List<Ingredient>,
-    val instructions: String,
-    val nutrition: List<Float>,
-    val unit: String
-)
-
-data class Ingredient(
-    val name: String,
-    val quantity: Float,
-    val unit: String
-)
-
-@Preview
 @Composable
-fun PreviewDetailRecipeScreen() {
-    DetailRecipeScreen(nav = rememberNavController())
+fun rememberUrlText(url: String): String {
+    var text by remember { mutableStateOf("") }
+    val httpClient = remember { OkHttpClient() }
+
+    DisposableEffect(url) {
+        val request = Request.Builder().url(url).build()
+        val call = httpClient.newCall(request)
+
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val response = call.execute()
+                if (response.isSuccessful) {
+                    text = response.body?.string() ?: ""
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+        onDispose {
+            call.cancel()
+        }
+    }
+
+    return text
 }
 
+fun calculateTotalQuantity(ingredient: IngredientInRecipe): String {
+    ingredient.unit?.let { unit ->
+        ingredient.quantity?.let { quantity ->
+            // Tách số từ đơn vị
+            val quantityRegex = "\\d+".toRegex()
+            val matchResult = quantityRegex.find(unit)
+            val unitNumber = matchResult?.value?.toDoubleOrNull()
+                ?: 1.0 // Số đầu tiên trong đơn vị hoặc mặc định là 1 nếu không tìm thấy
 
+            // Nhân số lượng với số đầu tiên trong đơn vị
+            var totalQuantity = quantity * unitNumber
+
+            // Kiểm tra xem totalQuantity có phải là số nguyên không
+            val isInteger = totalQuantity % 1 == 0.0
+
+            // Tạo chuỗi kết quả
+            return if (!isInteger) {
+                "$totalQuantity ${unit.substringAfter(matchResult?.value ?: "")} ${ingredient.name}"
+            } else {
+                "${totalQuantity.toInt()} ${unit.substringAfter(matchResult?.value ?: "")} ${ingredient.name}"
+            }
+        }
+    }
+
+    // Trả về chuỗi rỗng nếu không có đủ thông tin
+    return ""
+}

@@ -2,9 +2,6 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="UserInforUITest">
-        <State />
-      </entry>
       <entry key="app">
         <State>
           <runningDeviceTargetSelectedWithDropDown>
@@ -12,13 +9,13 @@
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="5200ec855fe4452b" />
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\tachi\.android\avd\Pixel_3a_API_34_extension_level_7_x86_64.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-05-15T11:54:05.423339100Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-05-15T20:47:37.633383400Z" />
         </State>
       </entry>
       <entry key="testDOBInput()">

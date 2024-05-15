@@ -12,5 +12,7 @@ sealed class Screens (val screen: String) {
     data object More : Screens("more")
     data object UserInfor: Screens("userInfor")
     data object UserAddFood: Screens("userAddFood")
+
+    data object UserAddIngredient: Screens("userAddIngredient")
     data object CalendarUI: Screens("calendar")
 }

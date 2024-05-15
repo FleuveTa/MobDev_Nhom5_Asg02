@@ -147,7 +147,7 @@ fun SearchChoiceScreen(nav: NavHostController) {
                     ) {
                         IconButton(
                             onClick = {
-
+                                nav.navigate("UserAddIngredient")
                             },
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally)

@@ -138,7 +138,6 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController) {
                         )
                     }
                 }
-
                 Ingredients(name = "Butter", amount = 100)
                 Ingredients(name = "Shrimps, boiled", amount = 200)
                 Ingredients(name = "Garlics", amount = 2)
@@ -161,36 +160,8 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController) {
                 .background(Color.White)
                 .horizontalScroll(resultScreenScrollState)
         ) {
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443,
-                nav = nav
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443,
-                nav = nav
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443,
-                nav = nav
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443,
-                nav = nav
-            )
-            RecommendedFoods(
-                image = painterResource(id = R.drawable.tunasaladfood),
-                title = "Tuna Salad",
-                cal = 443,
-                nav = nav
-            )
+            // Add corresponding results here
+
         }
     }
 }
