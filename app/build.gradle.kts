@@ -79,9 +79,20 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-
     implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
+
     implementation("androidx.credentials:credentials:1.3.0-alpha03")
     implementation ("androidx.credentials:credentials-play-services-auth:1.3.0-alpha03")
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+
+
+    val cameraX_version = "1.3.3"
+    implementation("androidx.camera:camera-core:$cameraX_version")
+    implementation("androidx.camera:camera-camera2:$cameraX_version")
+    implementation("androidx.camera:camera-lifecycle:$cameraX_version")
+    implementation("androidx.camera:camera-video:$cameraX_version")
+    implementation("androidx.camera:camera-view:$cameraX_version")
+    implementation("androidx.camera:camera-extensions:$cameraX_version")
+
+
 }

@@ -129,7 +129,7 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController) {
                         fontWeight = FontWeight.Bold
                     )
 
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { nav.navigate("searchChoice") }) {
                         Icon(
                             imageVector = Icons.Default.AddCircle,
                             contentDescription = "Add Icon",

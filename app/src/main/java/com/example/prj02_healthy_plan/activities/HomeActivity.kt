@@ -43,12 +43,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-<<<<<<< HEAD
+
 import androidx.navigation.navArgument
 import com.example.prj02_healthy_plan.User
-=======
-import com.example.prj02_healthy_plan.ui.theme.CalendarUI
->>>>>>> 71d8752 (add more Explore screens)
+
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
 import com.example.prj02_healthy_plan.ui.theme.Giang
@@ -59,6 +57,7 @@ import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.ScanScreen
 import com.example.prj02_healthy_plan.ui.theme.ViewRecipeResultScreen
 import com.example.prj02_healthy_plan.ui.theme.Screens
+import com.example.prj02_healthy_plan.ui.theme.SearchChoiceScreen
 import com.example.prj02_healthy_plan.ui.theme.SearchResultScreen
 import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
@@ -87,7 +86,7 @@ fun AppNavBar() {
     val context = LocalContext.current
     val selected = remember { mutableStateOf(Icons.Default.Home) }
     val expanded = remember { mutableStateOf(false) }
-
+    val ingredientSearchResult = remember { mutableStateOf("") }
     LaunchedEffect(navigationController) {
         navigationController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.route) {
@@ -167,15 +166,16 @@ fun AppNavBar() {
                 modifier = Modifier.padding(paddingValues)) {
                 composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
-                composable(Screens.Explore.screen) { ChienTa(nav = navigationController)}
+                composable(Screens.Explore.screen) { ChienTa(nav = navigationController, ingredientSearchResult)}
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
                 composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController)}
                 composable(Screens.ViewRecipeResult.screen) { ViewRecipeResultScreen(nav = navigationController) }
-                composable(Screens.Scan.screen) { ScanScreen(nav = navigationController) }
+                composable(Screens.Scan.screen) { ScanScreen(nav = navigationController, ingredientSearchResult) }
+                composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
                 composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
-//                composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
+//               composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
             }
         }
         DropdownMenu(
