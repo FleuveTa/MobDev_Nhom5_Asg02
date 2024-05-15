@@ -21,6 +21,12 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
+        
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.2.1
+        with:
+          java-version: "17"
+          distribution: "adopt"
 
       - name: Run tests
         run: ./gradlew test
@@ -37,6 +43,12 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.2.1
+        with:
+          java-version: "17"
+          distribution: "adopt"
 
       - name: Run espresso tests
         uses: reactivecircus/android-emulator-runner@v2.30.1
