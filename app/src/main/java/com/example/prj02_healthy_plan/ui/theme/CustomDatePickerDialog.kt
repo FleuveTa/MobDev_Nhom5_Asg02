@@ -32,7 +32,7 @@ import androidx.compose.ui.window.Dialog
 import java.util.Calendar
 
 
-var dob = "17-11-2003"
+var dob = "1-1-1970"
 
 fun setDOB(dateStr: String) {
     dob = dateStr
