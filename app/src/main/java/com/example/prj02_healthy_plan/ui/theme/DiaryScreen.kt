@@ -1,6 +1,7 @@
 package com.example.prj02_healthy_plan.ui.theme
 
 import android.health.connect.datatypes.HeartRateRecord
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,12 +57,64 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.RecipeFirebase
+import com.example.prj02_healthy_plan.RecipeInDaily
+import com.example.prj02_healthy_plan.uiModel.DailyDataViewModel
+import com.example.prj02_healthy_plan.uiModel.UserViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Giang(nav: NavHostController) {
+    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
+
+    val dailyDataViewModel: DailyDataViewModel = viewModel()
+    val dailyData by dailyDataViewModel.dailyData.collectAsState()
+
+    LaunchedEffect(Unit) {
+        dailyDataViewModel.fetchDailyData(selectedDateFormattedLabel.value)
+    }
+
+    val userViewModel: UserViewModel = viewModel()
+    val user = userViewModel.state.value
+
+    val breakfastRecipes = remember { mutableStateListOf<RecipeFirebase>() }
+    val lunchRecipes = remember { mutableStateListOf<RecipeFirebase>() }
+    val dinnerRecipes = remember { mutableStateListOf<RecipeFirebase>() }
+    val snacksRecipes = remember { mutableStateListOf<RecipeFirebase>() }
+
+    val totalBreakfast = remember { mutableDoubleStateOf(0.0) }
+    val totalLunch = remember { mutableDoubleStateOf(0.0) }
+    val totalDinner = remember { mutableDoubleStateOf(0.0) }
+    val totalSnacks = remember { mutableDoubleStateOf(0.0) }
+
+    LaunchedEffect(dailyData) {
+        breakfastRecipes.clear()
+        lunchRecipes.clear()
+        dinnerRecipes.clear()
+        snacksRecipes.clear()
+
+        breakfastRecipes.addAll(fetchRecipes(dailyData.breakfast))
+        lunchRecipes.addAll(fetchRecipes(dailyData.lunch))
+        dinnerRecipes.addAll(fetchRecipes(dailyData.dinner))
+        snacksRecipes.addAll(fetchRecipes(dailyData.snacks))
+
+        totalBreakfast.doubleValue = calculateTotalCalories(breakfastRecipes, dailyData.breakfast)
+        totalLunch.doubleValue = calculateTotalCalories(lunchRecipes, dailyData.lunch)
+        totalDinner.doubleValue = calculateTotalCalories(dinnerRecipes, dailyData.dinner)
+        totalSnacks.doubleValue = calculateTotalCalories(snacksRecipes, dailyData.snacks)
+    }
+
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,6 +156,11 @@ fun Giang(nav: NavHostController) {
                     Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Filter")
                 }
             }
+
+            val percent = (dailyData.intake?.get(0) ?: 0.0) * 100 / (user.caloriesGoal ?: 1)
+            val formattedPercent = String.format("%.2f", percent).toFloat()
+            val remaining = (user.caloriesGoal ?: 0) -  (dailyData.intake?.get(0)?.toInt() ?: 0)
+
             Column(
                 modifier = Modifier
                     .padding(top = 120.dp)
@@ -107,7 +173,7 @@ fun Giang(nav: NavHostController) {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text("Calories consumed", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black))
-                            Text("60%", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black))
+                            Text("${formattedPercent}%", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black))
                         }
                         Box(modifier = Modifier
                             .fillMaxWidth()
@@ -118,7 +184,7 @@ fun Giang(nav: NavHostController) {
                         ) {
                             LinearProgressIndicator(
                                 color = GreenMain,
-                                progress = 0.6f,
+                                progress = (percent/100).toFloat(),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(30.dp)
@@ -130,36 +196,61 @@ fun Giang(nav: NavHostController) {
                                 .padding(top = 5.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("2000 Goal", style = TextStyle(fontSize = 15.sp, color = Color.Black))
+                            Text((user.caloriesGoal?.toString() ?: "Fetching"), style = TextStyle(fontSize = 15.sp, color = Color.Black))
                             Text("-", style = TextStyle(fontSize = 15.sp, color = Color.Black))
-                            Text("1800 Food", style = TextStyle(fontSize = 15.sp, color = Color.Black))
+                            Text((dailyData.intake?.get(0)?.toInt().toString()), style = TextStyle(fontSize = 15.sp, color = Color.Black))
                             Text("=", style = TextStyle(fontSize = 15.sp, color = Color.Black))
-                            Text("200 Remaining", style = TextStyle(fontSize = 15.sp, color = Color.Black))
+                            Text("$remaining Remaining", style = TextStyle(fontSize = 15.sp, color = Color.Black))
                         }
                     }
                 }
-                HeaderRoundedBox (heading = "Breakfast", nav = nav) {
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
+
+                HeaderRoundedBox (heading = "Breakfast", nav = nav, totalBreakfast.doubleValue) {
+                    for ((index, recipe) in breakfastRecipes.withIndex()) {
+                        Log.d("Recipe", recipe.toString())
+                        dailyData.breakfast?.get(index)
+                            ?.let { it.quantity?.let { it1 ->
+                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                FoodDescriptionDiary(recipe.name ?: "Nun",
+                                    it1, totalCalories)
+                            } }
+                    }
                 }
 
-                HeaderRoundedBox (heading = "Lunch", nav = nav) {
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
+                HeaderRoundedBox (heading = "Lunch", nav = nav, totalLunch.doubleValue) {
+                    for ((index, recipe) in lunchRecipes.withIndex()) {
+                        Log.d("Recipe", recipe.toString())
+                        dailyData.lunch?.get(index)
+                            ?.let { it.quantity?.let { it1 ->
+                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                FoodDescriptionDiary(recipe.name ?: "Nun",
+                                    it1, totalCalories)
+                            } }
+                    }
                 }
 
-                HeaderRoundedBox(heading = "Dinner", nav = nav) {
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
+                HeaderRoundedBox(heading = "Dinner", nav = nav, totalDinner.doubleValue) {
+                    for ((index, recipe) in dinnerRecipes.withIndex()) {
+                        Log.d("Recipe", recipe.toString())
+                        dailyData.dinner?.get(index)
+                            ?.let { it.quantity?.let { it1 ->
+                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                FoodDescriptionDiary(recipe.name ?: "Nun",
+                                    it1, totalCalories)
+                            } }
+                    }
                 }
 
-                HeaderRoundedBox(heading = "Snack", nav = nav) {
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
-                    FoodDescriptionDiary()
+                HeaderRoundedBox(heading = "Snack", nav = nav, totalSnacks.doubleValue) {
+                    for ((index, recipe) in snacksRecipes.withIndex()) {
+                        Log.d("Recipe", recipe.toString())
+                        dailyData.snacks?.get(index)
+                            ?.let { it.quantity?.let { it1 ->
+                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                FoodDescriptionDiary(recipe.name ?: "Nun",
+                                    it1, totalCalories)
+                            } }
+                    }
                 }
 
             }
@@ -181,7 +272,7 @@ fun RoundedBox(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun HeaderRoundedBox(heading: String, nav: NavHostController, content: @Composable () -> Unit) {
+fun HeaderRoundedBox(heading: String, nav: NavHostController,total: Double, content: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = Color.White,
@@ -208,7 +299,7 @@ fun HeaderRoundedBox(heading: String, nav: NavHostController, content: @Composab
 
                     ) {
                         Text(text = heading, style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White))
-                        Text(text = "2 tỷ calories on 200 calories", style = TextStyle(fontSize = 15.sp, color = Color.White))
+                        Text(text = "$total calories", style = TextStyle(fontSize = 15.sp, color = Color.White))
                     }
                 }
 
@@ -228,7 +319,7 @@ fun HeaderRoundedBox(heading: String, nav: NavHostController, content: @Composab
 }
 
 @Composable
-fun FoodDescriptionDiary() {
+fun FoodDescriptionDiary(name: String = "Nun", quantity: Int = 1, cal: Double = 0.0) {
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -236,12 +327,33 @@ fun FoodDescriptionDiary() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text("Voi chín ngà", style = TextStyle(fontSize = 15.sp, color = Color.Black))
-            Text(text = "1 con")
+            Text(name, style = TextStyle(fontSize = 15.sp, color = Color.Black))
+            Text(text = "$quantity")
         }
         Row {
-            Text("200 cal")
+            Text("$cal cal")
         }
     }
+}
+
+suspend fun fetchRecipes(recipesInDaily: List<RecipeInDaily>?): List<RecipeFirebase> {
+    val recipes = mutableListOf<RecipeFirebase>()
+    recipesInDaily?.forEach { recipeInDaily ->
+        val recipeSnapshot = recipeInDaily.recipe?.get()?.await()
+        val recipe = recipeSnapshot?.toObject(RecipeFirebase::class.java)
+        if (recipe != null) {
+            recipes.add(recipe)
+        }
+    }
+    return recipes
+}
+
+fun calculateTotalCalories(recipes: List<RecipeFirebase>, recipesInDaily: List<RecipeInDaily>?): Double {
+    var total = 0.0
+    for ((index, recipe) in recipes.withIndex()) {
+        val quantity = recipesInDaily?.get(index)?.quantity ?: 1
+        total += (recipe.nutrition?.get(0) ?: 0.0) * quantity
+    }
+    return total
 }
 

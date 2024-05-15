@@ -81,7 +81,7 @@ fun UserInforUI(navController: NavController) {
         mutableIntStateOf(user.activityLevel ?: 3)
     }
     val weeklyGoalValue = remember(user.weeklyGoal) {
-        mutableDoubleStateOf(user.weeklyGoal ?: 3.0)
+        mutableStateOf(user.weeklyGoal ?: "-0.5")
     }
     val caloriesGoalValue = remember(user.caloriesGoal) {
         mutableIntStateOf(user.caloriesGoal ?: 3)
@@ -130,7 +130,7 @@ fun UserInforUI(navController: NavController) {
                         "gender" to genderValue.intValue,
                         "dob" to dobValue.value,
                         "activityLevel" to activityLevelValue.intValue,
-                        "weeklyGoal" to weeklyGoalValue.doubleValue,
+                        "weeklyGoal" to weeklyGoalValue.value,
                         "caloriesGoal" to caloriesGoalValue.intValue,
                         "nutrientGoal" to nutrientGoalValue.intValue,
                         "weight" to weightValue.intValue,
@@ -312,7 +312,7 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: MutableState<Double>) {
+fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: MutableState<String>) {
     var isExpanded by remember {
         mutableStateOf(false)
     }
@@ -396,9 +396,9 @@ fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: Mut
                 value = weeklyGoalState.value.toString(),
                 onValueChange = {
                     if (it.isNotEmpty()) {
-                        weeklyGoalState.value = it.toDoubleOrNull() ?: 0.0
+                        weeklyGoalState.value = it
                     } else {
-                        weeklyGoalState.value = 0.0
+                        weeklyGoalState.value = "-0.5"
                     }
                 },
                 label = { Text("Weekly Goal (kg)") },

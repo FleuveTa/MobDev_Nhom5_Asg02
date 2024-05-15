@@ -26,6 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,9 +47,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.MainActivity
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
+    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
     val transparentButtonColors = ButtonDefaults.buttonColors(
         containerColor = Color.Transparent,
         contentColor = Color.Black // Set text color
@@ -57,7 +64,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(245, 250, 255))) {
-        Header(nav)
+        Header(nav, selectedDateFormattedLabel)
 
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Image(
