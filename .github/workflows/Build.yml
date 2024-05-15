@@ -15,8 +15,45 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: unit_test_report
+          path: app/build/reports/tests/testDebugUnitTest/
+
+  instrumentation-test:
+    needs: [unit-test]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Run espresso tests
+        uses: reactivecircus/android-emulator-runner@v2.30.1
+        with:
+          api-level: 34
+          script: ./gradlew connectedCheck
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: instrumentation_test_report
+          path: app/build/reports/androidTests/connected/
+          
   # This workflow contains a single job called "build"
   build:
+    needs: [instrumentation-test]
+    name: Generate APK
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -32,11 +69,8 @@ jobs:
           java-version: "17"
           distribution: "adopt"
 
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      - name: Run Test
-        run: ./gradlew test
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.3.3
