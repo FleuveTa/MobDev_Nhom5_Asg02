@@ -2,10 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="UserInforUITest">
+      <entry key="app">
         <State />
       </entry>
-      <entry key="app">
+      <entry key="testCaloriesGoalInput()">
+        <State />
+      </entry>
+      <entry key="testGoalSelection()">
+        <State />
+      </entry>
+      <entry key="testNutrientGoalSelection()">
+        <State />
+      </entry>
+      <entry key="testStartingWeightInput()">
+        <State />
+      </entry>
+      <entry key="testTargetWeightInput()">
         <State />
       </entry>
     </value>

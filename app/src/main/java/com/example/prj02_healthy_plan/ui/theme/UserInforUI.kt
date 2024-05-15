@@ -438,6 +438,7 @@ fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: Mut
                 modifier = Modifier
                     .requiredHeight(60.dp)
                     .weight(1F)
+                    .testTag("WeeklyGoalInput")
             )
         }
     }
@@ -491,6 +492,7 @@ fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: Mutable
                 modifier = Modifier
                     .requiredHeight(60.dp)
                     .weight(1F)
+                    .testTag("CaloriesGoalInput")
             )
 
             // Nutrient Goal
@@ -498,6 +500,7 @@ fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: Mutable
                 expanded = isExpanded,
                 onExpandedChange = { isExpanded = it },
                 modifier = Modifier.weight(1F)
+                    .testTag("NutrientGoalDropdown")
             ) {
                 OutlinedTextField(
                     value = goal,
@@ -522,21 +525,24 @@ fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: Mutable
                             goal = "Balance"
                             nutrientGoalState.value = 1
                             isExpanded = false
-                        })
+                        },
+                        modifier = Modifier.testTag("BalanceOption"))
                     DropdownMenuItem(
                         text = { Text(text = "More Protein") },
                         onClick = {
                             goal = "More Protein"
                             nutrientGoalState.value = 2
                             isExpanded = false
-                        })
+                        },
+                        modifier = Modifier.testTag("MoreProteinOption"))
                     DropdownMenuItem(
                         text = { Text(text = "More Fiber") },
                         onClick = {
                             goal = "More Fiber"
                             nutrientGoalState.value = 0
                             isExpanded = false
-                        })
+                        },
+                        modifier = Modifier.testTag("MoreFiberOption"))
                 }
             }
         }
@@ -573,6 +579,7 @@ fun WeightRow(weightState: MutableState<Int>, targetWeightState: MutableState<In
                 modifier = Modifier
                     .requiredHeight(60.dp)
                     .weight(1F)
+                    .testTag("StartingWeightInput")
             )
 
             // Target Weight
@@ -589,6 +596,7 @@ fun WeightRow(weightState: MutableState<Int>, targetWeightState: MutableState<In
                 modifier = Modifier
                     .requiredHeight(60.dp)
                     .weight(1F)
+                    .testTag("TargetWeightInput")
             )
         }
     }
@@ -597,13 +605,8 @@ fun WeightRow(weightState: MutableState<Int>, targetWeightState: MutableState<In
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Goal(goalState: MutableState<Int>) {
-    var isExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    var goal by remember {
-        mutableStateOf("")
-    }
+    var isExpanded by remember { mutableStateOf(false) }
+    var goal by remember { mutableStateOf("") }
 
     if (goalState.value == 0) {
         goal = "Lose weight"
@@ -614,7 +617,6 @@ fun Goal(goalState: MutableState<Int>) {
     } else {
         goal = ""
     }
-
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
@@ -631,10 +633,12 @@ fun Goal(goalState: MutableState<Int>) {
             ),
             modifier = Modifier
                 .menuAnchor()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag("GoalDropdown"),
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
-            })
+            }
+        )
         ExposedDropdownMenu(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false },
@@ -645,21 +649,27 @@ fun Goal(goalState: MutableState<Int>) {
                     goal = "Lose weight"
                     goalState.value = 0
                     isExpanded = false
-                })
+                },
+                modifier = Modifier.testTag("LoseWeightOption")
+            )
             DropdownMenuItem(
                 text = { Text(text = "Gain muscles") },
                 onClick = {
                     goal = "Gain muscles"
                     goalState.value = 1
                     isExpanded = false
-                })
+                },
+                modifier = Modifier.testTag("GainMusclesOption")
+            )
             DropdownMenuItem(
                 text = { Text(text = "Lose weight, Gain muscles") },
                 onClick = {
                     goal = "Lose weight, Gain muscles"
                     goalState.value = 2
                     isExpanded = false
-                })
+                },
+                modifier = Modifier.testTag("BothOption")
+            )
         }
     }
 }
@@ -692,4 +702,5 @@ fun UserInforHeader(navController: NavController) {
             fontWeight = FontWeight.Medium
         )
     }
+
 }

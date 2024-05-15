@@ -90,4 +90,6 @@ class UserInforUIKtTest {
                 "goal" to goalValue.intValue,
             ))
     }
+
+
 }
