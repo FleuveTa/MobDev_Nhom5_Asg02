@@ -27,7 +27,6 @@ jobs:
         with:
           java-version: "17"
           distribution: "adopt"
-          cache: 'gradle'
 
       - name: Gradle Build Action
         uses: gradle/gradle-build-action@v3.3.2
