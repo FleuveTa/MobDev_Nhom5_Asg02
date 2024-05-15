@@ -2,6 +2,8 @@ package com.example.prj02_healthy_plan.ui.theme
 
 import PastOrPresentSelectableDates
 import android.graphics.Color.parseColor
+import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +38,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,42 +56,66 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key.Companion.Calendar
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.DailyData
 import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.User
 import com.example.prj02_healthy_plan.activities.TungAnh
+import com.example.prj02_healthy_plan.uiModel.DailyDataViewModel
+import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import convertMillisToDate
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
 @Composable
 fun HomeUI(nav: NavController, date: String = "Today") {
+
+    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
+
+    val dailyViewModel: DailyDataViewModel = viewModel()
+
+    val userViewModel: UserViewModel = viewModel()
+    val user = userViewModel.state.value
+
+    LaunchedEffect(selectedDateFormattedLabel.value) {
+        dailyViewModel.fetchDailyData(selectedDateFormattedLabel.value)
+        Log.d("FETCHING : ", "DATE: ${selectedDateFormattedLabel.value}")
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(245, 250, 255))
     ) {
-        Header(nav)
-        Content()
+        Header(nav, selectedDateFormattedLabel)
+        Content(user)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Header(nav: NavController) {
+fun Header(nav: NavController, dateFormatted: MutableState<String>) {
     val datePickerState = rememberDatePickerState(
         selectableDates = PastOrPresentSelectableDates
     )
     val selectedDateLabel = remember { mutableStateOf("Today") }
     val openDialog = remember { mutableStateOf(false) }
     val calendarPickerMainColor = Color(0xFF722276)
-
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
 
     Row(
         modifier = Modifier
@@ -143,6 +173,9 @@ fun Header(nav: NavController) {
                     onClick = {
                         // Action to set the selected date and close the dialog
                         openDialog.value = false
+                        datePickerState.selectedDateMillis?.let {
+                            dateFormatted.value = dateFormat.format(Date(it))
+                        }
                         selectedDateLabel.value =
                             datePickerState.selectedDateMillis?.convertMillisToDate() ?: "Today"
                     }
@@ -178,8 +211,11 @@ fun Header(nav: NavController) {
 }
 
 @Composable
-fun Content() {
+fun Content(user: User) {
     val waterColor = Color(parseColor("#63e5ff"))
+
+    val dailyDataViewModel: DailyDataViewModel = viewModel()
+    val dailyData by dailyDataViewModel.dailyData.collectAsState()
 
     Column (
         modifier = Modifier
@@ -187,7 +223,7 @@ fun Content() {
             .background(Color(245, 250, 255)),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        HomeTabScreen()
+        HomeTabScreen(dailyData)
 
         Row(
             modifier = Modifier
@@ -231,7 +267,7 @@ fun Content() {
                         modifier = Modifier.size(60.dp),
                         tint = waterColor)
 
-                    Text(text = "1.25l",
+                    Text(text = dailyData.water.toString() + " liters",
                         color = textProgressColor,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium)
@@ -243,7 +279,7 @@ fun Content() {
                 }
 
                 IconButton(
-                    onClick = { /*TODO*/ }
+                    onClick = { dailyDataViewModel.addWater() }
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.baseline_add_circle_24),
@@ -413,7 +449,7 @@ fun Content() {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "70 kg",
+                        text = user.weight.toString() + " kg",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold)
 
@@ -438,9 +474,12 @@ fun Content() {
 }
 
 @Composable
-fun HomeTabScreen() {
+fun HomeTabScreen(dailyData: DailyData) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Macros", "Calories")
+
+    val userViewModel: UserViewModel = viewModel()
+    val user = userViewModel.state.value
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
@@ -452,14 +491,14 @@ fun HomeTabScreen() {
             }
         }
         when (tabIndex) {
-            0 -> MacrosScreen()
-            1 -> CaloriesScreen()
+            0 -> MacrosScreen(dailyData.intake ?: listOf(0.0, 0.0, 0.0, 0.0))
+            1 -> CaloriesScreen(dailyData.intake?.get(0) ?: 1.0, user.caloriesGoal ?: 1000)
         }
     }
 }
 
 @Composable
-fun MacrosScreen() {
+fun MacrosScreen(macros : List<Double>) {
     val progress1 = Color(parseColor("#FA9B31"))
     val progress2 = Color(parseColor("#2CB9B0"))
     val progress3 = Color(parseColor("#6C0D8F"))
@@ -487,14 +526,14 @@ fun MacrosScreen() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            MacrosProgress(progress = 0.6, number = "245", color = progress1)
+            MacrosProgress(progress = 0.6, number = macros[1].toString(), color = progress1)
 
-            MacrosProgress(progress = 0.6, number = "0", color = progress2)
+            MacrosProgress(progress = 0.6, number = macros[2].toString(), color = progress2)
 
-            MacrosProgress(progress = 0.6, number = "12", color = progress3)
+            MacrosProgress(progress = 0.6, number = macros[3].toString(), color = progress3)
         }
 
-        MacrosStats()
+        MacrosStats(macros)
     }
 }
 
@@ -519,10 +558,16 @@ fun MacrosProgress(progress: Double, number: String, color: Color) {
 }
 
 @Composable
-fun CaloriesScreen() {
+fun CaloriesScreen(calories: Double, target: Int) {
     val innerProgressColor = Color(parseColor("#F58BA4"))
     val outerProgressColor = Color(parseColor("#4ED22D"))
 
+    var progress by remember {
+        mutableFloatStateOf((calories / target).toFloat())
+    }
+    progress = (calories / target).toFloat()
+
+    val animatedProgress by animateFloatAsState(targetValue = progress, label = "")
 
     Column(
         modifier = Modifier
@@ -542,20 +587,20 @@ fun CaloriesScreen() {
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
-                text = "2000",
+                text = calories.toInt().toString(),
                 fontWeight = FontWeight.ExtraBold,
                 color = textProgressColor,
                 fontSize = 22.sp)
 
             CircularProgressIndicator(
-                progress = 0.3f,
+                progress = animatedProgress,
                 color = outerProgressColor,
                 strokeWidth = 10.dp,
                 modifier = Modifier.size(130.dp)
             )
 
             CircularProgressIndicator(
-                progress = 0.6f,
+                progress = animatedProgress,
                 color = innerProgressColor,
                 strokeWidth = 8.dp,
                 modifier = Modifier
@@ -590,7 +635,7 @@ fun CaloriesStats() {
 }
 
 @Composable
-fun MacrosStats() {
+fun MacrosStats(macros: List<Double>) {
     val color1 = Color(parseColor("#FA9B31"))
     val color2 = Color(parseColor("#2CB9B0"))
     val color3 = Color(parseColor("#6C0D8F"))
@@ -602,11 +647,11 @@ fun MacrosStats() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Stats(name = "Protein", color = color1, number = "245g")
+        Stats(name = "Protein", color = color1, number = macros[1].toString())
 
-        Stats(name = "Carbs", color = color2, number = "0g")
+        Stats(name = "Carbs", color = color2, number = macros[2].toString())
 
-        Stats(name = "Fats", color = color3, number = "12g")
+        Stats(name = "Fats", color = color3, number = macros[3].toString())
     }
 }
 
@@ -647,9 +692,3 @@ fun Square(shape: Shape, color: Color) {
             .background(color)
     )
 }
-
-//@Preview
-//@Composable
-//fun PreviewHomeUI() {
-//    TungAnh(nav)
-//}
