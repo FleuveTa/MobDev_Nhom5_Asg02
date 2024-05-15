@@ -28,7 +28,7 @@ data class User(
     val gender: Int? = null,
     val dob: String? = null,
     val activityLevel: Int? = null,
-    val weeklyGoal: Double? = null,
+    val weeklyGoal: String? = null,
     val caloriesGoal: Int? = null,
     val nutrientGoal: Int? = null,
     val weight: Int? = null,
