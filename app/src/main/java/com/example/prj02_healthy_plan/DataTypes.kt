@@ -1,7 +1,6 @@
 package com.example.prj02_healthy_plan
 
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.auth.User
 
 data class Ingredient(
     val name: String? = null,
