@@ -52,7 +52,7 @@ class UserInforUIKtTest {
         val genderValue = mutableIntStateOf(0)
         val dobValue = mutableStateOf("17-11-2003")
         val activityLevelValue = mutableIntStateOf(1)
-        val weeklyGoalValue = mutableDoubleStateOf(0.5)
+        val weeklyGoalValue = mutableStateOf("0.5")
         val caloriesGoalValue = mutableIntStateOf(2)
         val nutrientGoalValue = mutableIntStateOf(1)
         val weightValue = mutableIntStateOf(67)
@@ -82,7 +82,7 @@ class UserInforUIKtTest {
                 "gender" to genderValue.intValue,
                 "dob" to dobValue.value,
                 "activityLevel" to activityLevelValue.intValue,
-                "weeklyGoal" to weeklyGoalValue.doubleValue,
+                "weeklyGoal" to weeklyGoalValue.value,
                 "caloriesGoal" to caloriesGoalValue.intValue,
                 "nutrientGoal" to nutrientGoalValue.intValue,
                 "weight" to weightValue.intValue,

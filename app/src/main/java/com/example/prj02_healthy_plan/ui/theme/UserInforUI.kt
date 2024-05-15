@@ -76,7 +76,7 @@ fun UserInforUI(navController: NavController) {
         mutableIntStateOf(user.gender ?: 3)
     }
     val dobValue = remember(user.dob) {
-        mutableStateOf(user.dob ?: "")
+        mutableStateOf(user.dob ?: "1-1-1970")
     }
     val activityLevelValue = remember(user.activityLevel) {
         mutableIntStateOf(user.activityLevel ?: 3)
@@ -328,6 +328,7 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
                     onClick = { showDatePicker = true },
                     colors = transparentButtonColors,
                     modifier = Modifier.fillMaxSize()
+                        .testTag("DOBButton")
                 )
                 {}
             }

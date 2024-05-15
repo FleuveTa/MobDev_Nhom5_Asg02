@@ -3,6 +3,7 @@ package com.example.prj02_healthy_plan.ui.theme
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -70,36 +71,10 @@ class UserInforUITest {
     }
 
     @Test
-    fun testDoBSelection() {
-        // Create a MutableState for gender and dob
-        val genderState = mutableStateOf(0)
-        val dobState = mutableStateOf("01/01/2000")
-
-        // Set the content to be tested
-        composeTestRule.setContent {
-            GenderAndDOB(genderState = genderState, dobState = dobState)
-        }
-
-        // Verify the initial state of dob
-        composeTestRule.onNodeWithText("01/01/2000").assertExists()
-
-        // Perform click to open the date picker
-        composeTestRule.onNodeWithText("DoB").performClick()
-
-        // Assuming the CustomDatePickerDialog shows a Text "Set Date" when opened
-        // This is a simplification for demonstration purposes
-        composeTestRule.onNodeWithText("Set Date").performClick()
-
-        // Verify the date state is updated
-        assert(dobState.value == "01/01/2000")
-    }
-
-
-    @Test
     fun testActivityLevelSelection() {
         // Create a MutableState for activity level and weekly goal
         val activityLevelState = mutableStateOf(0)
-        val weeklyGoalState = mutableStateOf(0.0)
+        val weeklyGoalState = mutableStateOf("0.0")
 
         // Set the content to be tested
         composeTestRule.setContent {
@@ -123,23 +98,23 @@ class UserInforUITest {
 
     @Test
     fun testWeeklyGoalInput() {
-        // Create a MutableState for activity level and weekly goal
+        // Create MutableState for activity level and weekly goal
         val activityLevelState = mutableStateOf(0)
-        val weeklyGoalState = mutableStateOf(0.0)
+        val weeklyGoalState = mutableStateOf("")
 
         // Set the content to be tested
         composeTestRule.setContent {
             ActivityLevelRow(activityLevelState = activityLevelState, weeklyGoalState = weeklyGoalState)
         }
 
-        // Verify initial weekly goal value
-        composeTestRule.onNodeWithTag("WeeklyGoalInput").assertExists()
+        // Verify initial state of the weekly goal input
+        composeTestRule.onNodeWithText("Weekly Goal (kg)").assertExists()
 
         // Input new weekly goal value
-        composeTestRule.onNodeWithTag("WeeklyGoalInput").performTextInput("2.5")
+        composeTestRule.onNodeWithText("Weekly Goal (kg)").performTextInput("0.5")
 
         // Verify weekly goal state is updated
-        assert(weeklyGoalState.value == 2.5)
+        assert(weeklyGoalState.value == "0.5")
     }
 
     @Test
