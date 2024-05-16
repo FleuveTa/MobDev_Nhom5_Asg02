@@ -152,7 +152,7 @@ fun DetailRecipeContent(
                 }
                 // Calories
                 Text(
-                    text = "100 Cal",
+                    text = "${recipe.nutrition?.get(0)?.toInt()} kcal",
                     modifier = Modifier
                         .padding(start = 16.dp, end = 16.dp),
                     style = MaterialTheme.typography.bodyMedium,
