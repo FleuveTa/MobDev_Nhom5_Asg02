@@ -1,7 +1,7 @@
 package com.example.prj02_healthy_plan
 
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.auth.User
+
 
 data class Ingredient(
     val name: String? = null,
@@ -45,3 +45,24 @@ data class User(
     val targetWeight: Int? = null,
     val goal: Int? = null
 )
+
+data class RecipeInDaily(
+    val recipe: DocumentReference? = null,
+    val quantity: Int? = null
+)
+
+data class DailyData(
+    var id: String? = null,
+    val user: DocumentReference? = null,
+    var water: Int? = null,
+    val intake: List<Double>? = null,
+    val burned: Int? = null,
+    val steps: Int? = null,
+    val date: String? = null,
+    val breakfast: List<RecipeInDaily>? = null,
+    val lunch: List<RecipeInDaily>? = null,
+    val dinner: List<RecipeInDaily>? = null,
+    val snacks: List<RecipeInDaily>? = null
+) {
+
+}
