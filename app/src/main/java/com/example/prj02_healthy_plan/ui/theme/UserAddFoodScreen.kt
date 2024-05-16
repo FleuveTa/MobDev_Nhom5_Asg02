@@ -31,6 +31,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -39,16 +41,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.RecipeFirebase
+import com.example.prj02_healthy_plan.RecipeInDaily
+import com.example.prj02_healthy_plan.uiModel.DailyDataViewModel
+import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserAddFoodScreen(nav: NavHostController) {
+    val viewRecipeModel: RecipeViewModel = viewModel()
+    val recipeList by viewRecipeModel.recipeList.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        viewRecipeModel.fetchRecipes()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
@@ -94,13 +114,13 @@ fun UserAddFoodScreen(nav: NavHostController) {
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            UserAddFoodTabScreen()
+            UserAddFoodTabScreen(recipeList)
         }
     }
 }
 
 @Composable
-fun UserAddFoodTabScreen() {
+fun UserAddFoodTabScreen(recipe: List<RecipeFirebase> = emptyList()) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("All", "History")
     val userAddFoodTabScreenScrollState = rememberScrollState()
@@ -115,30 +135,33 @@ fun UserAddFoodTabScreen() {
             }
         }
         when (tabIndex) {
-            0 -> AllFoodScreen(scrollState = userAddFoodTabScreenScrollState)
+            0 -> AllFoodScreen(scrollState = userAddFoodTabScreenScrollState, recipe = recipe)
             1 -> HistoryAddScreen(scrollState = userAddFoodTabScreenScrollState)
         }
     }
 }
 
 @Composable
-fun AllFoodScreen(scrollState: ScrollState) {
+fun AllFoodScreen(scrollState: ScrollState, recipe: List<RecipeFirebase> = emptyList()) {
     Column(
         modifier = Modifier
             .verticalScroll(scrollState)
     ) {
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
-        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+        for (i in recipe) {
+            FoodCanAdd(name = i.name ?: "Null", id = "${i.id}", cal = i.nutrition?.get(0) ?: 0)
+        }
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
+//        FoodCanAdd(name = "Large Size Egg", amount = "3 eggs", cal = 273)
     }
 }
 
@@ -159,7 +182,10 @@ fun HistoryAddScreen(scrollState: ScrollState) {
 }
 
 @Composable
-fun FoodCanAdd(name: String, amount: String, cal: Number) {
+fun FoodCanAdd(name: String, id: String, cal: Number) {
+    val dailyDataViewModel: DailyDataViewModel = viewModel()
+    val db = Firebase.firestore
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -185,7 +211,7 @@ fun FoodCanAdd(name: String, amount: String, cal: Number) {
             )
 
             Text(
-                text = amount,
+                text = id,
                 fontSize = 14.sp,
             )
         }
@@ -203,12 +229,19 @@ fun FoodCanAdd(name: String, amount: String, cal: Number) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Icon(
-                imageVector = Icons.Default.AddCircle,
-                contentDescription = "Add Icon",
-                tint = Color.Green,
-                modifier = Modifier.size(30.dp)
+            val newRecipeInDaily = RecipeInDaily(
+                recipe = db.collection("recipes").document(id),
+                quantity = 1
             )
+
+            IconButton(onClick = { dailyDataViewModel.updateMeal("breakfast", "16-05-2024", newRecipeInDaily, context)}) {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "Add Icon",
+                    tint = Color.Green,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
     }
 }

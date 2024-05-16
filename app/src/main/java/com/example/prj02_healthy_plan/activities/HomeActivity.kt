@@ -172,7 +172,7 @@ fun AppNavBar() {
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController)}
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
-//                composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
+                composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
                 composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController)}
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
 //                composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
