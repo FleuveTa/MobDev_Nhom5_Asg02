@@ -49,12 +49,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.MainActivity
+import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -69,6 +71,8 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
         containerColor = Color.Transparent,
         contentColor = Color.Black // Set text color
     )
+    val userViewModel: UserViewModel = viewModel()
+    val user = userViewModel.state.value
 
     Scaffold(
         topBar = {
@@ -143,8 +147,9 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
             }
 
             Text(
-                text = "Random Girl Name",
+                text = user.fullName ?: "",
                 color = Color.Black,
+                fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
                 lineHeight = 1.27.em,
                 style = MaterialTheme.typography.titleLarge,
@@ -159,7 +164,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                         textAlign = TextAlign.Center,
                         lineHeight = 1.43.em,
                         style = TextStyle(
-                            fontSize = 14.sp,
+                            fontSize = 16.sp,
                             letterSpacing = 0.25.sp),
                         modifier = Modifier
                             .fillMaxWidth())
