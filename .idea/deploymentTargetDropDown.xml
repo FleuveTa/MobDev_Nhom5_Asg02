@@ -8,15 +8,6 @@
       <entry key="app">
         <State />
       </entry>
-      <entry key="testDOBInput()">
-        <State />
-      </entry>
-      <entry key="testDoBSelection()">
-        <State />
-      </entry>
-      <entry key="testWeeklyGoalInput()">
-        <State />
-      </entry>
     </value>
   </component>
 </project>

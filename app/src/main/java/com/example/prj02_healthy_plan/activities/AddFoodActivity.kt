@@ -67,6 +67,7 @@ import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.storage
@@ -85,15 +86,15 @@ class AddFoodActivity : ComponentActivity() {
         val ingredientRef = db.collection("ingredients")
         val storageRef = storage.reference
         val recipeRef = db.collection("recipes")
-        ingredientRef.get()
-            .addOnSuccessListener {documents ->
-                for (document in documents) {
-                    val ingredient = document.toObject<Ingredient>()
-                    ingredientList.add(ingredient)
-                    Log.d("TAG", "${ingredient.name} ${ingredient.unit} ${ingredient.nutrition}")
-                }
-            }
-
+//        ingredientRef.get()
+//            .addOnSuccessListener {documents ->
+//                for (document in documents) {
+//                    val ingredient = document.toObject<Ingredient>()
+//                    ingredientList.add(ingredient)
+//                    Log.d("TAG", "${ingredient.name} ${ingredient.unit} ${ingredient.nutrition}")
+//                }
+//            }
+        getIngredientListFromDb(ingredientRef, ingredientList)
         setContent {
             Prj02_Healthy_PlanTheme {
 
@@ -388,6 +389,20 @@ class AddFoodActivity : ComponentActivity() {
             }
         }
     }
+}
+
+fun getIngredientListFromDb(
+    ingredientRef: CollectionReference,
+    ingredientList: ArrayList<Ingredient>
+) {
+    ingredientRef.get()
+        .addOnSuccessListener {documents ->
+            for (document in documents) {
+                val ingredient = document.toObject<Ingredient>()
+                ingredientList.add(ingredient)
+                Log.d("TAG", "${ingredient.name} ${ingredient.unit} ${ingredient.nutrition}")
+            }
+        }
 }
 
 
