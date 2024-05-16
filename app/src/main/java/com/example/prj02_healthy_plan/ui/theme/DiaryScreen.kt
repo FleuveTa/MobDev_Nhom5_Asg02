@@ -17,6 +17,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
@@ -86,13 +88,13 @@ fun Giang(nav: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { /* Handle filter click here */ }) {
-                    Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Filter")
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Filter")
                 }
 
                 Text(text = "Today")
 
                 IconButton(onClick = { /* Handle filter click here */ }) {
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Filter")
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Filter")
                 }
             }
             Column(
