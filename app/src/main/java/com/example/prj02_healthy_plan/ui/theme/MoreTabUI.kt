@@ -341,7 +341,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                     )
 
                     Button(colors = transparentButtonColors,
-                        onClick = { /*TODO*/ })
+                        onClick = { nav.navigate("security") })
                     {
                         Box(
                             modifier = Modifier
