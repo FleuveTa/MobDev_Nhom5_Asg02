@@ -13,7 +13,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
-import org.mockito.kotlin.verify
+import org.mockito.Mockito.verify
 
 
 class UserInforUIKtTest {
