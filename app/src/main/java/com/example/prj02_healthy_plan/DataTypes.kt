@@ -2,6 +2,7 @@ package com.example.prj02_healthy_plan
 
 import com.google.firebase.firestore.DocumentReference
 
+
 data class Ingredient(
     val name: String? = null,
     val unit: String? = null,
@@ -22,6 +23,13 @@ data class RecipeFirebase(
     val instructionUrl: String? = null,
     val ingredients: List<IngredientInRecipe>? = null,
     val nutrition: List<Double>? = null
+)
+
+data class MyRecipeFirebase(
+    var id: String? = null,
+    var userId: String? = null,
+    var user: com.example.prj02_healthy_plan.User?  = null,
+    var recipes: List<RecipeFirebase>? = null
 )
 
 data class User(

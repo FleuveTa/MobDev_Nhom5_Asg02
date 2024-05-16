@@ -31,11 +31,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
@@ -48,7 +48,6 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
 }
 
 dependencies {
@@ -75,24 +74,29 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("org.mockito:mockito-core:5.7.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
-    testImplementation("androidx.compose.ui:ui-test-junit4")
-
-
+    androidTestImplementation("org.mockito:mockito-android:2.24.5")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$version")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:$rootProject.composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-
     implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
+
     implementation("androidx.credentials:credentials:1.3.0-alpha03")
     implementation ("androidx.credentials:credentials-play-services-auth:1.3.0-alpha03")
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
+
+
+    val cameraX_version = "1.3.3"
+    implementation("androidx.camera:camera-core:$cameraX_version")
+    implementation("androidx.camera:camera-camera2:$cameraX_version")
+    implementation("androidx.camera:camera-lifecycle:$cameraX_version")
+    implementation("androidx.camera:camera-video:$cameraX_version")
+    implementation("androidx.camera:camera-view:$cameraX_version")
+    implementation("androidx.camera:camera-extensions:$cameraX_version")
+
+    implementation("com.google.guava:guava:31.1-jre")
+
 }

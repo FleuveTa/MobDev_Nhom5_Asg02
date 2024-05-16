@@ -1,6 +1,7 @@
 package com.example.prj02_healthy_plan.ui.theme
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -60,6 +62,7 @@ fun UserInforUI(navController: NavController) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
     val db = Firebase.firestore
+    val context = LocalContext.current
 
     Log.d(
         "Tester5",
@@ -140,6 +143,7 @@ fun UserInforUI(navController: NavController) {
                     goalValue
                 )
             }
+            Toast.makeText(context, "Changes saved", Toast.LENGTH_SHORT).show()
         }) {
             Text("Save changes")
         }
@@ -175,7 +179,8 @@ fun saveUserChanges(
             "weight" to weightValue.intValue,
             "targetWeight" to targetWeightValue.intValue,
             "goal" to goalValue.intValue,
-        ))
+        )
+    )
 }
 @Composable
 fun FullNameBox(nameState: MutableState<String>) {
