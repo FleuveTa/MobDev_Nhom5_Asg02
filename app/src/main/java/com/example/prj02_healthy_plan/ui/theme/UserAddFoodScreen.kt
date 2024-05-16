@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.RecipeFirebase
+import com.example.prj02_healthy_plan.RecipeInDaily
+import com.example.prj02_healthy_plan.uiModel.DailyDataViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +72,7 @@ fun UserAddFoodScreen(nav: NavHostController){
     val allRecipeList by viewRecipeModel.recipeList.collectAsState()
     val (filteredRecipeList, setFilteredRecipeList) = remember { mutableStateOf(allRecipeList) }
     val (isSearching, setIsSearching) = remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = Unit) {
         viewRecipeModel.fetchRecipes()
     }
@@ -123,12 +132,12 @@ fun UserAddFoodScreen(nav: NavHostController){
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // Hiển thị tất cả các mục khi không tìm kiếm hoặc khi kết quả tìm kiếm rỗng
             if (!isSearching || filteredRecipeList.isEmpty()) {
                 UserAddFoodTabScreen(recipeList = allRecipeList)
             } else {
                 UserAddFoodTabScreen(recipeList = filteredRecipeList)
             }
+
         }
     }
 }
@@ -138,7 +147,6 @@ fun UserAddFoodTabScreen(recipeList: List<RecipeFirebase>) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("All", "History")
     val userAddFoodTabScreenScrollState = rememberScrollState()
-
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
@@ -165,7 +173,7 @@ fun AllFoodScreen(scrollState: ScrollState, recipeList: List<RecipeFirebase>) {
         recipeList.forEach { recipe ->
             FoodCanAdd(
                 name = recipe.name ?: "",
-                amount = recipe.description ?: "",
+                id = recipe.id ?: "",
                 cal = recipe.nutrition?.get(0) ?: 0
             )
         }
@@ -189,7 +197,10 @@ fun HistoryAddScreen(scrollState: ScrollState) {
 }
 
 @Composable
-fun FoodCanAdd(name: String, amount: String, cal: Number) {
+fun FoodCanAdd(name: String, id: String, cal: Number) {
+    val dailyDataViewModel: DailyDataViewModel = viewModel()
+    val db = Firebase.firestore
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -215,7 +226,7 @@ fun FoodCanAdd(name: String, amount: String, cal: Number) {
             )
 
             Text(
-                text = amount,
+                text = id,
                 fontSize = 14.sp,
             )
         }
@@ -233,12 +244,19 @@ fun FoodCanAdd(name: String, amount: String, cal: Number) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Icon(
-                imageVector = Icons.Default.AddCircle,
-                contentDescription = "Add Icon",
-                tint = GreenMain,
-                modifier = Modifier.size(30.dp)
+            val newRecipeInDaily = RecipeInDaily(
+                recipe = db.collection("recipes").document(id),
+                quantity = 1
             )
+
+            IconButton(onClick = { dailyDataViewModel.updateMeal("breakfast", "16-05-2024", newRecipeInDaily, context)}) {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "Add Icon",
+                    tint = Color.Green,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
     }
 }

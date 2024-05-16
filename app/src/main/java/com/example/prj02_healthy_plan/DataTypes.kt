@@ -2,6 +2,7 @@ package com.example.prj02_healthy_plan
 
 import com.google.firebase.firestore.DocumentReference
 
+
 data class Ingredient(
     val name: String? = null,
     val unit: String? = null,
