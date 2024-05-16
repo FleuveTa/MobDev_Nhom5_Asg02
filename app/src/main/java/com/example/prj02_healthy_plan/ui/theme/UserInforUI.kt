@@ -85,7 +85,7 @@ fun UserInforUI(navController: NavController) {
         mutableStateOf(user.weeklyGoal ?: "")
     }
     val caloriesGoalValue = remember(user.caloriesGoal) {
-        mutableIntStateOf(user.caloriesGoal ?: 3)
+        mutableIntStateOf(user.caloriesGoal ?: 0)
     }
     val nutrientGoalValue = remember(user.nutrientGoal) {
         mutableIntStateOf(user.nutrientGoal ?: 3)
