@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import PastOrPresentSelectableDates
 import android.health.connect.datatypes.HeartRateRecord
 import android.util.Log
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -30,6 +32,9 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,9 +43,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -66,6 +73,7 @@ import com.example.prj02_healthy_plan.RecipeFirebase
 import com.example.prj02_healthy_plan.RecipeInDaily
 import com.example.prj02_healthy_plan.uiModel.DailyDataViewModel
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
+import convertMillisToDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -97,6 +105,14 @@ fun Giang(nav: NavHostController) {
     val totalLunch = remember { mutableDoubleStateOf(0.0) }
     val totalDinner = remember { mutableDoubleStateOf(0.0) }
     val totalSnacks = remember { mutableDoubleStateOf(0.0) }
+
+    val openDialog = remember { mutableStateOf(false) }
+    val selectedDateLabel = remember { mutableStateOf("Today") }
+    val datePickerState = rememberDatePickerState(
+        selectableDates = PastOrPresentSelectableDates
+    )
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    val calendarPickerMainColor = Color(0xFF722276)
 
     LaunchedEffect(dailyData) {
         breakfastRecipes.clear()
@@ -130,8 +146,19 @@ fun Giang(nav: NavHostController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Handle filter click here */ }) {
-                        Icon(Icons.Default.List, contentDescription = "Filter")
+                    TextButton(
+                        onClick = {openDialog.value = true}
+                    ) {
+
+                        Text(
+                            text = selectedDateLabel.value,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "DropDown Icon")
                     }
                 }
             )
@@ -139,33 +166,14 @@ fun Giang(nav: NavHostController) {
     ) {innerPadding ->
         Box(modifier = Modifier
             .fillMaxSize()
-            .background(Color(245, 250, 255))) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(innerPadding)
-                    .background(Color(245, 250, 255)),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* Handle filter click here */ }) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Filter")
-                }
-
-                Text(text = "Today")
-
-                IconButton(onClick = { /* Handle filter click here */ }) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Filter")
-                }
-            }
-
+            .background(Color(245, 250, 255))
+            .padding(innerPadding)
+        ) {
             val percent = (dailyData.intake?.get(0) ?: 0.0) * 100 / (user.caloriesGoal ?: 1)
             val formattedPercent = String.format("%.2f", percent).toFloat()
             val remaining = (user.caloriesGoal ?: 0) -  (dailyData.intake?.get(0)?.toInt() ?: 0)
-
             Column(
                 modifier = Modifier
-                    .padding(top = 120.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 RoundedBox {
@@ -255,6 +263,57 @@ fun Giang(nav: NavHostController) {
                     }
                 }
 
+            }
+        }
+
+        if (openDialog.value) {
+            DatePickerDialog(
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color(0xFFF5F0FF),
+                ),
+                onDismissRequest = {
+                    // Action when the dialog is dismissed without selecting a date
+                    openDialog.value = false
+                },
+                confirmButton = {
+                    // Confirm button with custom action and styling
+                    TextButton(
+                        onClick = {
+                            // Action to set the selected date and close the dialog
+                            openDialog.value = false
+                            datePickerState.selectedDateMillis?.let {
+                                selectedDateFormattedLabel.value = dateFormat.format(Date(it))
+                            }
+                            selectedDateLabel.value =
+                                datePickerState.selectedDateMillis?.convertMillisToDate() ?: "Today"
+                        }
+                    ) {
+                        Text("OK", color = calendarPickerMainColor)
+                    }
+                },
+                dismissButton = {
+                    // Dismiss button to close the dialog without selecting a date
+                    TextButton(
+                        onClick = {
+                            openDialog.value = false
+                        }
+                    ) {
+                        Text("CANCEL", color = calendarPickerMainColor)
+                    }
+                }
+            ) {
+                // The actual DatePicker component within the dialog
+                DatePicker(
+                    state = datePickerState,
+                    colors = DatePickerDefaults.colors(
+                        selectedDayContainerColor = calendarPickerMainColor,
+                        selectedDayContentColor = Color.White,
+                        selectedYearContainerColor = calendarPickerMainColor,
+                        selectedYearContentColor = Color.White,
+                        todayContentColor = calendarPickerMainColor,
+                        todayDateBorderColor = calendarPickerMainColor
+                    )
+                )
             }
         }
     }
