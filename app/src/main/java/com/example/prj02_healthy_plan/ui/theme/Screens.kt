@@ -15,4 +15,5 @@ sealed class Screens (val screen: String) {
 
     data object UserAddIngredient: Screens("userAddIngredient")
     data object CalendarUI: Screens("calendar")
+    data object SecurityUI: Screens("security")
 }
