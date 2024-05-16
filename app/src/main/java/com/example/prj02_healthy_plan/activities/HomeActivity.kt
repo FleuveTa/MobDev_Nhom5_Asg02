@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
@@ -38,13 +37,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.prj02_healthy_plan.User
+
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
 import com.example.prj02_healthy_plan.ui.theme.Giang
@@ -52,10 +49,14 @@ import com.example.prj02_healthy_plan.ui.theme.GreenMain
 import com.example.prj02_healthy_plan.ui.theme.HomeUI
 import com.example.prj02_healthy_plan.ui.theme.MoreTabUI
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
+import com.example.prj02_healthy_plan.ui.theme.ScanScreen
+import com.example.prj02_healthy_plan.ui.theme.ViewRecipeResultScreen
 import com.example.prj02_healthy_plan.ui.theme.Screens
+import com.example.prj02_healthy_plan.ui.theme.SearchChoiceScreen
+import com.example.prj02_healthy_plan.ui.theme.SearchResultScreen
 import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
+import com.example.prj02_healthy_plan.ui.theme.UserAddIngredientScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
-import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -80,7 +81,9 @@ fun AppNavBar() {
     val context = LocalContext.current
     val selected = remember { mutableStateOf(Icons.Default.Home) }
     val expanded = remember { mutableStateOf(false) }
-
+    val ingredientSearchResult = remember { mutableStateOf("") }
+    val recipeSearchName = remember { mutableStateOf("") }
+    val selectedRecipeName = remember { mutableStateOf<String>("") }
     LaunchedEffect(navigationController) {
         navigationController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.route) {
@@ -160,12 +163,16 @@ fun AppNavBar() {
                 modifier = Modifier.padding(paddingValues)) {
                 composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
-                composable(Screens.Explore.screen) { ChienTa(nav = navigationController)}
+                composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, selectedRecipeName) }
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
-                composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController)}
+                composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController, selectedRecipeName)}
+                composable(Screens.ViewRecipeResult.screen) { ViewRecipeResultScreen(nav = navigationController) }
+                composable(Screens.Scan.screen) { ScanScreen(nav = navigationController, ingredientSearchResult) }
+                composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
+                composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, selectedRecipeName) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
-//                composable(Screens.CalendarUI.screen) { CalendarUI(nav = navigationController)}
+                composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController) }
             }
         }
         DropdownMenu(
