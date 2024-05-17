@@ -23,7 +23,7 @@ class UserViewModel : ViewModel() {
         getUserInfor()
     }
 
-    private fun getUserInfor() {
+     fun getUserInfor() {
         viewModelScope.launch {
             if (uId != null) {
                 state.value = fetchUserInfor(uId = uId)

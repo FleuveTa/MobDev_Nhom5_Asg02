@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Button
@@ -41,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +68,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.MainActivity
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
@@ -83,17 +87,16 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
-    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
     val transparentButtonColors = ButtonDefaults.buttonColors(
         containerColor = Color.Transparent,
         contentColor = Color.Black // Set text color
     )
     val userViewModel: UserViewModel = viewModel()
     val user = userViewModel.state.value
+    val avatarValue = remember(user.avatar) {
+        mutableStateOf(user.avatar ?: "")
+    }
 
-    val storage = Firebase.storage
-    val storageRef = storage.reference
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
@@ -148,12 +151,11 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                 .padding(innerPadding)
                 .background(Color(245, 250, 255))
         ) {
-//            Header(nav, selectedDateFormattedLabel)
-
             Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Image(
-                    painter = painterResource(id = R.drawable.avartar),
-                    contentDescription = "user-avatar",
+                AsyncImage(
+                    model = avatarValue.value,
+                    placeholder = painterResource(R.drawable.baseline_account_circle_24),
+                    contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(120.dp)
@@ -176,7 +178,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                             selectedImageUri?.let {
-                                uploadToStorage(it, context)
+                                uploadToStorage(it, context, auth.currentUser?.uid ?: "")
                             }
                         }) {
                             Icon(
@@ -240,10 +242,6 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(alignment = Alignment.Top)
-//                            .offset(
-//                                x = 16.dp,
-//                                y = 12.dp
-//                            )
                                 .requiredHeight(height = 24.dp)
                         ) {
                             Icon(
@@ -281,10 +279,6 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(alignment = Alignment.Top)
-//                            .offset(
-//                                x = 16.dp,
-//                                y = 48.dp
-//                            )
                                 .requiredHeight(height = 24.dp)
                         ) {
                             Icon(
@@ -320,10 +314,6 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                                 ),
                                 modifier = Modifier
                                     .fillMaxSize()
-//                                .offset(
-//                                    x = -35.dp,
-//                                    y = 2.dp
-//                                )
                             )
                         }
                     }
@@ -339,10 +329,6 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(alignment = Alignment.Top)
-//                            .offset(
-//                                x = 16.dp,
-//                                y = 84.dp
-//                            )
                                 .requiredHeight(height = 24.dp)
                         ) {
                             Icon(
@@ -378,9 +364,6 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                                 ),
                                 modifier = Modifier
                                     .fillMaxSize()
-//                                .offset(
-//                                    x = -35.dp,
-//                                    y = 2.dp)
                             )
                         }
 
@@ -630,47 +613,24 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                 }
 
             }
-//            Button(
-//                onClick = { auth.signOut()
-//                    if (context is Activity) {
-//                        val intent = Intent(context, MainActivity::class.java)
-//                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-//                        context.startActivity(intent)
-//                        context.finish() }},
-//
-//                modifier = Modifier
-//                    .padding(horizontal = 8.dp, vertical = 4.dp)
-//                    .align(Alignment.End),
-//                colors = ButtonDefaults.buttonColors(Color.Red)
-//            ) {
-//                Text(text = "Logout",
-//                    color = Color.White,
-//                    textAlign = TextAlign.Center,
-//                    lineHeight = 1.43.em,
-//                    style = TextStyle(
-//                        fontSize = 14.sp,
-//                        letterSpacing = 0.25.sp))
-//            }
         }
     }
 }
 
-fun uploadToStorage(uri: Uri, context:Context) {
+fun uploadToStorage(uri: Uri, context: Context, uId: String) {
     val storage = Firebase.storage
     val storageRef = storage.reference
+    val db = Firebase.firestore
 
-    var imageRef = storageRef.child("images/${uri.lastPathSegment}")
+    val imageRef = storageRef.child("images/${uri.lastPathSegment}")
 
-    val byteArray: ByteArray? = context.contentResolver
-        .openInputStream(uri)
-        ?.use { it.readBytes() }
-
-    byteArray?.let {
-        var uploadTask = imageRef.putBytes(byteArray)
-        uploadTask.addOnFailureListener {
-            Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
-        }.addOnSuccessListener { taskSnapshot ->
-            Toast.makeText(context, "Upload success", Toast.LENGTH_SHORT).show()
+    val uploadTask = imageRef.putFile(uri)
+    uploadTask.addOnFailureListener {
+        Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
+    }.addOnSuccessListener { taskSnapshot ->
+        Toast.makeText(context, "Upload success", Toast.LENGTH_SHORT).show()
+        imageRef.downloadUrl.addOnSuccessListener { uri ->
+            db.collection("users").document(uId).update("avatar", uri.toString())
         }
     }
 }
