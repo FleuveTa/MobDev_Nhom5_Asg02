@@ -49,7 +49,8 @@ data class User(
     val nutrientGoal: Int? = null,
     val weight: Int? = null,
     val targetWeight: Int? = null,
-    val goal: Int? = null
+    val goal: Int? = null,
+    val avatar: String? = null
 )
 
 data class RecipeInDaily(
