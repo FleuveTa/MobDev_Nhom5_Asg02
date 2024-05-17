@@ -98,5 +98,4 @@ dependencies {
     implementation("androidx.camera:camera-extensions:$cameraX_version")
 
     implementation("com.google.guava:guava:31.1-jre")
-
 }

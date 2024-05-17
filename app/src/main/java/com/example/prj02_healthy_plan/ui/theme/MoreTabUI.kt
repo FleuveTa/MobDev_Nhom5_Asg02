@@ -3,6 +3,12 @@ package com.example.prj02_healthy_plan.ui.theme
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +24,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,13 +41,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,13 +65,20 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.activities.MainActivity
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
+import com.google.common.io.ByteStreams.readBytes
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.storage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +91,18 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
     )
     val userViewModel: UserViewModel = viewModel()
     val user = userViewModel.state.value
+
+    val storage = Firebase.storage
+    val storageRef = storage.reference
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+    val pickPhotoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImageUri = uri
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -102,9 +132,11 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                         auth.signOut()
                         if (context is Activity) {
                             val intent = Intent(context, MainActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                            intent.flags =
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                             context.startActivity(intent)
-                            context.finish() }
+                            context.finish()
+                        }
                     }) {
                         Icon(Icons.Default.Logout, contentDescription = "Logout Icon")
                     }
@@ -114,7 +146,8 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(245, 250, 255))) {
+                .background(Color(245, 250, 255))
+        ) {
 //            Header(nav, selectedDateFormattedLabel)
 
             Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -126,6 +159,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                         .size(120.dp)
                         .clip(CircleShape)
                 )
+
                 Box(modifier = Modifier.align(Alignment.BottomEnd)) {
                     Box(
                         modifier = Modifier
@@ -135,13 +169,23 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             .border(
                                 border = BorderStroke(5.dp, Color.White),
                                 shape = CircleShape
-                            )) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.edit),
-                            contentDescription = "edit-avatar",
-                            modifier = Modifier
-                                .align(alignment = Alignment.Center)
-                        )
+                            )
+                    ) {
+                        IconButton(onClick = {
+                            pickPhotoLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                            selectedImageUri?.let {
+                                uploadToStorage(it, context)
+                            }
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.edit),
+                                contentDescription = "edit-avatar",
+                                modifier = Modifier
+                                    .align(alignment = Alignment.Center)
+                            )
+                        }
                     }
                 }
             }
@@ -154,7 +198,8 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                 lineHeight = 1.27.em,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
-                    .fillMaxWidth())
+                    .fillMaxWidth()
+            )
 
             auth.currentUser?.let {
                 it.email?.let { it1 ->
@@ -165,9 +210,11 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                         lineHeight = 1.43.em,
                         style = TextStyle(
                             fontSize = 16.sp,
-                            letterSpacing = 0.25.sp),
+                            letterSpacing = 0.25.sp
+                        ),
                         modifier = Modifier
-                            .fillMaxWidth())
+                            .fillMaxWidth()
+                    )
                 }
             }
 
@@ -183,7 +230,8 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             .fillMaxWidth()
                             .requiredHeight(height = 120.dp)
                             .clip(shape = RoundedCornerShape(8.dp))
-                            .background(color = Color.LightGray))
+                            .background(color = Color.LightGray)
+                    )
                     Button(colors = transparentButtonColors,
                         onClick = {
                             nav.navigate("userInfor")
@@ -201,29 +249,34 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             Icon(
                                 painter = painterResource(id = R.drawable.edit_profile_icon),
                                 contentDescription = "line/business/profile-line",
-                                modifier = Modifier.align(Alignment.CenterStart))
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
                             Text(
                                 text = "Edit profile information",
                                 color = Color.Black,
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterStart)
                                     .offset(
                                         x = 35.dp,
                                         y = 2.dp
                                     )
-                                    .fillMaxHeight())
+                                    .fillMaxHeight()
+                            )
                         }
                     }
 
-                    Button(colors = transparentButtonColors,
+                    Button(
+                        colors = transparentButtonColors,
                         onClick = { /*TODO*/ },
                         modifier = Modifier.offset(
                             x = 0.dp, y = 36.dp
-                        )) {
+                        )
+                    ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -237,21 +290,24 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             Icon(
                                 painter = painterResource(id = R.drawable.sand_icon),
                                 contentDescription = "line/business/profile-line",
-                                modifier = Modifier.align(Alignment.CenterStart))
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
                             Text(
                                 text = "Intermitten Fasting",
                                 color = Color.Black,
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterStart)
                                     .offset(
                                         x = 35.dp,
                                         y = 2.dp
                                     )
-                                    .fillMaxHeight())
+                                    .fillMaxHeight()
+                            )
 
                             Text(
                                 text = "ON",
@@ -260,7 +316,8 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .fillMaxSize()
 //                                .offset(
@@ -271,11 +328,13 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                         }
                     }
 
-                    Button(colors = transparentButtonColors,
+                    Button(
+                        colors = transparentButtonColors,
                         onClick = { /*TODO*/ },
                         modifier = Modifier.offset(
                             x = 0.dp, y = 72.dp
-                        )) {
+                        )
+                    ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -289,21 +348,24 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             Icon(
                                 painter = painterResource(id = R.drawable.language_icon),
                                 contentDescription = "line/business/profile-line",
-                                modifier = Modifier.align(Alignment.CenterStart))
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
                             Text(
                                 text = "Language",
                                 color = Color.Black,
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterStart)
                                     .offset(
                                         x = 35.dp,
                                         y = 2.dp
                                     )
-                                    .fillMaxHeight())
+                                    .fillMaxHeight()
+                            )
 
                             Text(
                                 text = "English",
@@ -312,7 +374,8 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .fillMaxSize()
 //                                .offset(
@@ -374,9 +437,11 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                     }
 
 
-                    Button(colors = transparentButtonColors,
+                    Button(
+                        colors = transparentButtonColors,
                         onClick = { /*TODO*/ },
-                        modifier = Modifier.offset(x = 0.dp, y = 38.dp)) {
+                        modifier = Modifier.offset(x = 0.dp, y = 38.dp)
+                    ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -436,7 +501,8 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             .fillMaxWidth()
                             .requiredHeight(height = 120.dp)
                             .clip(shape = RoundedCornerShape(8.dp))
-                            .background(color = Color.LightGray))
+                            .background(color = Color.LightGray)
+                    )
 
                     Button(colors = transparentButtonColors,
                         onClick = { /*TODO*/ })
@@ -450,29 +516,35 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             Icon(
                                 painter = painterResource(id = R.drawable.help_icon),
                                 contentDescription = "line/business/profile-line",
-                                modifier = Modifier.align(Alignment.CenterStart))
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
                             Text(
                                 text = "Help & Support",
                                 color = Color.Black,
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterStart)
                                     .offset(
                                         x = 35.dp,
                                         y = 2.dp
                                     )
-                                    .fillMaxHeight())
+                                    .fillMaxHeight()
+                            )
                         }
                     }
 
 
-                    Button(colors = transparentButtonColors,
+                    Button(
+                        colors = transparentButtonColors,
                         onClick = { /*TODO*/ },
                         modifier = Modifier.offset(
-                            x = 0.dp, y = 36.dp))
+                            x = 0.dp, y = 36.dp
+                        )
+                    )
                     {
                         Box(
                             modifier = Modifier
@@ -483,28 +555,34 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             Icon(
                                 painter = painterResource(id = R.drawable.contact_icon),
                                 contentDescription = "line/business/profile-line",
-                                modifier = Modifier.align(Alignment.CenterStart))
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
                             Text(
                                 text = "Contact us",
                                 color = Color.Black,
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterStart)
                                     .offset(
                                         x = 35.dp,
                                         y = 2.dp
                                     )
-                                    .fillMaxHeight())
+                                    .fillMaxHeight()
+                            )
                         }
                     }
 
-                    Button(colors = transparentButtonColors,
+                    Button(
+                        colors = transparentButtonColors,
                         onClick = { /*TODO*/ },
                         modifier = Modifier.offset(
-                            x = 0.dp, y = 72.dp))
+                            x = 0.dp, y = 72.dp
+                        )
+                    )
                     {
                         Box(
                             modifier = Modifier
@@ -515,21 +593,24 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             Icon(
                                 painter = painterResource(id = R.drawable.policy_icon),
                                 contentDescription = "line/business/profile-line",
-                                modifier = Modifier.align(Alignment.CenterStart))
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
                             Text(
                                 text = "Language",
                                 color = Color.Black,
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterStart)
                                     .offset(
                                         x = 35.dp,
                                         y = 2.dp
                                     )
-                                    .fillMaxHeight())
+                                    .fillMaxHeight()
+                            )
 
                             Text(
                                 text = "Privacy policy",
@@ -538,9 +619,11 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
                                     fontSize = 14.sp,
-                                    letterSpacing = 0.25.sp),
+                                    letterSpacing = 0.25.sp
+                                ),
                                 modifier = Modifier
-                                    .fillMaxSize())
+                                    .fillMaxSize()
+                            )
                         }
                     }
 
@@ -568,6 +651,26 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
 //                        fontSize = 14.sp,
 //                        letterSpacing = 0.25.sp))
 //            }
+        }
+    }
+}
+
+fun uploadToStorage(uri: Uri, context:Context) {
+    val storage = Firebase.storage
+    val storageRef = storage.reference
+
+    var imageRef = storageRef.child("images/${uri.lastPathSegment}")
+
+    val byteArray: ByteArray? = context.contentResolver
+        .openInputStream(uri)
+        ?.use { it.readBytes() }
+
+    byteArray?.let {
+        var uploadTask = imageRef.putBytes(byteArray)
+        uploadTask.addOnFailureListener {
+            Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
+        }.addOnSuccessListener { taskSnapshot ->
+            Toast.makeText(context, "Upload success", Toast.LENGTH_SHORT).show()
         }
     }
 }
