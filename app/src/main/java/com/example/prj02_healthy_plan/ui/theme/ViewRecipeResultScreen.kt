@@ -29,6 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,10 +47,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
+import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewRecipeResultScreen(nav: NavHostController) {
+fun ViewRecipeResultScreen(nav: NavHostController, recipeViewModel: RecipeViewModel, ingredientViewModel: IngredientViewModel) {
     val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
@@ -77,15 +85,17 @@ fun ViewRecipeResultScreen(nav: NavHostController) {
                 .padding(innerPadding)
                 .background(Color(245, 250, 255))
         ) {
-            RecipeResultScreen(scrollState = scrollState, nav = nav)
+            RecipeResultScreen(scrollState = scrollState, nav = nav, recipeViewModel = recipeViewModel, ingredientViewModel = ingredientViewModel)
         }
     }
 }
 
 @Composable
-fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController) {
+fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController, recipeViewModel: RecipeViewModel, ingredientViewModel: IngredientViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
     val resultScreenScrollState = rememberScrollState()
-
+    val userIngredients = ingredientViewModel.userIngredients
+    val recipeList by recipeViewModel.recipeList.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -129,7 +139,7 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController) {
                         fontWeight = FontWeight.Bold
                     )
 
-                    IconButton(onClick = { nav.navigate("searchChoice") }) {
+                    IconButton(onClick = { showDialog = true }) {
                         Icon(
                             imageVector = Icons.Default.AddCircle,
                             contentDescription = "Add Icon",
@@ -138,9 +148,27 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController) {
                         )
                     }
                 }
-                Ingredients(name = "Butter", amount = 100)
-                Ingredients(name = "Shrimps, boiled", amount = 200)
-                Ingredients(name = "Garlics", amount = 2)
+                if (showDialog) {
+                    ShowSearchChoiceDialog(nav = nav, onDismiss = { showDialog = false })
+                }
+                if (userIngredients.isEmpty()) {
+                    Text(
+                        text = "No ingredient added",
+                        modifier = Modifier.padding(5.dp)
+                    )
+                }
+                else {
+                    for (ingredient in userIngredients) {
+                        IngredientCanAdd(
+                            name = ingredient.name ?: "",
+                            unit = ingredient.unit ?: "",
+                            cal = ingredient.nutrition?.get(0) ?: 0.0,
+                            isAdded = true
+                        ) {
+                            ingredientViewModel.toggleIngredient(ingredient)
+                        }
+                    }
+                }
             }
         }
 
@@ -160,17 +188,35 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController) {
                 .background(Color.White)
                 .horizontalScroll(resultScreenScrollState)
         ) {
-            // Add corresponding results here
-
+            // Find the corresponding recipes with the user's ingredients
+            val matchedRecipes = recipeList.filter { recipe ->
+                recipe.ingredients?.any { ingredient ->
+                    userIngredients.any { userIngredient ->
+                        ingredient.name == userIngredient.name
+                    }
+                } ?: false
+            }
+            if (matchedRecipes.isEmpty()) {
+                Text(
+                    text = "No corresponding recipe found",
+                    modifier = Modifier.padding(5.dp)
+                )
+            }
+            else {
+                for (recipe in matchedRecipes) {
+                    RecommendedFoods(
+                        recipeId = recipe.id ?: "",
+                        url = recipe.imageUrl ?: "",
+                        title = recipe.name ?: "",
+                        cal = recipe.nutrition?.get(0) ?: 0.0,
+                        nav = nav,
+                        recipeViewModel = recipeViewModel
+                    )
+                }
+            }
         }
     }
 }
 
-
-@Preview
-@Composable
-fun PreviewRecipeResultScreen() {
-    ViewRecipeResultScreen(nav = rememberNavController())
-}
 
 

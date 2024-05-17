@@ -40,20 +40,21 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.prj02_healthy_plan.RecipeFirebase
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchResultScreen(nav: NavHostController, searchInfo: MutableState<String>, selectedRecipeName: MutableState<String>) {
+fun SearchResultScreen(nav: NavHostController, searchInfo: MutableState<String>, recipeViewModel: RecipeViewModel) {
     var searchQuery by remember { mutableStateOf(searchInfo.value) }
-    val viewRecipeModel: RecipeViewModel = viewModel()
-    val recipeList by viewRecipeModel.recipeList.collectAsState()
+    val recipeList by recipeViewModel.recipeList.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
-        viewRecipeModel.fetchRecipes()
+        recipeViewModel.fetchRecipes()
     }
     val recipeResultSearchList = recipeList.filter { recipe ->
         recipe.name?.contains(searchQuery, ignoreCase = true) == true
@@ -95,33 +96,36 @@ fun SearchResultScreen(nav: NavHostController, searchInfo: MutableState<String>,
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            ResultScreen(scrollState = ScrollState(0), nav = nav, recipeList = recipeResultSearchList, selectedRecipeName = selectedRecipeName)
+            ResultScreen(scrollState = ScrollState(0), nav = nav, recipeResultsList = recipeResultSearchList, recipeViewModel = recipeViewModel)
         }
     }
 }
 
 @Composable
-fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeList: List<RecipeFirebase>, selectedRecipeName: MutableState<String>) {
+fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResultsList: List<RecipeFirebase>,     recipeViewModel: RecipeViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(5.dp)
             .verticalScroll(scrollState)
     ) {
-        recipeList.forEach { recipe ->
+        recipeResultsList.forEach { recipe ->
             MyRecipeResult(
+                recipeId = recipe.id ?: "",
                 url = recipe.imageUrl ?: "",
                 name = recipe.name ?: "",
                 description = recipe.description ?: "",
                 nav = nav,
-                selectedRecipeName = selectedRecipeName
+                recipeViewModel =  recipeViewModel
             )
         }
     }
 }
 
 @Composable
-fun MyRecipeResult(url: String, name: String, description: String, nav: NavHostController, selectedRecipeName: MutableState<String>) {
+fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel) {
+    val auth: FirebaseAuth = Firebase.auth
+    val uId = auth.currentUser?.uid
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -130,7 +134,7 @@ fun MyRecipeResult(url: String, name: String, description: String, nav: NavHostC
             .background(Color.White)
             .clickable {
                 nav.navigate("detailRecipe")
-                selectedRecipeName.value = name
+                recipeViewModel.selectedRecipeName.value = name
             },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -159,7 +163,7 @@ fun MyRecipeResult(url: String, name: String, description: String, nav: NavHostC
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Light
             )
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {  recipeViewModel.addMyRecipe(uId, recipeId) }) {
                 Icon(
                     imageVector = Icons.Outlined.FavoriteBorder,
                     contentDescription = "Heart Icon",

@@ -1,5 +1,7 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,21 +20,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,20 +42,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.prj02_healthy_plan.Ingredient
-import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserAddIngredientScreen(nav: NavHostController){
-    val viewRecipeModel: RecipeViewModel = viewModel()
-    val allIngredientList by viewRecipeModel.ingredientList.collectAsState()
+fun UserAddIngredientScreen(nav: NavHostController, ingredientViewModel: IngredientViewModel){
+    val allIngredientList by ingredientViewModel.ingredientList.collectAsState()
     val (filteredIngredientList, setFilteredIngredientList) = remember { mutableStateOf(allIngredientList) }
     val (isSearching, setIsSearching) = remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = Unit) {
-        viewRecipeModel.fetchIngredients()
+       ingredientViewModel.fetchIngredients()
     }
     Scaffold(
         topBar = {
@@ -68,17 +66,12 @@ fun UserAddIngredientScreen(nav: NavHostController){
                 )
             ),
                 title = {
-                    TextButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
-                    ) {
                         Text(
                             "Add Ingredient",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
                         )
-                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = { nav.navigate("explore") }) {
@@ -106,40 +99,29 @@ fun UserAddIngredientScreen(nav: NavHostController){
 
             // Hiển thị tất cả các mục khi không tìm kiếm hoặc khi kết quả tìm kiếm rỗng
             if (!isSearching || filteredIngredientList.isEmpty()) {
-                UserAddIngredientTabScreen(ingredientList = allIngredientList)
+                UserAddIngredientTabScreen(viewModel = ingredientViewModel)
             } else {
                 // Hiển thị kết quả tìm kiếm
-                AllIngredientScreen(scrollState = rememberScrollState(), ingredientList = filteredIngredientList)
+                AllIngredientScreen(scrollState = rememberScrollState(), ingredientList = filteredIngredientList, viewModel = ingredientViewModel)
             }
         }
     }
 }
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun UserAddIngredientTabScreen(ingredientList: List<Ingredient>) {
-    var tabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("All", "History")
+fun UserAddIngredientTabScreen(viewModel: IngredientViewModel) {
     val userAddIngredientTabScreenScrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        TabRow(selectedTabIndex = tabIndex) {
-            tabs.forEachIndexed { index, title ->
-                Tab(text = { Text(title) },
-                    selected = tabIndex == index,
-                    onClick = { tabIndex = index }
-                )
-            }
-        }
-        when (tabIndex) {
-            0 -> AllIngredientScreen(scrollState = userAddIngredientTabScreenScrollState, ingredientList = ingredientList)
-            1 -> HistoryAddScreen(scrollState = userAddIngredientTabScreenScrollState)
-        }
+        AllIngredientScreen(scrollState = userAddIngredientTabScreenScrollState, ingredientList = viewModel.ingredientList.value, viewModel = viewModel)
     }
 }
 
 @Composable
-fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredient>) {
+fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredient>, viewModel: IngredientViewModel) {
+    val userIngredients = viewModel.userIngredients
     Column(
         modifier = Modifier
             .verticalScroll(scrollState)
@@ -148,14 +130,18 @@ fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredien
             IngredientCanAdd(
                 name = ingredient.name ?: "",
                 unit = ingredient.unit ?: "",
-                cal = ingredient.nutrition?.get(0) ?: 0.0
-            )
+                cal = ingredient.nutrition?.get(0) ?: 0.0,
+                isAdded = userIngredients.contains(ingredient)
+            ) {
+                viewModel.toggleIngredient(ingredient)
+            }
         }
     }
 }
-
 @Composable
-fun IngredientCanAdd(name: String, unit: String, cal: Number) {
+fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, onToggle: (Boolean) -> Unit) {
+    var added by remember { mutableStateOf(isAdded) }
+
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -198,13 +184,23 @@ fun IngredientCanAdd(name: String, unit: String, cal: Number) {
             )
 
             Spacer(modifier = Modifier.width(8.dp))
-
-            Icon(
-                imageVector = Icons.Default.AddCircle,
-                contentDescription = "Add Icon",
-                tint = GreenMain,
-                modifier = Modifier.size(30.dp)
-            )
+            // Add button here, when click on it, the ingredient will be added to the user's ingredient list and
+            // the icon will change to a remove icon, when click on it again, the ingredient will be removed from the user's ingredient list
+            IconButton(onClick = {
+                added = !added
+                onToggle(added)
+                if (added) {
+                    Log.d("Add", "Added $name")
+                } else {
+                    Log.d("Remove", "Removed $name")
+                }
+            }) {
+                Icon(
+                    imageVector = if (added) Icons.Default.RemoveCircle else Icons.Default.AddCircle,
+                    contentDescription = if (added) "Remove" else "Add",
+                    tint = if (added) Color.Red else GreenMain,
+                    modifier = Modifier.size(30.dp))
+            }
         }
     }
 }

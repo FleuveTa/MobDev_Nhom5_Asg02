@@ -7,7 +7,7 @@ sealed class Screens (val screen: String) {
     data object DetailRecipe: Screens("detailRecipe")
     data object ViewRecipeResult: Screens("viewRecipeResult")
     data object Scan: Screens("scan")
-    data object SearchChoice: Screens("searchChoice")
+    // data object SearchChoice: Screens("searchChoice")
     data object SearchResult: Screens("searchResult")
     data object More : Screens("more")
     data object UserInfor: Screens("userInfor")

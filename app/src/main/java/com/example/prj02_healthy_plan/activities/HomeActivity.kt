@@ -58,12 +58,13 @@ import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.example.prj02_healthy_plan.ui.theme.ScanScreen
 import com.example.prj02_healthy_plan.ui.theme.ViewRecipeResultScreen
 import com.example.prj02_healthy_plan.ui.theme.Screens
-import com.example.prj02_healthy_plan.ui.theme.SearchChoiceScreen
 import com.example.prj02_healthy_plan.ui.theme.SearchResultScreen
 import com.example.prj02_healthy_plan.ui.theme.SecurityUI
 import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
 import com.example.prj02_healthy_plan.ui.theme.UserAddIngredientScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
+import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
+import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -92,7 +93,8 @@ fun AppNavBar() {
     val expanded = remember { mutableStateOf(false) }
     val ingredientSearchResult = remember { mutableStateOf("") }
     val recipeSearchName = remember { mutableStateOf("") }
-    val selectedRecipeName = remember { mutableStateOf<String>("") }
+    val recipeViewModel = remember { RecipeViewModel() }
+    val ingredientViewModel = remember { IngredientViewModel() }
     LaunchedEffect(navigationController) {
         navigationController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.route) {
@@ -172,16 +174,16 @@ fun AppNavBar() {
                 modifier = Modifier.padding(paddingValues)) {
                 composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
-                composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, selectedRecipeName) }
+                composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, ingredientViewModel, recipeViewModel) }
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
-                composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController, selectedRecipeName)}
-                composable(Screens.ViewRecipeResult.screen) { ViewRecipeResultScreen(nav = navigationController) }
+                composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController, recipeViewModel)}
+                composable(Screens.ViewRecipeResult.screen) { ViewRecipeResultScreen(nav = navigationController, recipeViewModel, ingredientViewModel) }
                 composable(Screens.Scan.screen) { ScanScreen(nav = navigationController, ingredientSearchResult) }
-                composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
-                composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, selectedRecipeName) }
+                // composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
+                composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, recipeViewModel) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
-                composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController) }
+                composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController, ingredientViewModel) }
                 composable(Screens.SecurityUI.screen) { SecurityUI( nav = navigationController) }
             }
         }

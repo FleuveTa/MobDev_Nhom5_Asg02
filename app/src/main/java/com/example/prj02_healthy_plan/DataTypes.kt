@@ -25,11 +25,17 @@ data class RecipeFirebase(
     val nutrition: List<Double>? = null
 )
 
-data class MyRecipeFirebase(
+data class MyRecipe(
     var id: String? = null,
     var userId: String? = null,
     var user: com.example.prj02_healthy_plan.User?  = null,
     var recipes: List<RecipeFirebase>? = null
+)
+
+data class MyRecipeFireBase(
+    var id: String? = null,
+    var user: DocumentReference? = null,
+    var recipes: List<DocumentReference>? = null
 )
 
 data class User(

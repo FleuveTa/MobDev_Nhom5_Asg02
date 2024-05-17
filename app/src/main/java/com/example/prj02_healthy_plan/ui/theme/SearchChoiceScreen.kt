@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.FoodBank
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,68 +55,35 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchChoiceScreen(nav: NavHostController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color(
-                    245,
-                    250,
-                    255
+fun ShowSearchChoiceDialog(nav: NavHostController, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = {
+            Text(
+                text = "Choose an option",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
-            ),
-                title = {
-                    Text(
-                        "",
-                        style = TextStyle(
-                            fontSize = 25.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                })
-        }) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(Color(
-                    245,
-                    250,
-                    255))
-        ) {
-            Row ( modifier = Modifier
-                .fillMaxWidth()
-                .blur(3.dp))
-            {
-            }
-            // Spacer to push content to bottom
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Row containing your boxes
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
+            )
+        },
+        text = {
+            Column {
                 Box(
                     modifier = Modifier
-                        .width(200.dp)
-                        .height(200.dp)
+                        .fillMaxWidth()
                         .padding(10.dp)
                         .background(Color.White)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(10.dp)
                     ) {
                         IconButton(
                             onClick = {
+                                onDismiss()
                                 nav.navigate("scan")
                             },
                             modifier = Modifier
@@ -124,29 +97,31 @@ fun SearchChoiceScreen(nav: NavHostController) {
                             )
                         }
                         Text(
-                            "Search by ingredient",
+                            "Scan ingredients",
                             style = TextStyle(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             ),
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
                     }
                 }
-                Spacer(modifier = Modifier.width(10.dp))  // Optional spacer between boxes
+                Spacer(modifier = Modifier.height(10.dp))  // Spacer between options
                 Box(
                     modifier = Modifier
-                        .width(200.dp)
-                        .height(200.dp)
+                        .fillMaxWidth()
                         .padding(10.dp)
                         .background(Color.White)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(10.dp)
                     ) {
                         IconButton(
                             onClick = {
+                                onDismiss()
                                 nav.navigate("UserAddIngredient")
                             },
                             modifier = Modifier
@@ -160,23 +135,28 @@ fun SearchChoiceScreen(nav: NavHostController) {
                             )
                         }
                         Text(
-                            "Search by ingredient",
+                            "Enter manually",
                             style = TextStyle(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             ),
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
                     }
                 }
             }
+        },
+        confirmButton = {
+            Button(onClick = { onDismiss() }) {
+                Text("Cancel")
+            }
         }
-    }
+    )
 }
 
 @Preview
 @Composable
-fun PreviewIngredientSearchResultScreen() {
-    val nav = rememberNavController()
-    SearchChoiceScreen(nav)
+fun ShowSearchChoiceDialogPreview() {
+    ShowSearchChoiceDialog(nav = rememberNavController(), onDismiss = {})
 }

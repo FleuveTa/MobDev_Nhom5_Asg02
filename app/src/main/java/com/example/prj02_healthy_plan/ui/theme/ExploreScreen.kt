@@ -1,6 +1,5 @@
 package com.example.prj02_healthy_plan.ui.theme
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -22,14 +21,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FoodBank
@@ -59,18 +56,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.rememberImagePainter
-import com.example.prj02_healthy_plan.MyRecipeFirebase
-import com.example.prj02_healthy_plan.User
+import coil.compose.rememberAsyncImagePainter
+import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -78,7 +71,12 @@ import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChienTa(nav: NavHostController, searchInfo: MutableState<String>, selectedRecipeName: MutableState<String>) {
+fun ChienTa(
+    nav: NavHostController,
+    searchInfo: MutableState<String>,
+    ingredientViewModel: IngredientViewModel,
+    recipeViewModel: RecipeViewModel
+) {
     Scaffold(
         topBar = {
             TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
@@ -99,7 +97,7 @@ fun ChienTa(nav: NavHostController, searchInfo: MutableState<String>, selectedRe
                 },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 })
         }) { innerPadding ->
@@ -113,7 +111,11 @@ fun ChienTa(nav: NavHostController, searchInfo: MutableState<String>, selectedRe
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            ExploreTabScreen(nav, selectedRecipeName = selectedRecipeName)
+            ExploreTabScreen(
+                nav = nav,
+                ingredientViewModel = ingredientViewModel,
+                recipeViewModel = recipeViewModel
+            )
         }
     }
 }
@@ -123,13 +125,15 @@ fun ChienTa(nav: NavHostController, searchInfo: MutableState<String>, selectedRe
 fun SearchBar(
     nav: NavHostController,
     initialQuery: String = "",
-    onSearch : (String) -> Unit = {}
+    onSearch: (String) -> Unit = {}
 ) {
     var text by remember { mutableStateOf(initialQuery) }
     var active by remember { mutableStateOf(false) }
-    var items = remember { mutableStateListOf<String>(
-        initialQuery
-    ) }
+    val items = remember {
+        mutableStateListOf(
+            initialQuery
+        )
+    }
 
     SearchBar(
         modifier = Modifier
@@ -192,7 +196,11 @@ fun SearchBar(
 }
 
 @Composable
-fun ExploreTabScreen(nav: NavHostController, selectedRecipeName: MutableState<String>) {
+fun ExploreTabScreen(
+    nav: NavHostController,
+    ingredientViewModel: IngredientViewModel,
+    recipeViewModel: RecipeViewModel
+) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
     val exploreTabScreenScrollState = rememberScrollState()
@@ -207,22 +215,31 @@ fun ExploreTabScreen(nav: NavHostController, selectedRecipeName: MutableState<St
             }
         }
         when (tabIndex) {
-            0 -> RecommendedScreen(scrollState = exploreTabScreenScrollState, nav = nav, selectedRecipeName = selectedRecipeName)
-            1 -> MyRecipesScreen(scrollState = exploreTabScreenScrollState, nav = nav)
+            0 -> RecommendedScreen(
+                scrollState = exploreTabScreenScrollState,
+                nav = nav,
+                ingredientViewModel = ingredientViewModel,
+                recipeViewModel = recipeViewModel
+            )
+            1 -> MyRecipesScreen(scrollState = exploreTabScreenScrollState, nav = nav,  recipeViewModel = recipeViewModel)
         }
     }
 }
 
 @Composable
-fun RecommendedScreen(scrollState: ScrollState, nav: NavHostController, selectedRecipeName: MutableState<String>) {
+fun RecommendedScreen(
+    scrollState: ScrollState,
+    nav: NavHostController,
+    ingredientViewModel: IngredientViewModel,
+    recipeViewModel: RecipeViewModel
+) {
     val recommendedFoodScrollState = rememberScrollState()
-    val viewRecipeModel: RecipeViewModel = viewModel()
-    val recipeList by viewRecipeModel.recipeList.collectAsState()
-
+    val recipeList by recipeViewModel.recipeList.collectAsState()
+    val userIngredients = ingredientViewModel.userIngredients
+    var showDialog by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = Unit) {
-        viewRecipeModel.fetchRecipes()
+        recipeViewModel.fetchRecipes()
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -254,7 +271,7 @@ fun RecommendedScreen(scrollState: ScrollState, nav: NavHostController, selected
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.FoodBank,
-                            contentDescription = "Ingredient Icon",
+                        contentDescription = "Ingredient Icon",
                         tint = Color.White,
                         modifier = Modifier.size(42.dp)
                     )
@@ -266,7 +283,10 @@ fun RecommendedScreen(scrollState: ScrollState, nav: NavHostController, selected
                         fontWeight = FontWeight.Bold
                     )
 
-                    IconButton(onClick = { nav.navigate("searchChoice") }) {
+                    IconButton(onClick = {
+                        showDialog = true
+
+                    }) {
                         Icon(
                             imageVector = Icons.Default.AddCircle,
                             contentDescription = "Add Icon",
@@ -275,40 +295,69 @@ fun RecommendedScreen(scrollState: ScrollState, nav: NavHostController, selected
                         )
                     }
                 }
-
-                Ingredients(name = "Butter", amount = 100)
-                Ingredients(name = "Shrimps, boiled", amount = 200)
-                Ingredients(name = "Garlics", amount = 2)
+                if (showDialog) {
+                    ShowSearchChoiceDialog(nav = nav, onDismiss = { showDialog = false })
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(recommendedFoodScrollState)
+                ) {
+                    if (userIngredients.isNotEmpty()) {
+                        for (ingredient in userIngredients) {
+                            IngredientCanAdd(
+                                name = ingredient.name ?: "",
+                                unit = ingredient.unit ?: "",
+                                cal = ingredient.nutrition?.get(0) ?: 0.0,
+                                isAdded = true
+                            ) {
+                                ingredientViewModel.toggleIngredient(ingredient)
+                            }
+                        }
+                    } else {
+                        Text(
+                            text = "No ingredient added",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
+                }
             }
         }
-
-        Spacer(modifier = Modifier.height(5.dp))
-
         Button(
-            onClick = { nav.navigate("viewRecipeResult")},
+            onClick = { nav.navigate("viewRecipeResult") },
             colors = ButtonDefaults.buttonColors(
                 contentColor = Color.White,
                 containerColor = GreenMain
             ),
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+                .padding(5.dp)
                 .fillMaxWidth()
                 .height(45.dp)
         ) {
+            // count the number of recipe that contains any the user's ingredients
+            val count = recipeList.count { recipe ->
+                recipe.ingredients?.any { ingredient ->
+                    userIngredients.any { userIngredient ->
+                        ingredient.name == userIngredient.name
+                    }
+                } ?: false
+            }
             Text(
-                text = "View 140+ results",
+                text = "View $count results",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
         }
-
+        // Recommended space
         Text(
             text = "Recommended for you:",
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             modifier = Modifier.padding(5.dp)
         )
-
         Row(
             modifier = Modifier
                 .padding(5.dp)
@@ -319,11 +368,12 @@ fun RecommendedScreen(scrollState: ScrollState, nav: NavHostController, selected
         ) {
             for (recipe in recipeList) {
                 RecommendedFoods(
+                    recipeId = recipe.id ?: "",
                     url = recipe.imageUrl ?: "",
                     title = recipe.name ?: "",
                     cal = recipe.nutrition?.get(0) ?: 0.0,
                     nav = nav,
-                    selectedRecipeName = selectedRecipeName
+                    recipeViewModel = recipeViewModel
                 )
             }
         }
@@ -332,7 +382,7 @@ fun RecommendedScreen(scrollState: ScrollState, nav: NavHostController, selected
 
 @Composable
 fun LoadImage(url: String) {
-    val painter = rememberImagePainter(data = url)
+    val painter = rememberAsyncImagePainter(model = url)
     Image(
         painter = painter,
         contentDescription = "Food Image",
@@ -342,12 +392,25 @@ fun LoadImage(url: String) {
 }
 
 @Composable
-fun RecommendedFoods(url: String, title: String, cal: Double, nav: NavHostController, selectedRecipeName: MutableState<String>) {
+fun RecommendedFoods(
+    recipeId: String,
+    url: String,
+    title: String,
+    cal: Double,
+    nav: NavHostController,
+    recipeViewModel: RecipeViewModel
+) {
+    val auth: FirebaseAuth = Firebase.auth
+    val uId = auth.currentUser?.uid
     Column(
         modifier = Modifier
             .fillMaxHeight()
             .width(160.dp)
-            .padding(end = 5.dp),
+            .padding(end = 5.dp)
+            .clickable {
+                nav.navigate("detailRecipe")
+                recipeViewModel.selectedRecipeName.value = title
+            },
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -355,14 +418,10 @@ fun RecommendedFoods(url: String, title: String, cal: Double, nav: NavHostContro
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
-                .clickable {
-                    nav.navigate("detailRecipe")
-                    selectedRecipeName.value = title
-                }
+
         ) {
             LoadImage(url = url)
         }
-
         Text(
             text = title,
             fontSize = 16.sp,
@@ -370,7 +429,6 @@ fun RecommendedFoods(url: String, title: String, cal: Double, nav: NavHostContro
             modifier = Modifier
                 .padding(5.dp)
         )
-
         Row(
             modifier = Modifier
                 .padding(5.dp)
@@ -383,9 +441,10 @@ fun RecommendedFoods(url: String, title: String, cal: Double, nav: NavHostContro
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp
             )
-
             IconButton(
-                onClick = { /*TODO*/ }
+                onClick = {
+                    recipeViewModel.addMyRecipe(uId, recipeId)
+                }
             ) {
                 Icon(
                     imageVector = Icons.Default.FavoriteBorder,
@@ -429,16 +488,15 @@ fun Ingredients(name: String, amount: Number) {
 }
 
 @Composable
-fun MyRecipesScreen(scrollState: ScrollState, nav: NavHostController) {
-    val viewRecipeModel: RecipeViewModel = viewModel()
+fun MyRecipesScreen(scrollState: ScrollState, nav: NavHostController, recipeViewModel: RecipeViewModel) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
-    val myRecipeList by viewRecipeModel.myRecipeList.collectAsState()
+    val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
-      viewRecipeModel.fetchMyRecipes()
+        recipeViewModel.fetchMyRecipes()
     }
-    val myRecipe = myRecipeList.firstOrNull{ it.userId == uId }
+    val myRecipe = myRecipeList.firstOrNull { it.userId == uId }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -447,18 +505,28 @@ fun MyRecipesScreen(scrollState: ScrollState, nav: NavHostController) {
     ) {
         for (recipe in myRecipe?.recipes ?: listOf()) {
             MyRecipes(
+                recipeId = recipe.id ?: "",
                 title = recipe.name ?: "",
-                description = recipe.description ?: "",
+                cal = recipe.nutrition?.get(0) ?: 0.0,
                 imageUrl = recipe.imageUrl ?: "",
-                nav = nav
+                nav = nav,
+                recipeViewModel = recipeViewModel
             )
         }
     }
 }
 
 @Composable
-fun MyRecipes( title: String, description: String, imageUrl: String, nav: NavHostController) {
-    // i want this row can be clicked
+fun MyRecipes(
+    recipeId: String,
+    title: String,
+    cal: Double,
+    imageUrl: String,
+    nav: NavHostController,
+    recipeViewModel: RecipeViewModel
+) {
+    val auth: FirebaseAuth = Firebase.auth
+    val uId = auth.currentUser?.uid
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -467,6 +535,7 @@ fun MyRecipes( title: String, description: String, imageUrl: String, nav: NavHos
             .background(Color.White)
             .clickable {
                 nav.navigate("detailRecipe")
+                recipeViewModel.selectedRecipeName.value = title
             },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -490,16 +559,20 @@ fun MyRecipes( title: String, description: String, imageUrl: String, nav: NavHos
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
-            Text(
-                text = description,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Light
-            )
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = "Heart Icon",
-                tint = Color.Red,
-            )
+               Text(
+                    text = "$cal CALS",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            IconButton(onClick = {
+                recipeViewModel.deleteMyRecipe(uId, recipeId)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Heart Icon",
+                    tint = Color.Red
+                )
+            }
         }
     }
 }
