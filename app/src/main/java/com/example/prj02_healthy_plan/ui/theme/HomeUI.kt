@@ -3,6 +3,7 @@ package com.example.prj02_healthy_plan.ui.theme
 import PastOrPresentSelectableDates
 import android.graphics.Color.parseColor
 import android.util.Log
+import androidx.appcompat.widget.DialogTitle
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +22,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -116,6 +119,8 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
     val openDialog = remember { mutableStateOf(false) }
     val calendarPickerMainColor = Color(0xFF722276)
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    val openNotificationDialog = remember { mutableStateOf(false) }
+    val notification = remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
@@ -125,7 +130,7 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextButton(
-            onClick = {openDialog.value = true},
+            onClick = { openDialog.value = true },
             modifier = Modifier.weight(1.5F, true)
         ) {
 
@@ -137,7 +142,8 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
 
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "DropDown Icon")
+                contentDescription = "DropDown Icon"
+            )
         }
 
         Text(
@@ -146,15 +152,24 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(3F, true),
             color = Color.Green,
-            fontWeight = FontWeight.Medium)
+            fontWeight = FontWeight.Medium
+        )
 
         IconButton(
-            onClick = { /*TODO*/ },
+            onClick = { openNotificationDialog.value = true },
             Modifier.weight(1F, true)
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Notifications,
-                contentDescription = "Notification")
+            if (notification.value) {
+                Icon(
+                    imageVector = Icons.Outlined.Notifications,
+                    contentDescription = "Notification"
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notification"
+                )
+            }
         }
     }
 
@@ -208,6 +223,71 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             )
         }
     }
+
+    if (openNotificationDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                openNotificationDialog.value = false
+            },
+            confirmButton = {
+                TextButton(onClick = {
+
+                    notification.value = !notification.value
+                    openNotificationDialog.value = false
+                }) {
+                    Text(
+                        "Confirm",
+                        fontSize = 16.sp
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    openNotificationDialog.value = false
+                }) {
+                    Text(
+                        "Dismiss",
+                        fontSize = 16.sp
+                    )
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notification Icon"
+                )
+            },
+            title = {
+                Text(
+                    "Notifications",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 28.sp
+                )
+            },
+            text = {
+                Box(
+                    modifier = Modifier
+                        .padding(15.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (notification.value) {
+                        Text(
+                            "Do you want to turn on notifications?",
+                            fontSize = 18.sp
+                        )
+                    } else {
+                        Text(
+                            "Do you want to turn off notifications?",
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            },
+            modifier = Modifier
+                .padding(5.dp)
+        )
+    }
 }
 
 @Composable
@@ -217,7 +297,7 @@ fun Content(user: User) {
     val dailyDataViewModel: DailyDataViewModel = viewModel()
     val dailyData by dailyDataViewModel.dailyData.collectAsState()
 
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(245, 250, 255)),
@@ -254,7 +334,8 @@ fun Content(user: User) {
                         imageVector = Icons.Filled.Close,
                         contentDescription = "Remove",
                         modifier = Modifier.size(30.dp),
-                        tint = Color.Black)
+                        tint = Color.Black
+                    )
                 }
 
                 Column(
@@ -265,17 +346,22 @@ fun Content(user: User) {
                         painter = painterResource(R.drawable.baseline_water_drop_24),
                         contentDescription = "Water",
                         modifier = Modifier.size(60.dp),
-                        tint = waterColor)
+                        tint = waterColor
+                    )
 
-                    Text(text = dailyData.water.toString() + " liters",
+                    Text(
+                        text = dailyData.water.toString() + " liters",
                         color = textProgressColor,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium)
+                        fontWeight = FontWeight.Medium
+                    )
 
-                    Text(text = "Daily Water",
+                    Text(
+                        text = "Daily Water",
                         color = textProgressColor,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 IconButton(
@@ -285,7 +371,8 @@ fun Content(user: User) {
                         painter = painterResource(R.drawable.baseline_add_circle_24),
                         contentDescription = "Add",
                         modifier = Modifier.size(30.dp),
-                        tint = Color.Green)
+                        tint = Color.Green
+                    )
                 }
             }
 
@@ -314,7 +401,8 @@ fun Content(user: User) {
                         text = "7,550",
                         fontWeight = FontWeight.ExtraBold,
                         color = textProgressColor,
-                        fontSize = 16.sp)
+                        fontSize = 16.sp
+                    )
 
                     CircularProgressIndicator(
                         progress = 0.3f,
@@ -324,10 +412,12 @@ fun Content(user: User) {
                     )
                 }
 
-                Text(text = "Steps Walked",
+                Text(
+                    text = "Steps Walked",
                     color = textProgressColor,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 
@@ -359,12 +449,15 @@ fun Content(user: User) {
                         text = "Exercise",
                         color = textProgressColor,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp)
+                        fontSize = 18.sp
+                    )
 
-                    Icon(painter = painterResource(R.drawable.outline_sensor_occupied_24),
+                    Icon(
+                        painter = painterResource(R.drawable.outline_sensor_occupied_24),
                         contentDescription = "Personal",
                         tint = Color.Red,
-                        modifier = Modifier.size(40.dp))
+                        modifier = Modifier.size(40.dp)
+                    )
                 }
 
                 Column(
@@ -372,31 +465,37 @@ fun Content(user: User) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Row {
-                        Icon(painter = painterResource(R.drawable.baseline_access_time_24),
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_access_time_24),
                             contentDescription = "Amount of Time",
                             tint = Color.Blue,
                             modifier = Modifier
                                 .size(25.dp)
-                                .padding(end = 5.dp))
+                                .padding(end = 5.dp)
+                        )
 
                         Text(
                             text = "75 minutes",
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium)
+                            fontWeight = FontWeight.Medium
+                        )
                     }
 
                     Row {
-                        Icon(painter = painterResource(R.drawable.baseline_local_fire_department_24),
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_local_fire_department_24),
                             contentDescription = "Amount of Time",
                             tint = Color(parseColor("#FA9B31")),
                             modifier = Modifier
                                 .size(25.dp)
-                                .padding(end = 5.dp))
+                                .padding(end = 5.dp)
+                        )
 
                         Text(
                             text = "350 Cals",
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium)
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
 
@@ -407,7 +506,8 @@ fun Content(user: User) {
                         painter = painterResource(R.drawable.baseline_add_circle_24),
                         contentDescription = "Add",
                         modifier = Modifier.size(40.dp),
-                        tint = Color.Green)
+                        tint = Color.Green
+                    )
                 }
             }
         }
@@ -436,12 +536,15 @@ fun Content(user: User) {
                         progress = 0.8f,
                         color = Color.Green,
                         strokeWidth = 6.dp,
-                        modifier = Modifier.size(60.dp))
+                        modifier = Modifier.size(60.dp)
+                    )
 
-                    Icon(painter = painterResource(R.drawable.outline_scale_24),
+                    Icon(
+                        painter = painterResource(R.drawable.outline_scale_24),
                         contentDescription = "Scale",
                         tint = Color.Blue,
-                        modifier = Modifier.size(35.dp))
+                        modifier = Modifier.size(35.dp)
+                    )
                 }
 
                 Column(
@@ -451,12 +554,14 @@ fun Content(user: User) {
                     Text(
                         text = user.weight.toString() + " kg",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
 
                     Text(
                         text = "You have a healthy BMI",
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Light)
+                        fontWeight = FontWeight.Light
+                    )
                 }
 
                 IconButton(
@@ -466,7 +571,8 @@ fun Content(user: User) {
                         painter = painterResource(R.drawable.baseline_add_circle_24),
                         contentDescription = "Add",
                         modifier = Modifier.size(40.dp),
-                        tint = Color.Green)
+                        tint = Color.Green
+                    )
                 }
             }
         }
@@ -498,7 +604,7 @@ fun HomeTabScreen(dailyData: DailyData) {
 }
 
 @Composable
-fun MacrosScreen(macros : List<Double>) {
+fun MacrosScreen(macros: List<Double>) {
     val progress1 = Color(parseColor("#FA9B31"))
     val progress2 = Color(parseColor("#2CB9B0"))
     val progress3 = Color(parseColor("#6C0D8F"))
@@ -546,7 +652,8 @@ fun MacrosProgress(progress: Double, number: String, color: Color) {
             text = number + "g",
             fontWeight = FontWeight.ExtraBold,
             color = textProgressColor,
-            fontSize = 22.sp)
+            fontSize = 22.sp
+        )
 
         CircularProgressIndicator(
             progress = progress.toFloat(),
@@ -590,7 +697,8 @@ fun CaloriesScreen(calories: Double, target: Int) {
                 text = calories.toInt().toString(),
                 fontWeight = FontWeight.ExtraBold,
                 color = textProgressColor,
-                fontSize = 22.sp)
+                fontSize = 22.sp
+            )
 
             CircularProgressIndicator(
                 progress = animatedProgress,
@@ -619,7 +727,7 @@ fun CaloriesScreen(calories: Double, target: Int) {
 fun CaloriesStats() {
     val color = Color(parseColor("#F58BA4"))
 
-    Row (
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(25.dp, 0.dp, 25.dp, 0.dp),
@@ -640,7 +748,7 @@ fun MacrosStats(macros: List<Double>) {
     val color2 = Color(parseColor("#2CB9B0"))
     val color3 = Color(parseColor("#6C0D8F"))
 
-    Row (
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(45.dp, 0.dp, 45.dp, 0.dp),
@@ -657,27 +765,30 @@ fun MacrosStats(macros: List<Double>) {
 
 @Composable
 fun Stats(name: String, color: Color, number: String) {
-    Column (
+    Column(
         modifier = Modifier
     ) {
         Text(
             text = name,
             fontSize = 14.sp,
-            fontWeight = FontWeight.Medium)
+            fontWeight = FontWeight.Medium
+        )
 
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Square(
                 shape = RectangleShape,
-                color = color)
+                color = color
+            )
 
             Text(
                 text = number,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .padding(3.dp, 0.dp, 0.dp, 0.dp))
+                    .padding(3.dp, 0.dp, 0.dp, 0.dp)
+            )
         }
 
     }
