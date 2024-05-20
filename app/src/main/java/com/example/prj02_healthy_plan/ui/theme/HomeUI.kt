@@ -2,8 +2,12 @@ package com.example.prj02_healthy_plan.ui.theme
 
 import PastOrPresentSelectableDates
 import android.graphics.Color.parseColor
+import android.os.Build
 import android.util.Log
-import androidx.appcompat.widget.DialogTitle
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,17 +25,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,20 +59,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key.Companion.Calendar
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.prj02_healthy_plan.DailyData
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.User
-import com.example.prj02_healthy_plan.activities.TungAnh
 import com.example.prj02_healthy_plan.uiModel.DailyDataViewModel
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import convertMillisToDate
@@ -82,6 +79,7 @@ import java.util.Locale
 
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun HomeUI(nav: NavController, date: String = "Today") {
 
@@ -109,9 +107,11 @@ fun HomeUI(nav: NavController, date: String = "Today") {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Header(nav: NavController, dateFormatted: MutableState<String>) {
+    val context = LocalContext.current
     val datePickerState = rememberDatePickerState(
         selectableDates = PastOrPresentSelectableDates
     )
@@ -120,7 +120,31 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
     val calendarPickerMainColor = Color(0xFF722276)
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     val openNotificationDialog = remember { mutableStateOf(false) }
-    val notification = remember { mutableStateOf(false) }
+    val notificationGranted = remember { mutableStateOf(false) }
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            Log.d("PERMISSION", "GRANTED")
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+            Log.d("PERMISSION", "DENIED")
+        }
+    }
+
+    val requestPermissionLauncherAgain = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            Log.d("PERMISSION", "GRANTED")
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+            Log.d("PERMISSION", "DENIED")
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -159,7 +183,7 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             onClick = { openNotificationDialog.value = true },
             Modifier.weight(1F, true)
         ) {
-            if (notification.value) {
+            if (notificationGranted.value) {
                 Icon(
                     imageVector = Icons.Outlined.Notifications,
                     contentDescription = "Notification"
@@ -231,9 +255,14 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             },
             confirmButton = {
                 TextButton(onClick = {
-
-                    notification.value = !notification.value
-                    openNotificationDialog.value = false
+                    if (notificationGranted.value) {
+                        requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        notificationGranted.value = !notificationGranted.value
+                        openNotificationDialog.value = false
+                    } else {
+                        Toast.makeText(context, "Please change your choice in settings!", Toast.LENGTH_SHORT).show()
+                        openNotificationDialog.value = false
+                    }
                 }) {
                     Text(
                         "Confirm",
@@ -271,7 +300,7 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (notification.value) {
+                    if (notificationGranted.value) {
                         Text(
                             "Do you want to turn on notifications?",
                             fontSize = 18.sp
