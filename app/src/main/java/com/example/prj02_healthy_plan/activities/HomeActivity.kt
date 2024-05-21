@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,26 +31,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.core.app.NotificationCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.prj02_healthy_plan.DailyData
-import com.example.prj02_healthy_plan.User
+import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
 import com.example.prj02_healthy_plan.ui.theme.Giang
@@ -69,11 +63,9 @@ import com.example.prj02_healthy_plan.ui.theme.UserAddIngredientScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
-import com.google.api.Context
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 
 class HomeActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -95,11 +87,9 @@ class HomeActivity : ComponentActivity() {
             NotificationManager.IMPORTANCE_DEFAULT
         )
 
-        val notificationManager = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = this.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(diaryChannel)
         notificationManager.createNotificationChannel(recommendedChannel)
-
-
 
         setContent {
             Prj02_Healthy_PlanTheme {
@@ -257,4 +247,28 @@ fun AppNavBar() {
             }
         }
     }
+}
+
+fun showRecommendedNotification(context: android.content.Context) {
+    val notificationManager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
+    val recommendedNotification = NotificationCompat.Builder(context, "recommended")
+        .setContentTitle("Recommended Recipe")
+        .setContentText("Check out the recommended recipe for you!")
+        .setSmallIcon(R.drawable.baseline_food_bank_24)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .build()
+
+    notificationManager.notify(1, recommendedNotification)
+}
+
+fun showDiaryProgressNotification(context: android.content.Context, progress: String) {
+    val notificationManager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
+    val diaryProgressNotification = NotificationCompat.Builder(context, "dailyData")
+        .setContentTitle("Daily Progress")
+        .setContentText("Check out your daily progress! You have completed $progress% of your daily goal.")
+        .setSmallIcon(R.drawable.baseline_emoji_food_beverage_24)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .build()
+
+    notificationManager.notify(2, diaryProgressNotification)
 }

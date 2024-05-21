@@ -67,7 +67,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.prj02_healthy_plan.DailyData
@@ -145,6 +144,15 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             Log.d("PERMISSION", "DENIED")
         }
     }
+
+    val dailyDataViewModel: DailyDataViewModel = viewModel()
+    val dailyData by dailyDataViewModel.dailyData.collectAsState()
+
+    val userViewModel: UserViewModel = viewModel()
+    val user = userViewModel.state.value
+
+    val percent = (dailyData.intake?.get(0) ?: 0.0) * 100 / (user.caloriesGoal ?: 1)
+    val formattedPercent = String.format("%.2f", percent).toFloat().toString()
 
     Row(
         modifier = Modifier
