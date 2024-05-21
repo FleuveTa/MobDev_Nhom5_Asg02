@@ -86,6 +86,10 @@ val textProgressColor = Color(parseColor("#3B3B3B"))
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun HomeUI(nav: NavController, date: MutableState<String>) {
+
+//    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+//    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
+
     val dailyViewModel: DailyDataViewModel = viewModel()
 
     val userViewModel: UserViewModel = viewModel()
