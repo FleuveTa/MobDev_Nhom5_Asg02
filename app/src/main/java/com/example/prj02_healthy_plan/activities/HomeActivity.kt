@@ -1,10 +1,14 @@
 package com.example.prj02_healthy_plan.activities
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,6 +69,7 @@ import com.example.prj02_healthy_plan.ui.theme.UserAddIngredientScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import com.google.api.Context
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -73,9 +78,28 @@ import com.google.firebase.firestore.firestore
 class HomeActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
+
+        val diaryChannel = NotificationChannel(
+            "dailyData",
+            "Daily Data",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+
+        val recommendedChannel = NotificationChannel(
+            "recommended",
+            "Recommended",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+
+        val notificationManager = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(diaryChannel)
+        notificationManager.createNotificationChannel(recommendedChannel)
+
+
 
         setContent {
             Prj02_Healthy_PlanTheme {
@@ -85,6 +109,7 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavBar() {
     val navigationController = rememberNavController()
@@ -172,7 +197,7 @@ fun AppNavBar() {
             NavHost(navController = navigationController,
                 startDestination = Screens.Home.screen,
                 modifier = Modifier.padding(paddingValues)) {
-                composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
+                composable(Screens.Home.screen) { HomeUI(nav = navigationController) }
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, ingredientViewModel, recipeViewModel) }
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
@@ -232,9 +257,4 @@ fun AppNavBar() {
             }
         }
     }
-}
-
-@Composable
-fun TungAnh(nav: NavController) {
-    HomeUI(nav)
 }
