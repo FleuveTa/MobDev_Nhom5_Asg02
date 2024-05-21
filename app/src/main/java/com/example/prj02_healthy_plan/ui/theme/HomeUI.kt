@@ -1,6 +1,7 @@
 package com.example.prj02_healthy_plan.ui.theme
 
 import PastOrPresentSelectableDates
+import android.content.pm.PackageManager
 import android.graphics.Color.parseColor
 import android.os.Build
 import android.util.Log
@@ -65,6 +66,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.prj02_healthy_plan.DailyData
@@ -119,22 +122,19 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
     val openDialog = remember { mutableStateOf(false) }
     val calendarPickerMainColor = Color(0xFF722276)
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-    val openNotificationDialog = remember { mutableStateOf(false) }
-    val notificationGranted = remember { mutableStateOf(false) }
 
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-            Log.d("PERMISSION", "GRANTED")
-        } else {
-            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-            Log.d("PERMISSION", "DENIED")
-        }
+    val openNotificationDialog = remember { mutableStateOf(false) }
+
+    val hasNotificationPermission = remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        )
     }
 
-    val requestPermissionLauncherAgain = rememberLauncherForActivityResult(
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
@@ -183,17 +183,10 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             onClick = { openNotificationDialog.value = true },
             Modifier.weight(1F, true)
         ) {
-            if (notificationGranted.value) {
-                Icon(
-                    imageVector = Icons.Outlined.Notifications,
-                    contentDescription = "Notification"
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notification"
-                )
-            }
+            Icon(
+                imageVector = if (hasNotificationPermission.value) Icons.Default.Notifications else Icons.Outlined.Notifications,
+                contentDescription = "Notification"
+            )
         }
     }
 
@@ -255,12 +248,11 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             },
             confirmButton = {
                 TextButton(onClick = {
-                    if (notificationGranted.value) {
-                        requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                        notificationGranted.value = !notificationGranted.value
+                    if (hasNotificationPermission.value) {
                         openNotificationDialog.value = false
                     } else {
-                        Toast.makeText(context, "Please change your choice in settings!", Toast.LENGTH_SHORT).show()
+                        requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        hasNotificationPermission.value = !hasNotificationPermission.value
                         openNotificationDialog.value = false
                     }
                 }) {
@@ -300,15 +292,15 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (notificationGranted.value) {
+                    if (hasNotificationPermission.value) {
                         Text(
-                            "Do you want to turn on notifications?",
+                            "If you want to turn off notifications, please change in the settings!",
                             fontSize = 18.sp
                         )
                     } else {
                         Text(
-                            "Do you want to turn off notifications?",
-                            fontSize = 18.sp
+                            "Do you want to turn on notifications?",
+                            fontSize = 16.sp
                         )
                     }
                 }
