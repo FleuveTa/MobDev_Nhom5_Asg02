@@ -3,6 +3,7 @@ package com.example.prj02_healthy_plan.activities
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,8 @@ import com.example.prj02_healthy_plan.ui.theme.SignInUI
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.messaging
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -26,6 +29,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
         val context = baseContext;
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                Log.d("FCM Token", token, task.exception)
+            } else {
+                Log.d("FCM Notify", "Fetching failed")
+                return@addOnCompleteListener
+            }
+        }
+
         setContent {
             Prj02_Healthy_PlanTheme {
                 val username = remember { mutableStateOf("") }

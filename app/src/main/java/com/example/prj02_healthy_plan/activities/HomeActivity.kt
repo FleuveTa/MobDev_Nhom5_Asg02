@@ -1,10 +1,13 @@
 package com.example.prj02_healthy_plan.activities
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,26 +31,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.core.app.NotificationCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.prj02_healthy_plan.DailyData
-import com.example.prj02_healthy_plan.User
+import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
 import com.example.prj02_healthy_plan.ui.theme.Giang
@@ -68,11 +66,11 @@ import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 
 class HomeActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
@@ -85,6 +83,7 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavBar() {
     val navigationController = rememberNavController()
@@ -172,7 +171,7 @@ fun AppNavBar() {
             NavHost(navController = navigationController,
                 startDestination = Screens.Home.screen,
                 modifier = Modifier.padding(paddingValues)) {
-                composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
+                composable(Screens.Home.screen) { HomeUI(nav = navigationController) }
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, ingredientViewModel, recipeViewModel) }
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
@@ -232,9 +231,4 @@ fun AppNavBar() {
             }
         }
     }
-}
-
-@Composable
-fun TungAnh(nav: NavController) {
-    HomeUI(nav)
 }
