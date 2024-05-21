@@ -579,7 +579,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                                 modifier = Modifier.align(Alignment.CenterStart)
                             )
                             Text(
-                                text = "Language",
+                                text = "Policy",
                                 color = Color.Black,
                                 lineHeight = 1.43.em,
                                 style = TextStyle(
