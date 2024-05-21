@@ -111,7 +111,7 @@ fun UserInforUI(navController: NavController) {
     ) {
         UserInforHeader(navController)
         Spacer(Modifier.height(10.dp))
-        FullNameBox(nameState = nameValue)
+        FullNameBox(nameState = nameValue, )
         Spacer(Modifier.height(10.dp))
         HeightBox(heightState = heightValue)
         Spacer(Modifier.height(10.dp))
@@ -277,7 +277,7 @@ fun GenderAndDOB(genderState: MutableState<Int>, dobState: MutableState<String>)
                         unfocusedContainerColor = Color.Transparent,
                         focusedContainerColor = Color.Transparent
                     ),
-                    modifier = Modifier.menuAnchor(),
+                    modifier = Modifier.menuAnchor().testTag("GenderDropdown"),
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
                     })
@@ -398,7 +398,7 @@ fun ActivityLevelRow(activityLevelState: MutableState<Int>, weeklyGoalState: Mut
                         unfocusedContainerColor = Color.Transparent,
                         focusedContainerColor = Color.Transparent
                     ),
-                    modifier = Modifier.menuAnchor(),
+                    modifier = Modifier.menuAnchor().testTag("ActivityLevelDropdown"),
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
                     })
@@ -502,7 +502,6 @@ fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: Mutable
                 expanded = isExpanded,
                 onExpandedChange = { isExpanded = it },
                 modifier = Modifier.weight(1F)
-                    .testTag("NutrientGoalDropdown")
             ) {
                 OutlinedTextField(
                     value = goal,
@@ -513,7 +512,8 @@ fun CaloriesRow(caloriesGoalState: MutableState<Int>, nutrientGoalState: Mutable
                         unfocusedContainerColor = Color.Transparent,
                         focusedContainerColor = Color.Transparent
                     ),
-                    modifier = Modifier.menuAnchor(),
+                    modifier = Modifier.menuAnchor().testTag("NutrientGoalDropdown")
+                    ,
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
                     })

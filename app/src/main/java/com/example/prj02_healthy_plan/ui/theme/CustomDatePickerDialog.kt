@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -43,10 +45,18 @@ fun CustomDatePickerDialog(
     dateStr: String,
     onDismissRequest: () -> Unit
 ) {
-    val converted = convertToDate(dateStr)
-    currentDay = converted.get(0)
-    currentMonth = converted.get(1) - 1
-    currentYear = converted.get(2)
+    Log.println(Log.INFO, "CustomDatePickerDialog", "dateStr: $dateStr")
+    if (dateStr == "") {
+        val c = Calendar.getInstance()
+        currentDay = c.get(Calendar.DAY_OF_MONTH)
+        currentMonth = c.get(Calendar.MONTH)
+        currentYear = c.get(Calendar.YEAR)
+    } else {
+        val converted = convertToDate(dateStr)
+        currentDay = converted.get(0)
+        currentMonth = converted.get(1) - 1
+        currentYear = converted.get(2)
+    }
     Dialog(onDismissRequest = { onDismissRequest() }) {
         DatePickerUI(label, onDismissRequest)
     }
@@ -59,6 +69,7 @@ fun DatePickerUI(
 ) {
     Card(
         shape = RoundedCornerShape(10.dp),
+        modifier = Modifier.testTag("DatePickerCard"),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -99,7 +110,7 @@ fun DatePickerUI(
             ) {
                 Text(
                     text = "Done",
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("DoneDOBButton"),
                     textAlign = TextAlign.Center
                 )
             }
