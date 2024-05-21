@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
@@ -144,15 +145,6 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
             Log.d("PERMISSION", "DENIED")
         }
     }
-
-    val dailyDataViewModel: DailyDataViewModel = viewModel()
-    val dailyData by dailyDataViewModel.dailyData.collectAsState()
-
-    val userViewModel: UserViewModel = viewModel()
-    val user = userViewModel.state.value
-
-    val percent = (dailyData.intake?.get(0) ?: 0.0) * 100 / (user.caloriesGoal ?: 1)
-    val formattedPercent = String.format("%.2f", percent).toFloat().toString()
 
     Row(
         modifier = Modifier

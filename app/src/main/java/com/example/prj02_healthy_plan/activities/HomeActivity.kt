@@ -75,22 +75,6 @@ class HomeActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
 
-        val diaryChannel = NotificationChannel(
-            "dailyData",
-            "Daily Data",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-
-        val recommendedChannel = NotificationChannel(
-            "recommended",
-            "Recommended",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-
-        val notificationManager = this.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(diaryChannel)
-        notificationManager.createNotificationChannel(recommendedChannel)
-
         setContent {
             Prj02_Healthy_PlanTheme {
                 AppNavBar()
@@ -247,28 +231,4 @@ fun AppNavBar() {
             }
         }
     }
-}
-
-fun showRecommendedNotification(context: android.content.Context) {
-    val notificationManager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
-    val recommendedNotification = NotificationCompat.Builder(context, "recommended")
-        .setContentTitle("Recommended Recipe")
-        .setContentText("Check out the recommended recipe for you!")
-        .setSmallIcon(R.drawable.baseline_food_bank_24)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .build()
-
-    notificationManager.notify(1, recommendedNotification)
-}
-
-fun showDiaryProgressNotification(context: android.content.Context, progress: String) {
-    val notificationManager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as NotificationManager
-    val diaryProgressNotification = NotificationCompat.Builder(context, "dailyData")
-        .setContentTitle("Daily Progress")
-        .setContentText("Check out your daily progress! You have completed $progress% of your daily goal.")
-        .setSmallIcon(R.drawable.baseline_emoji_food_beverage_24)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .build()
-
-    notificationManager.notify(2, diaryProgressNotification)
 }
