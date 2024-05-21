@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,18 +25,25 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -64,18 +72,22 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserAddFoodScreen(nav: NavHostController){
+fun UserAddFoodScreen(nav: NavHostController, date: MutableState<String>){
     val viewRecipeModel: RecipeViewModel = viewModel()
     val allRecipeList by viewRecipeModel.recipeList.collectAsState()
     val (filteredRecipeList, setFilteredRecipeList) = remember { mutableStateOf(allRecipeList) }
     val (isSearching, setIsSearching) = remember { mutableStateOf(false) }
+    var selectedMeal by remember { mutableStateOf("breakfast") }
 
     LaunchedEffect(key1 = Unit) {
         viewRecipeModel.fetchRecipes()
     }
+
+    Log.d("Date for add", date.value)
 
     Scaffold(
         topBar = {
@@ -87,23 +99,44 @@ fun UserAddFoodScreen(nav: NavHostController){
                 )
             ),
                 title = {
-                    TextButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
+                    var expanded by remember { mutableStateOf(false) }
+                    var selectedMealLabel by remember { mutableStateOf("Breakfast") }
+                    val options = listOf("Breakfast", "Lunch", "Dinner", "Snacks")
+
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = {expanded = it}
                     ) {
-                        Text(
-                            text = "Breakfast",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                        TextField(
+                            value = selectedMealLabel + " ," + date.value,
+                            label = { Text("Meal") },
+                            onValueChange = {},
+                            readOnly = true,
+                            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent
+                            ),
+                            modifier = Modifier.menuAnchor(),
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                            }
                         )
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "DropDown Icon",
-                            tint = Color.Black,
-                            modifier = Modifier
-                                .size(24.dp)
-                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            options.forEach { label ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        selectedMeal = label.lowercase(Locale.ROOT)
+                                        Log.d("Meal : ", selectedMeal)
+                                        selectedMealLabel = label
+                                        expanded = false
+                                    },
+                                    text = { Text(label) }
+                                )
+                            }
+                        }
                     }
                 },
                 navigationIcon = {
@@ -133,9 +166,9 @@ fun UserAddFoodScreen(nav: NavHostController){
             Spacer(modifier = Modifier.height(5.dp))
 
             if (!isSearching || filteredRecipeList.isEmpty()) {
-                UserAddFoodTabScreen(recipeList = allRecipeList)
+                UserAddFoodTabScreen(recipeList = allRecipeList, date = date.value, meal = selectedMeal)
             } else {
-                UserAddFoodTabScreen(recipeList = filteredRecipeList)
+                UserAddFoodTabScreen(recipeList = filteredRecipeList, date = date.value, meal = selectedMeal)
             }
 
         }
@@ -143,7 +176,7 @@ fun UserAddFoodScreen(nav: NavHostController){
 }
 
 @Composable
-fun UserAddFoodTabScreen(recipeList: List<RecipeFirebase>) {
+fun UserAddFoodTabScreen(recipeList: List<RecipeFirebase>, date: String, meal: String) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("All", "History")
     val userAddFoodTabScreenScrollState = rememberScrollState()
@@ -158,14 +191,14 @@ fun UserAddFoodTabScreen(recipeList: List<RecipeFirebase>) {
             }
         }
         when (tabIndex) {
-            0 -> AllFoodScreen(scrollState = userAddFoodTabScreenScrollState, recipeList = recipeList)
+            0 -> AllFoodScreen(scrollState = userAddFoodTabScreenScrollState, recipeList = recipeList, date, meal)
             1 -> HistoryAddScreen(scrollState = userAddFoodTabScreenScrollState)
         }
     }
 }
 
 @Composable
-fun AllFoodScreen(scrollState: ScrollState, recipeList: List<RecipeFirebase>) {
+fun AllFoodScreen(scrollState: ScrollState, recipeList: List<RecipeFirebase>, date: String, meal: String) {
     Column(
         modifier = Modifier
             .verticalScroll(scrollState)
@@ -174,7 +207,9 @@ fun AllFoodScreen(scrollState: ScrollState, recipeList: List<RecipeFirebase>) {
             FoodCanAdd(
                 name = recipe.name ?: "",
                 id = recipe.id ?: "",
-                cal = recipe.nutrition?.get(0) ?: 0
+                cal = recipe.nutrition?.get(0) ?: 0,
+                date = date,
+                meal = meal
             )
         }
     }
@@ -197,7 +232,7 @@ fun HistoryAddScreen(scrollState: ScrollState) {
 }
 
 @Composable
-fun FoodCanAdd(name: String, id: String, cal: Number) {
+fun FoodCanAdd(name: String, id: String, cal: Number, date: String, meal: String) {
     val dailyDataViewModel: DailyDataViewModel = viewModel()
     val db = Firebase.firestore
     val context = LocalContext.current
@@ -249,7 +284,7 @@ fun FoodCanAdd(name: String, id: String, cal: Number) {
                 quantity = 1
             )
 
-            IconButton(onClick = { dailyDataViewModel.updateMeal("breakfast", "16-05-2024", newRecipeInDaily, context)}) {
+            IconButton(onClick = { dailyDataViewModel.updateMeal(meal, date, newRecipeInDaily, context)}) {
                 Icon(
                     imageVector = Icons.Default.AddCircle,
                     contentDescription = "Add Icon",
@@ -276,7 +311,7 @@ fun SearchBar(nav: NavHostController, onSearch: (String) -> Unit) {
             text = it
         },
         onSearch = {
-            onSearch(text) // Trigger the onSearch lambda with the search query text
+            onSearch(text)
             items.add(text)
             active = false
         },

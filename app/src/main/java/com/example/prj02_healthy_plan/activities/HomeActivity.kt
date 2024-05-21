@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +70,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class HomeActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -87,6 +91,8 @@ class HomeActivity : ComponentActivity() {
 
 @Composable
 fun AppNavBar() {
+    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
     val navigationController = rememberNavController()
     val context = LocalContext.current
     val selected = remember { mutableStateOf(Icons.Default.Home) }
@@ -172,8 +178,8 @@ fun AppNavBar() {
             NavHost(navController = navigationController,
                 startDestination = Screens.Home.screen,
                 modifier = Modifier.padding(paddingValues)) {
-                composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
-                composable(Screens.Diary.screen) { Giang(nav = navigationController)}
+                composable(Screens.Home.screen) { TungAnh(nav = navigationController, date = selectedDateFormattedLabel)}
+                composable(Screens.Diary.screen) { Giang(nav = navigationController, date = selectedDateFormattedLabel)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, ingredientViewModel, recipeViewModel) }
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
@@ -182,7 +188,7 @@ fun AppNavBar() {
                 composable(Screens.Scan.screen) { ScanScreen(nav = navigationController, ingredientSearchResult) }
                 // composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
                 composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, recipeViewModel) }
-                composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
+                composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController, date = selectedDateFormattedLabel) }
                 composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController, ingredientViewModel) }
                 composable(Screens.SecurityUI.screen) { SecurityUI( nav = navigationController) }
             }
@@ -235,6 +241,6 @@ fun AppNavBar() {
 }
 
 @Composable
-fun TungAnh(nav: NavController) {
-    HomeUI(nav)
+fun TungAnh(nav: NavController, date: MutableState<String>) {
+    HomeUI(nav, date)
 }

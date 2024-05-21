@@ -71,6 +71,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.storage
+import kotlin.math.round
 
 class AddFoodActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -146,6 +147,10 @@ class AddFoodActivity : ComponentActivity() {
                         }
                     }
 
+                    calories.doubleValue = round(calories.doubleValue * 10) / 10
+                    protein.doubleValue = round(protein.doubleValue * 10) / 10
+                    carb.doubleValue = round(carb.doubleValue * 10) / 10
+                    fat.doubleValue = round(fat.doubleValue * 10) / 10
                 }
 
                 Column (

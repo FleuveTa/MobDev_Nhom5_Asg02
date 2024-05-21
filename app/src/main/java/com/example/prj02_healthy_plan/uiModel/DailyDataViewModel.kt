@@ -35,12 +35,20 @@ class DailyDataViewModel : ViewModel() {
 
             query.get()
                 .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        val dailyData = document.toObject(DailyData::class.java)
-                        dailyData.id = document.id
-                        _dailyData.value = dailyData
+                    if (documents.isEmpty) {
+                        createNewDailyData(date)
+                        Log.d("DATA AT : $date ", "No data")
+                    } else {
+                        for (document in documents) {
+                            val dailyData = document.toObject(DailyData::class.java)
+                            dailyData.id = document.id
+                            _dailyData.value = dailyData
+                        }
+                        Log.d("DATA AT : $date ", "${_dailyData.value}")
                     }
-                    Log.d("DATA AT : $date ", "${_dailyData.value}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("Error", "Error getting documents: ", e)
                 }
         }
     }
@@ -73,5 +81,66 @@ class DailyDataViewModel : ViewModel() {
                     Toast.makeText(context, "Added to $mealType", Toast.LENGTH_SHORT).show()
                 }
         }
+    }
+
+    fun updateTotalIntake(breakfast: Double, lunch: Double, dinner: Double, snacks: Double, date: String) {
+        val newDailyData = _dailyData.value.copy()
+        newDailyData.intake = listOf(breakfast, lunch, dinner, snacks)
+
+        _dailyData.value = newDailyData
+
+        viewModelScope.launch {
+//            db.collection("dailyData")
+//                .document(_dailyData.value.id?:"")
+//                .update("intake", _dailyData.value.intake)
+            val dailyDataRef = db.collection("dailyData")
+            val query = dailyDataRef
+                .whereEqualTo("user", userRef)
+                .whereEqualTo("date", date)
+            query.get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        document.reference.update("intake", newDailyData.intake)
+                    }
+                }
+        }
+
+    }
+
+    fun createNewDailyData(date: String) {
+        val newDailyData = DailyData(
+            user = userRef,
+            water = 0,
+            intake = listOf(0.0, 0.0, 0.0, 0.0),
+            burned = 0,
+            steps = 0,
+            date = date,
+            breakfast = listOf(),
+            lunch = listOf(),
+            dinner = listOf(),
+            snacks = listOf()
+        )
+
+        // Chuyển đổi DailyData thành HashMap
+        val dailyDataMap = hashMapOf(
+            "user" to newDailyData.user,
+            "water" to newDailyData.water,
+            "intake" to newDailyData.intake,
+            "burned" to newDailyData.burned,
+            "steps" to newDailyData.steps,
+            "date" to newDailyData.date,
+            "breakfast" to newDailyData.breakfast,
+            "lunch" to newDailyData.lunch,
+            "dinner" to newDailyData.dinner,
+            "snacks" to newDailyData.snacks
+        )
+
+        val dailyDataRef = db.collection("dailyData")
+        dailyDataRef.add(dailyDataMap)
+            .addOnSuccessListener { documentReference ->
+                newDailyData.id = documentReference.id
+                _dailyData.value = newDailyData
+                Log.d("CREATED NEW AT $date ", "${_dailyData.value}")
+            }
     }
 }

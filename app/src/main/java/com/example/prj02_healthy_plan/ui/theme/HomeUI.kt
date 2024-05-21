@@ -83,19 +83,19 @@ import java.util.Locale
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
 @Composable
-fun HomeUI(nav: NavController, date: String = "Today") {
+fun HomeUI(nav: NavController, date: MutableState<String>) {
 
-    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
+//    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+//    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
 
     val dailyViewModel: DailyDataViewModel = viewModel()
 
     val userViewModel: UserViewModel = viewModel()
     val user = userViewModel.state.value
 
-    LaunchedEffect(selectedDateFormattedLabel.value) {
-        dailyViewModel.fetchDailyData(selectedDateFormattedLabel.value)
-        Log.d("FETCHING : ", "DATE: ${selectedDateFormattedLabel.value}")
+    LaunchedEffect(date.value) {
+        dailyViewModel.fetchDailyData(date.value)
+        Log.d("FETCHING : ", "DATE: ${date.value}")
     }
 
 
@@ -104,7 +104,7 @@ fun HomeUI(nav: NavController, date: String = "Today") {
             .fillMaxSize()
             .background(Color(245, 250, 255))
     ) {
-        Header(nav, selectedDateFormattedLabel)
+        Header(nav, date)
         Content(user)
     }
 }

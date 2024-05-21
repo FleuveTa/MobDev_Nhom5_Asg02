@@ -62,7 +62,7 @@ data class DailyData(
     var id: String? = null,
     val user: DocumentReference? = null,
     var water: Int? = null,
-    val intake: List<Double>? = null,
+    var intake: List<Double>? = null,
     val burned: Int? = null,
     val steps: Int? = null,
     val date: String? = null,
@@ -71,5 +71,4 @@ data class DailyData(
     val dinner: List<RecipeInDaily>? = null,
     val snacks: List<RecipeInDaily>? = null
 ) {
-
 }
