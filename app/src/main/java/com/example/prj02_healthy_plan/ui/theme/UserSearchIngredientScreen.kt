@@ -1,6 +1,7 @@
 package com.example.prj02_healthy_plan.ui.theme
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,7 +75,7 @@ fun UserSearchIngredientScreen(nav: NavHostController, ingredientViewModel: Ingr
                         )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { nav.navigate("explore") }) {
+                    IconButton(onClick = { nav.navigate("explore") }, modifier = Modifier.testTag("UserSearchIngredientBackButton")) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 })
@@ -141,6 +143,7 @@ fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredien
 @Composable
 fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, isReadOnly: Boolean, onToggle: (Boolean) -> Unit) {
     var added by remember { mutableStateOf(isAdded) }
+
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -190,7 +193,12 @@ fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, 
                     added = !added
                 }
                 onToggle(added)
-            }) {
+                if (added) {
+                    Log.d("Add", "Added $name")
+                } else {
+                    Log.d("Remove", "Removed $name")
+                }
+            }, modifier = Modifier.testTag("ingredientAddButton")) {
                 Icon(
                     imageVector = if (added) Icons.Default.RemoveCircle else Icons.Default.AddCircle,
                     contentDescription = if (added) "Remove" else "Add",

@@ -1,9 +1,11 @@
 package com.example.prj02_healthy_plan.activities
-
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +44,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
 import com.example.prj02_healthy_plan.ui.theme.Giang
@@ -66,6 +69,7 @@ import com.google.firebase.auth.auth
 class HomeActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
@@ -78,6 +82,7 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavBar() {
     val navigationController = rememberNavController()
@@ -165,7 +170,7 @@ fun AppNavBar() {
             NavHost(navController = navigationController,
                 startDestination = Screens.Home.screen,
                 modifier = Modifier.padding(paddingValues)) {
-                composable(Screens.Home.screen) { TungAnh(nav = navigationController)}
+                composable(Screens.Home.screen) { HomeUI(nav = navigationController) }
                 composable(Screens.Diary.screen) { Giang(nav = navigationController)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, ingredientViewModel, recipeViewModel) }
                 composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
@@ -225,9 +230,4 @@ fun AppNavBar() {
             }
         }
     }
-}
-
-@Composable
-fun TungAnh(nav: NavController) {
-    HomeUI(nav)
 }

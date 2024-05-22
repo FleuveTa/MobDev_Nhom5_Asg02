@@ -50,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -57,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -118,7 +120,7 @@ fun ChienTa(
             ExploreTabScreen(
                 nav = nav,
                 ingredientViewModel = ingredientViewModel,
-                recipeViewModel = recipeViewModel,
+                recipeViewModel = recipeViewModel
             )
         }
     }
@@ -141,7 +143,8 @@ fun SearchBar(
 
     SearchBar(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .testTag("searchBarExplore"),
         query = text,
         onQueryChange = {
             text = it
@@ -203,7 +206,7 @@ fun SearchBar(
 fun ExploreTabScreen(
     nav: NavHostController,
     ingredientViewModel: IngredientViewModel,
-    recipeViewModel: RecipeViewModel,
+    recipeViewModel: RecipeViewModel
 ) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
@@ -235,7 +238,7 @@ fun RecommendedScreen(
     scrollState: ScrollState,
     nav: NavHostController,
     ingredientViewModel: IngredientViewModel,
-    recipeViewModel: RecipeViewModel,
+    recipeViewModel: RecipeViewModel
 ) {
     val recommendedFoodScrollState = rememberScrollState()
     val ingredientSearchScrollState = rememberScrollState()
@@ -303,7 +306,7 @@ fun RecommendedScreen(
                     IconButton(onClick = {
                         showDialog = true
 
-                    }) {
+                    }, modifier = Modifier.testTag("ingredientSearchOptionButton")) {
                         Icon(
                             imageVector = Icons.Default.AddCircle,
                             contentDescription = "Add Icon",
@@ -537,8 +540,7 @@ fun MyRecipes(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
-            Row {
-                Text(
+               Text(
                     text = "$cal CALS",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
@@ -553,7 +555,6 @@ fun MyRecipes(
             }
         }
     }
-}
 
 @Composable
 fun FavoriteIcon(isFavorite: Boolean, onToggle: (Boolean) -> Unit) {

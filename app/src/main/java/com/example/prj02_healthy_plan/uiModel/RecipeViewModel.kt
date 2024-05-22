@@ -64,18 +64,23 @@ class RecipeViewModel : ViewModel() {
 
     private suspend fun fetchRecipesFromDB(): List<MyRecipe> {
         val myRecipes = mutableListOf<MyRecipe>()
+
         try {
+            // Get all myRecipes
             val myRecipesSnapshot = db.collection("myRecipes").get().await()
             for (doc in myRecipesSnapshot.documents) {
                 val myRecipe = MyRecipe(id = doc.id)
 
+                // Get user reference and recipe references
                 val userRef = doc.get("user") as DocumentReference
                 val recipeRefs = doc.get("recipes") as List<DocumentReference>
 
+                // Convert user reference to user data
                 val userSnapshot = userRef.get().await()
                 val userId = userSnapshot.id
-                val user = userSnapshot.toObject(User::class.java)
+                val user = userSnapshot.toObject(com.example.prj02_healthy_plan.User::class.java)
 
+                // Convert recipe references to recipe data
                 val recipes = mutableListOf<RecipeFirebase>()
                 for (recipeRef in recipeRefs) {
                     val recipeSnapshot = recipeRef.get().await()

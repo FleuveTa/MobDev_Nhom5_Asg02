@@ -120,24 +120,20 @@ fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResults
                 name = recipe.name ?: "",
                 description = recipe.description ?: "",
                 nav = nav,
-                recipeViewModel =  recipeViewModel
+                recipeViewModel =  recipeViewModel,
+                isFavorite = false
             )
         }
     }
 }
 
 @Composable
-fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel) {
+fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel, isFavorite: Boolean) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
     val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
     val isFavorite = myRecipeList.any { recipe ->
         recipe.userId == uId && recipe.recipes?.any { it.id == recipeId } == true
-    }
-    LaunchedEffect(key1 = Unit) {
-        snapshotFlow { myRecipeList }.collect {
-            // Handle any additional logic if needed
-        }
     }
     Row(
         modifier = Modifier
