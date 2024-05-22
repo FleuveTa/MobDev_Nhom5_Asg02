@@ -5,19 +5,19 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.CameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -62,8 +62,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -71,14 +69,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.prj02_healthy_plan.Ingredient
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.google.firebase.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -119,13 +114,13 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>, ingredi
         cameraControl?.enableTorch(flashMode)
     }
 
-    var imageUri by remember {
+    val imageUri = remember {
         mutableStateOf<Uri?>(null)
     }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) {
-        imageUri = it
+        imageUri.value = it
     }
 
     // Kiểm tra và cập nhật trạng thái quyền camera khi Composable khởi chạy
@@ -134,10 +129,11 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>, ingredi
         ingredientViewModel.fetchIngredients()
     }
 
-    LaunchedEffect(imageUri) {
+    LaunchedEffect(imageUri.value) {
+        Log.d("ScanScreen", "${imageUri.value}")
         val client = OkHttpClient()
         val contentResolver = context.contentResolver
-        val tempFile = createTempFileFromUri(contentResolver, imageUri, context)
+        val tempFile = createTempFileFromUri(contentResolver, imageUri.value, context)
         tempFile?.let {
             val reqBody = it.asRequestBody("image/*".toMediaTypeOrNull())
             val body = MultipartBody.Builder()
@@ -287,7 +283,7 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>, ingredi
                         Log.d("ScanScreen", "Photo taken: ${photoFile.absolutePath}")
                     }, { exception ->
                         Log.e("ScanScreen", "Error taking photo", exception)
-                    }, urlMutable)
+                    }, urlMutable, imageUri)
                 } else {
                     ActivityCompat.requestPermissions(
                         context as Activity,
@@ -312,7 +308,7 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>, ingredi
                         tint = Color.White)
                 }
                 AsyncImage(
-                    model = imageUri,
+                    model = imageUri.value,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(4.dp)
@@ -338,7 +334,8 @@ fun takePhoto(
     nav: NavHostController,
     onImageCaptured: (File) -> Unit,
     onError: (ImageCaptureException) -> Unit,
-    result: MutableState<String>
+    result: MutableState<String>,
+    imageUri: MutableState<Uri?>
 ) {
     val photoFile = File(
         context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
@@ -354,12 +351,13 @@ fun takePhoto(
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                uploadPhotoToFirebase(photoFile, { downloadUrl ->
-//                    onImageCaptured(photoFile)
-
-                }, { exception ->
-                    Log.e("ScanScreen", "Error uploading image", exception)
-                })
+                val newUri = Uri.parse(photoFile.toUri().toString())
+                imageUri.value = newUri
+                Log.d("ScanScreen", "Photo saved: ${imageUri.value}")
+//                uploadPhotoToFirebase(photoFile, { downloadUrl ->
+//                }, { exception ->
+//                    Log.e("ScanScreen", "Error uploading image", exception)
+//                })
             }
 
             override fun onError(exception: ImageCaptureException) {
@@ -367,6 +365,22 @@ fun takePhoto(
             }
         }
     )
+}
+
+fun compressImageFile(file: File, quality: Int): File {
+    // Decode the image into a bitmap
+    val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+    // Create a new file
+    val newFile = File(file.parentFile, "compressed_" + file.name)
+
+    val outputStream = FileOutputStream(newFile)
+    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+
+    outputStream.flush()
+    outputStream.close()
+
+    return newFile
 }
 
 fun uploadPhotoToFirebase(photoFile: File, onSuccess: (String) -> Unit, onError: (Exception) -> Unit) {
@@ -403,7 +417,20 @@ fun createTempFileFromUri(contentResolver: ContentResolver, uri: Uri?, context: 
                 input.copyTo(output)
             }
         }
-        tempFile
+
+        val fileSize = tempFile.length() / (1024.0 * 1024.0)
+        if (fileSize > 2) {
+            val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath)
+            val compressedFile = File.createTempFile("compressed", null, context.cacheDir)
+            val fileOutputStream = FileOutputStream(compressedFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fileOutputStream)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+            compressedFile
+        } else {
+            tempFile
+        }
+
     } catch (e: IOException) {
         Log.e("ScanScreen", "Error creating temp file", e)
         null
