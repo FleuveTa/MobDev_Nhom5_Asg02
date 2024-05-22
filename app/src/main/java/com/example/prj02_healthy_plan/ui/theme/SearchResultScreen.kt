@@ -102,7 +102,7 @@ fun SearchResultScreen(nav: NavHostController, searchInfo: MutableState<String>,
 }
 
 @Composable
-fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResultsList: List<RecipeFirebase>,     recipeViewModel: RecipeViewModel) {
+fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResultsList: List<RecipeFirebase>, recipeViewModel: RecipeViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -116,14 +116,15 @@ fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResults
                 name = recipe.name ?: "",
                 description = recipe.description ?: "",
                 nav = nav,
-                recipeViewModel =  recipeViewModel
+                recipeViewModel =  recipeViewModel,
+                isFavorite = false
             )
         }
     }
 }
 
 @Composable
-fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel) {
+fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel, isFavorite: Boolean) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
     Row(

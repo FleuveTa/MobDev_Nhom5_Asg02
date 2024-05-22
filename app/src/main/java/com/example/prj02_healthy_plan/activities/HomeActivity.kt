@@ -41,7 +41,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.NotificationCompat
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -59,7 +59,7 @@ import com.example.prj02_healthy_plan.ui.theme.Screens
 import com.example.prj02_healthy_plan.ui.theme.SearchResultScreen
 import com.example.prj02_healthy_plan.ui.theme.SecurityUI
 import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
-import com.example.prj02_healthy_plan.ui.theme.UserAddIngredientScreen
+import com.example.prj02_healthy_plan.ui.theme.UserSearchIngredientScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
@@ -94,6 +94,9 @@ fun AppNavBar() {
     val recipeSearchName = remember { mutableStateOf("") }
     val recipeViewModel = remember { RecipeViewModel() }
     val ingredientViewModel = remember { IngredientViewModel() }
+    LaunchedEffect(key1 = Unit) {
+        recipeViewModel.fetchMyRecipes()
+    }
     LaunchedEffect(navigationController) {
         navigationController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.route) {
@@ -182,7 +185,7 @@ fun AppNavBar() {
                 // composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
                 composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, recipeViewModel) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController) }
-                composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController, ingredientViewModel) }
+                composable(Screens.UserAddIngredient.screen) { UserSearchIngredientScreen( nav = navigationController, ingredientViewModel) }
                 composable(Screens.SecurityUI.screen) { SecurityUI( nav = navigationController) }
             }
         }

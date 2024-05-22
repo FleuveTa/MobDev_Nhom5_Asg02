@@ -131,7 +131,6 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController, recipeV
                         tint = Color.White,
                         modifier = Modifier.size(42.dp)
                     )
-
                     Text(
                         text = "Ingredient Search",
                         fontSize = 18.sp,
@@ -163,7 +162,8 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController, recipeV
                             name = ingredient.name ?: "",
                             unit = ingredient.unit ?: "",
                             cal = ingredient.nutrition?.get(0) ?: 0.0,
-                            isAdded = true
+                            isAdded = true,
+                            isReadOnly = true,
                         ) {
                             ingredientViewModel.toggleIngredient(ingredient)
                         }

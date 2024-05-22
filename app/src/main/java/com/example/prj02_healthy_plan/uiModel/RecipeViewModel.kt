@@ -14,6 +14,7 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class RecipeViewModel : ViewModel() {
@@ -47,25 +48,27 @@ class RecipeViewModel : ViewModel() {
             }
     }
 
-    suspend fun fetchMyRecipes() {
-        val myRecipes = mutableListOf<MyRecipe>()
+    fun fetchMyRecipes() {
+        viewModelScope.launch {
+            val myRecipes = fetchRecipesFromDB()
+            _myRecipeList.value = myRecipes
+        }
+    }
 
+    private suspend fun fetchRecipesFromDB(): List<MyRecipe> {
+        val myRecipes = mutableListOf<MyRecipe>()
         try {
-            // Get all myRecipes
             val myRecipesSnapshot = db.collection("myRecipes").get().await()
             for (doc in myRecipesSnapshot.documents) {
                 val myRecipe = MyRecipe(id = doc.id)
 
-                // Get user reference and recipe references
                 val userRef = doc.get("user") as DocumentReference
                 val recipeRefs = doc.get("recipes") as List<DocumentReference>
 
-                // Convert user reference to user data
                 val userSnapshot = userRef.get().await()
                 val userId = userSnapshot.id
                 val user = userSnapshot.toObject(com.example.prj02_healthy_plan.User::class.java)
 
-                // Convert recipe references to recipe data
                 val recipes = mutableListOf<RecipeFirebase>()
                 for (recipeRef in recipeRefs) {
                     val recipeSnapshot = recipeRef.get().await()
@@ -84,7 +87,7 @@ class RecipeViewModel : ViewModel() {
         } catch (e: Exception) {
             Log.e("MyRecipes", "Error fetching recipes", e)
         }
-        _myRecipeList.value = myRecipes
+        return myRecipes
     }
 
     fun addMyRecipe(userId: String?, recipeId: String?) {
@@ -99,17 +102,16 @@ class RecipeViewModel : ViewModel() {
         db.collection("myRecipes").whereEqualTo("user", userRef).get().addOnSuccessListener { result ->
             if (result.isEmpty) {
                 // if the user doesn't have any myRecipes, create a new one
-                db.collection("myRecipes").add(newMyRecipe)
+                db.collection("myRecipes").add(newMyRecipe).addOnSuccessListener {
+                    fetchMyRecipes()  // Fetch the updated list
+                }
             } else {
                 // if the user already has myRecipes, add the new recipeRef into the recipes array
                 val myRecipeId = result.documents[0].id
                 db.collection("myRecipes").document(myRecipeId).update("recipes", FieldValue.arrayUnion(recipeRef))
             }
         }
-
-
     }
-
     fun deleteMyRecipe(userId: String?, id: String) {
         val userRef = db.collection("users").document(userId?:"")
         _myRecipeList.value = _myRecipeList.value.filter { it.id != id }
@@ -119,7 +121,11 @@ class RecipeViewModel : ViewModel() {
             } else {
                 val myRecipeId = result.documents[0].id
                 // delete the recipeRef from the recipes array
-                db.collection("myRecipes").document(myRecipeId).update("recipes", FieldValue.arrayRemove(db.collection("recipes").document(id)))
+                db.collection("myRecipes").document(myRecipeId)
+                    .update("recipes", FieldValue.arrayRemove(db.collection("recipes").document(id)))
+                    .addOnSuccessListener {
+                        fetchMyRecipes()  // Fetch the updated list
+                    }
             }
         }
     }

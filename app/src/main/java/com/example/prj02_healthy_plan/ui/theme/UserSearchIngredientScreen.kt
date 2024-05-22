@@ -132,7 +132,8 @@ fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredien
                 name = ingredient.name ?: "",
                 unit = ingredient.unit ?: "",
                 cal = ingredient.nutrition?.get(0) ?: 0.0,
-                isAdded = userIngredients.contains(ingredient)
+                isAdded = userIngredients.contains(ingredient),
+                isReadOnly = false
             ) {
                 viewModel.toggleIngredient(ingredient)
             }
@@ -140,7 +141,7 @@ fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredien
     }
 }
 @Composable
-fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, onToggle: (Boolean) -> Unit) {
+fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, isReadOnly: Boolean, onToggle: (Boolean) -> Unit) {
     var added by remember { mutableStateOf(isAdded) }
 
     Row(
@@ -189,7 +190,9 @@ fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, 
             // Add button here, when click on it, the ingredient will be added to the user's ingredient list and
             // the icon will change to a remove icon, when click on it again, the ingredient will be removed from the user's ingredient list
             IconButton(onClick = {
-                added = !added
+                if (!isReadOnly) {
+                    added = !added
+                }
                 onToggle(added)
                 if (added) {
                     Log.d("Add", "Added $name")
