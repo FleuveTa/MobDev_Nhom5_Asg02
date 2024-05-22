@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -137,7 +138,8 @@ fun SearchBar(
 
     SearchBar(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .testTag("searchBarExplore"),
         query = text,
         onQueryChange = {
             text = it
@@ -286,7 +288,7 @@ fun RecommendedScreen(
                     IconButton(onClick = {
                         showDialog = true
 
-                    }) {
+                    }, modifier = Modifier.testTag("ingredientSearchOptionButton")) {
                         Icon(
                             imageVector = Icons.Default.AddCircle,
                             contentDescription = "Add Icon",
@@ -320,7 +322,7 @@ fun RecommendedScreen(
                             text = "No ingredient added",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(5.dp)
+                            modifier = Modifier.padding(5.dp).testTag("noIngredientAdded")
                         )
                     }
                 }
