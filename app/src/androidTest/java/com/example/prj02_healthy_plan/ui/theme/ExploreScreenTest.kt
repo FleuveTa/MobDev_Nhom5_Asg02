@@ -82,6 +82,8 @@ public class ExploreScreenTest {
             }
         }
 
+        every { mockRecipeViewModel.myRecipeList } returns MutableStateFlow(emptyList())
+
     }
 
     @Test
@@ -101,7 +103,7 @@ public class ExploreScreenTest {
                 }
 
                 composable(Screens.UserAddIngredient.screen) {
-                    UserAddIngredientScreen( nav = navController, mockIngredientViewModel)
+                    UserSearchIngredientScreen( nav = navController, mockIngredientViewModel)
                 }
             }
         }

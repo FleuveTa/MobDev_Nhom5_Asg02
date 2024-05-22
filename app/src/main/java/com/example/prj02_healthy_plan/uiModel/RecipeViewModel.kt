@@ -55,7 +55,7 @@ class RecipeViewModel : ViewModel() {
     }
 
 
-    private fun fetchMyRecipes() {
+    fun fetchMyRecipes() {
         viewModelScope.launch {
             val myRecipes = fetchRecipesFromDB()
             myRecipeList.value = myRecipes

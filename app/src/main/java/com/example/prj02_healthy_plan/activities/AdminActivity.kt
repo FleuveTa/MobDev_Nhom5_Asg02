@@ -66,6 +66,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.ContextWrapper
+import com.example.prj02_healthy_plan.ContextWrapperImpl
+import com.example.prj02_healthy_plan.FirebaseAuthWrapper
+import com.example.prj02_healthy_plan.FirebaseAuthWrapperImpl
 import com.example.prj02_healthy_plan.RecipeFirebase
 import com.example.prj02_healthy_plan.ui.theme.Content
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
@@ -85,139 +89,147 @@ class AdminActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
+        val viewRecipeModel: RecipeViewModel by viewModels()
 
         setContent {
-            Prj02_Healthy_PlanTheme {
-                val localContext = LocalContext.current
-                val viewRecipeModel: RecipeViewModel = viewModel()
-                val recipeList by viewRecipeModel.recipeList.collectAsState()
+            AdminScreen(FirebaseAuthWrapperImpl(auth), ContextWrapperImpl(context), viewRecipeModel)
+        }
+    }
+}
 
-                LaunchedEffect(key1 = Unit) {
-                    viewRecipeModel.fetchRecipes()
+@Composable
+fun AdminScreen(auth: FirebaseAuthWrapper, context: ContextWrapper, viewRecipeModel: RecipeViewModel) {
+    val localContext = LocalContext.current
+    val recipeList by viewRecipeModel.recipeList.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        viewRecipeModel.fetchRecipes()
+    }
+    Column(
+        modifier = Modifier
+            .padding(5.dp)
+            .background(Color(245, 250, 255))
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "HealthyPlans",
+            fontWeight = FontWeight.Bold,
+            fontSize = 28.sp,
+            color = Color(parseColor("#4ED22D")),
+            modifier = Modifier
+        )
+
+        AdminSearchBar()
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .padding(5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Edit Recipes",
+                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp,
+                color = Color(parseColor("#3B3B3B"))
+            )
+
+            IconButton(
+                onClick = {
+                    auth.signOut()
+                    val c = context.getContext()
+                    if (c is Activity) {
+                        val intent = Intent(c, MainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                        context.startActivity(intent)
+                        context.finish()
+                    } else {
+                        Log.e("AdminActivity", "Context is not an Activity")
+                    }
                 }
-                Column(
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Logout,
+                    contentDescription = "Logout Icon",
                     modifier = Modifier
-                        .padding(5.dp)
-                        .background(Color(245, 250, 255))
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .size(30.dp)
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth()
+                .height(100.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.White, RoundedCornerShape(20.dp))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.FoodBank,
+                    contentDescription = "Food Icon",
+                    tint = Color(parseColor("#4ED22D")),
+                    modifier = Modifier
+                        .size(55.dp)
+                )
+
+                Text(
+                    text = "Add a new recipe",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 22.sp,
+                    color = Color(parseColor("#3B3B3B"))
+                )
+
+
+                IconButton(
+                    onClick = {
+                        val intent = Intent(localContext, AddFoodActivity::class.java)
+                        context.startActivity(intent)
+                    }
                 ) {
-                    Text(
-                        text = "HealthyPlans",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
-                        color = Color(parseColor("#4ED22D")),
+                    Icon(
+                        imageVector = Icons.Filled.AddCircle,
+                        contentDescription = "Add Icon",
+                        tint = Color(parseColor("#4ED22D")),
                         modifier = Modifier
+                            .size(40.dp)
                     )
-
-                    AdminSearchBar()
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .padding(5.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Edit Recipes",
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 20.sp,
-                            color = Color(parseColor("#3B3B3B"))
-                        )
-
-                        IconButton(
-                            onClick = {
-                                auth.signOut()
-                                if (context is Activity) {
-                                    val intent = Intent(context, MainActivity::class.java)
-                                    intent.flags =
-                                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                                    context.startActivity(intent)
-                                    context.finish()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Logout,
-                                contentDescription = "Logout Icon",
-                                modifier = Modifier
-                                    .size(30.dp)
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .fillMaxWidth()
-                            .height(100.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Color.White, RoundedCornerShape(20.dp))
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(5.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.FoodBank,
-                                contentDescription = "Food Icon",
-                                tint = Color(parseColor("#4ED22D")),
-                                modifier = Modifier
-                                    .size(55.dp)
-                            )
-
-                            Text(
-                                text = "Add a new recipe",
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 22.sp,
-                                color = Color(parseColor("#3B3B3B"))
-                            )
-
-
-                            IconButton(
-                                onClick = {
-                                    val intent = Intent(localContext, AddFoodActivity::class.java)
-                                    startActivity(intent)
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.AddCircle,
-                                    contentDescription = "Add Icon",
-                                    tint = Color(parseColor("#4ED22D")),
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        for (recipe in recipeList) {
-                            FoodCanRemove(
-                                name = recipe.name ?: "",
-                                amount = recipe.description ?: "",
-                                cal = recipe.nutrition?.get(0) ?: 0,
-                                id = recipe.id ?: "",
-                                model = viewRecipeModel
-                            )
-                        }
-                    }
                 }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            for (recipe in recipeList) {
+                FoodCanRemove(
+                    name = recipe.name ?: "",
+                    amount = recipe.description ?: "",
+                    cal = recipe.nutrition?.get(0) ?: 0,
+                    id = recipe.id ?: "",
+                    model = viewRecipeModel
+                )
             }
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
