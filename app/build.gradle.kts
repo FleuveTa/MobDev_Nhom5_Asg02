@@ -2,21 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
-
-//buildscript {
-//    repositories {
-//        maven {
-//            url = uri("https://plugins.gradle.org/m2/")
-//        }
-//    }
-//    dependencies {
-//        classpath("org.jetbrains.kotlin:kotlin-serialization:2.0.0")
-//    }
-//}
-
-apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
 android {
     namespace = "com.example.prj02_healthy_plan"

@@ -156,6 +156,15 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
         }
     }
 
+    LaunchedEffect(dateFormatted.value) {
+        val parsedDate = dateFormat.parse(dateFormatted.value)
+        parsedDate?.let {
+            datePickerState.selectedDateMillis = it.time
+            selectedDateLabel.value = it.time.convertMillisToDate()
+            Log.d("Converted", it.time.convertMillisToDate())
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
