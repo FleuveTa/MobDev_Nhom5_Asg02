@@ -2,13 +2,10 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="AddFoodScreenTest">
-        <State />
-      </entry>
-      <entry key="AdminScreenTest">
-        <State />
-      </entry>
       <entry key="ExploreScreenTest">
+        <State />
+      </entry>
+      <entry key="HomeUIScreenTest">
         <State />
       </entry>
       <entry key="app">
@@ -19,6 +16,8 @@
       </entry>
       <entry key="testAdminScreen()">
         <State />
+      </entry>
+      <entry key="testHomeScreen()">
         <State />
       </entry>
     </value>

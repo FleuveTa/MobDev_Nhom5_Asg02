@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -90,6 +91,7 @@ fun HomeUI(nav: NavController, date: MutableState<String>) {
 
     val userViewModel: UserViewModel = viewModel()
     val user = userViewModel.state.value
+    val dailyData by dailyViewModel.dailyData.collectAsState()
 
     LaunchedEffect(date.value) {
         dailyViewModel.fetchDailyData(date.value)
@@ -102,7 +104,7 @@ fun HomeUI(nav: NavController, date: MutableState<String>) {
             .background(Color(245, 250, 255))
     ) {
         Header(nav, date)
-        Content(user)
+        Content(user, dailyViewModel, dailyData)
     }
 }
 
@@ -170,7 +172,7 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
     ) {
         TextButton(
             onClick = { openDialog.value = true },
-            modifier = Modifier.weight(1.5F, true)
+            modifier = Modifier.weight(1.5F, true).testTag("datePickerButton")
         ) {
 
             Text(
@@ -327,11 +329,13 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
 }
 
 @Composable
-fun Content(user: User) {
+fun Content(
+    user: User,
+    dailyDataViewModel: DailyDataViewModel,
+    dailyData : DailyData
+) {
     val waterColor = Color(parseColor("#63e5ff"))
 
-    val dailyDataViewModel: DailyDataViewModel = viewModel()
-    val dailyData by dailyDataViewModel.dailyData.collectAsState()
 
     Column(
         modifier = Modifier
@@ -364,7 +368,8 @@ fun Content(user: User) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { dailyDataViewModel.minusWater() }
+                    onClick = { dailyDataViewModel.minusWater() },
+                    modifier = Modifier.testTag("minusWaterButton")
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
@@ -389,7 +394,8 @@ fun Content(user: User) {
                         text = dailyData.water.toString() + " liters",
                         color = textProgressColor,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.testTag("waterText")
                     )
 
                     Text(
@@ -401,7 +407,8 @@ fun Content(user: User) {
                 }
 
                 IconButton(
-                    onClick = { dailyDataViewModel.addWater() }
+                    onClick = { dailyDataViewModel.addWater()},
+                    modifier = Modifier.testTag("addWaterButton")
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.baseline_add_circle_24),
