@@ -187,7 +187,7 @@ fun AppNavBar() {
                 // composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
                 composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, recipeViewModel) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController, date = selectedDateFormattedLabel) }
-                composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController, ingredientViewModel) }
+//                composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController, ingredientViewModel) }
                 composable(Screens.SecurityUI.screen) { SecurityUI( nav = navigationController) }
             }
         }
@@ -238,6 +238,7 @@ fun AppNavBar() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun TungAnh(nav: NavController, date: MutableState<String>) {
     HomeUI(nav, date)
