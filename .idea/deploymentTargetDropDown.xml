@@ -2,13 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="AdminScreenTest">
+        <State />
+      </entry>
+      <entry key="ExploreScreenTest">
+        <State />
+      </entry>
       <entry key="app">
         <State />
       </entry>
-      <entry key="testTopBarTitleDisplayed()">
+      <entry key="testAdminScreen()">
         <State />
       </entry>
-      <entry key="testUserInforUI()">
+      <entry key="userManuallyAddIngredientTest()">
+        <State />
+      </entry>
+      <entry key="userSearchIngredientScreenTest()">
         <State />
       </entry>
     </value>
