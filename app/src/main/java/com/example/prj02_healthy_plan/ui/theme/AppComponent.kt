@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -46,7 +47,8 @@ fun PasswordField(password: MutableState<String>) {
 
     TextField(
         value = password.value,
-        modifier = Modifier.fillMaxWidth(1f),
+
+        modifier = Modifier.fillMaxWidth(1f).testTag("password_field"),
         onValueChange = { password.value = it },
         label = { Text("Password") },
         visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
@@ -58,6 +60,6 @@ fun PasswordField(password: MutableState<String>) {
                     contentDescription = "Toggle password visibility"
                 )
             }
-        }
+        },
     )
 }

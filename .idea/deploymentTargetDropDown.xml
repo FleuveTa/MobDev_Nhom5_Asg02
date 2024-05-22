@@ -2,22 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="ExploreScreenTest">
+      <entry key="GetStartedTest">
         <State />
       </entry>
-      <entry key="HomeUIScreenTest">
+      <entry key="ShowSearchChoiceDialogTest">
+        <State />
+      </entry>
+      <entry key="SignUpUITest">
         <State />
       </entry>
       <entry key="app">
         <State />
       </entry>
-      <entry key="testAddFoodScreen()">
+      <entry key="testShowSearchChoiceDialogUIComponents()">
         <State />
       </entry>
-      <entry key="testAdminScreen()">
-        <State />
-      </entry>
-      <entry key="testHomeScreen()">
+      <entry key="testSignUpUI()">
         <State />
       </entry>
     </value>

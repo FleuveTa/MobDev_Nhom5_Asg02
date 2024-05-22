@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -72,7 +73,8 @@ fun SignUpUI(username: MutableState<String>, password: MutableState<String>, sig
                     onClick = { signup() },
                     modifier = Modifier
                         .fillMaxWidth(1f)
-                        .padding(top = 40.dp),
+                        .padding(top = 40.dp)
+                        .testTag("signup_button"),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2BF361),
                     )
@@ -110,7 +112,8 @@ fun SignUpUI(username: MutableState<String>, password: MutableState<String>, sig
             }
             Row {
                 Text(text = "Already have an account?")
-                ClickableText(text = AnnotatedString(" Sign In"), onClick = {toSignin()}, style = TextStyle(color = Color.Blue))
+                ClickableText(text = AnnotatedString(" Sign In"), onClick = {toSignin()}, style = TextStyle(color = Color.Blue),
+                    modifier = Modifier.testTag("signin_button"))
             }
         }
     }
