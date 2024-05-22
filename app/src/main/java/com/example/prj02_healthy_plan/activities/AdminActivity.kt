@@ -142,7 +142,7 @@ fun AdminScreen(auth: FirebaseAuthWrapper, context: ContextWrapper, viewRecipeMo
             IconButton(
                 onClick = {
                     auth.signOut()
-                    val c = context.requireActivity()
+                    val c = context.getContext()
                     if (c is Activity) {
                         val intent = Intent(c, MainActivity::class.java)
                         intent.flags =

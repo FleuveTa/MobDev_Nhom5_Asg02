@@ -32,6 +32,7 @@ interface ContextWrapper {
     fun startActivity(intent: Intent)
     fun finish()
     abstract fun requireActivity(): Any
+    abstract fun getContext(): Any
 }
 
 class ContextWrapperImpl(private val context: Context) : ContextWrapper {
@@ -49,6 +50,10 @@ class ContextWrapperImpl(private val context: Context) : ContextWrapper {
 
     override fun requireActivity(): Activity {
         return context as Activity
+    }
+
+    override fun getContext(): Context {
+        return context
     }
 }
 

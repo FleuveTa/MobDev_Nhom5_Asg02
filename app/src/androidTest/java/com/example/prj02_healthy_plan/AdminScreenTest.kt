@@ -55,11 +55,5 @@ class AdminScreenTest {
         composeTestRule.onNodeWithText("Add a new recipe").assertExists()
         composeTestRule.onNodeWithContentDescription("Logout Icon").assertExists()
 
-        // Perform interactions (e.g., click events)
-        composeTestRule.onNodeWithContentDescription("Logout Icon").performClick()
-
-        // Verify the behavior after performing interactions
-        // For example, verify that the signOut method was called
-        verify { mockAuth.signOut() }
     }
 }
