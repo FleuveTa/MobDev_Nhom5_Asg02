@@ -79,33 +79,29 @@ import convertMillisToDate
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun HomeUI(nav: NavController, date: String = "Today") {
-
-    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
-
+fun HomeUI(nav: NavController, date: MutableState<String>) {
     val dailyViewModel: DailyDataViewModel = viewModel()
 
     val userViewModel: UserViewModel = viewModel()
     val user = userViewModel.state.value
 
-    LaunchedEffect(selectedDateFormattedLabel.value) {
-        dailyViewModel.fetchDailyData(selectedDateFormattedLabel.value)
-        Log.d("FETCHING : ", "DATE: ${selectedDateFormattedLabel.value}")
+    LaunchedEffect(date.value) {
+        dailyViewModel.fetchDailyData(date.value)
+        Log.d("FETCHING : ", "DATE: ${date.value}")
     }
-
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(245, 250, 255))
     ) {
-        Header(nav, selectedDateFormattedLabel)
+        Header(nav, date)
         Content(user)
     }
 }
@@ -121,8 +117,9 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
     val selectedDateLabel = remember { mutableStateOf("Today") }
     val openDialog = remember { mutableStateOf(false) }
     val calendarPickerMainColor = Color(0xFF722276)
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
     val openNotificationDialog = remember { mutableStateOf(false) }
 
     val hasNotificationPermission = remember {
@@ -143,6 +140,24 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
             Log.d("PERMISSION", "DENIED")
+        }
+    }
+
+    LaunchedEffect(dateFormatted.value) {
+        val parsedDate = dateFormat.parse(dateFormatted.value)
+        parsedDate?.let {
+            datePickerState.selectedDateMillis = it.time
+            selectedDateLabel.value = it.time.convertMillisToDate()
+            Log.d("Converted", it.time.convertMillisToDate())
+        }
+    }
+
+    LaunchedEffect(dateFormatted.value) {
+        val parsedDate = dateFormat.parse(dateFormatted.value)
+        parsedDate?.let {
+            datePickerState.selectedDateMillis = it.time
+            selectedDateLabel.value = it.time.convertMillisToDate()
+            Log.d("Converted", it.time.convertMillisToDate())
         }
     }
 
@@ -349,7 +364,7 @@ fun Content(user: User) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { /*TODO*/ }
+                    onClick = { dailyDataViewModel.minusWater() }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
