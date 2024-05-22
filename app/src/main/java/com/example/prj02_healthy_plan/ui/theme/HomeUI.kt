@@ -79,6 +79,7 @@ import convertMillisToDate
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 val textProgressColor = Color(parseColor("#3B3B3B"))
 
@@ -97,7 +98,6 @@ fun HomeUI(nav: NavController, date: MutableState<String>) {
         dailyViewModel.fetchDailyData(date.value)
         Log.d("FETCHING : ", "DATE: ${date.value}")
     }
-
 
     Column(
         modifier = Modifier
@@ -118,9 +118,20 @@ fun Header(nav: NavController, dateFormatted: MutableState<String>) {
     val selectedDateLabel = remember { mutableStateOf("Today") }
     val openDialog = remember { mutableStateOf(false) }
     val calendarPickerMainColor = Color(0xFF722276)
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
     val openNotificationDialog = remember { mutableStateOf(false) }
     val notification = remember { mutableStateOf(false) }
+
+    LaunchedEffect(dateFormatted.value) {
+        val parsedDate = dateFormat.parse(dateFormatted.value)
+        parsedDate?.let {
+            datePickerState.selectedDateMillis = it.time
+            selectedDateLabel.value = it.time.convertMillisToDate()
+            Log.d("Converted", it.time.convertMillisToDate())
+        }
+    }
 
     Row(
         modifier = Modifier
