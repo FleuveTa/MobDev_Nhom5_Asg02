@@ -23,7 +23,6 @@ class IngredientViewModel : ViewModel() {
             _ingredientList.value = ingredientList
         }
     }
-
     fun toggleIngredient(ingredient: Ingredient) {
         if (userIngredients.contains(ingredient)) {
             userIngredients.remove(ingredient)

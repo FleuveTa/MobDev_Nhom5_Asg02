@@ -17,13 +17,13 @@ import kotlinx.coroutines.tasks.await
 class UserViewModel : ViewModel() {
     val auth: FirebaseAuth = Firebase.auth
     val state = mutableStateOf(User())
-    val uId = auth.currentUser?.uid
+    private val uId = auth.currentUser?.uid
 
     init {
         getUserInfor()
     }
 
-     fun getUserInfor() {
+    fun getUserInfor() {
         viewModelScope.launch {
             if (uId != null) {
                 state.value = fetchUserInfor(uId = uId)

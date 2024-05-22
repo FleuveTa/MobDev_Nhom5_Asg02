@@ -49,7 +49,7 @@ import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserAddIngredientScreen(nav: NavHostController, ingredientViewModel: IngredientViewModel){
+fun UserSearchIngredientScreen(nav: NavHostController, ingredientViewModel: IngredientViewModel){
     val allIngredientList by ingredientViewModel.ingredientList.collectAsState()
     val (filteredIngredientList, setFilteredIngredientList) = remember { mutableStateOf(allIngredientList) }
     val (isSearching, setIsSearching) = remember { mutableStateOf(false) }
@@ -88,21 +88,21 @@ fun UserAddIngredientScreen(nav: NavHostController, ingredientViewModel: Ingredi
         ) {
             SearchBar(nav = nav) { query ->
                 if (query.isNotEmpty()) {
-                    setIsSearching(true) // Đánh dấu là đang tìm kiếm
+                    setIsSearching(true) // Mark as searching
                     setFilteredIngredientList(allIngredientList.filter { it.name?.contains(query, ignoreCase = true) == true })
                 } else {
-                    setIsSearching(false) // Đánh dấu là không tìm kiếm
+                    setIsSearching(false) // Mark as not searching
                     setFilteredIngredientList(allIngredientList)
                 }
             }
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // Hiển thị tất cả các mục khi không tìm kiếm hoặc khi kết quả tìm kiếm rỗng
+            // Show the list of ingredients
             if (!isSearching || filteredIngredientList.isEmpty()) {
                 UserAddIngredientTabScreen(viewModel = ingredientViewModel)
             } else {
-                // Hiển thị kết quả tìm kiếm
+                // Show the filtered list of ingredients
                 AllIngredientScreen(scrollState = rememberScrollState(), ingredientList = filteredIngredientList, viewModel = ingredientViewModel)
             }
         }
