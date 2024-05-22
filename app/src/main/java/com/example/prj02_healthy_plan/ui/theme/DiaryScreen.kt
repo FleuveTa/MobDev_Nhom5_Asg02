@@ -50,6 +50,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -76,21 +77,36 @@ import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import convertMillisToDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Giang(nav: NavHostController) {
-    val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
-    val selectedDateFormattedLabel = remember { mutableStateOf(currentDate) }
-
+fun Giang(nav: NavHostController, date: MutableState<String>) {
     val dailyDataViewModel: DailyDataViewModel = viewModel()
     val dailyData by dailyDataViewModel.dailyData.collectAsState()
 
-    LaunchedEffect(Unit) {
-        dailyDataViewModel.fetchDailyData(selectedDateFormattedLabel.value)
+    val openDialog = remember { mutableStateOf(false) }
+    val selectedDateLabel = remember { mutableStateOf("Today") }
+    val datePickerState = rememberDatePickerState(
+        selectableDates = PastOrPresentSelectableDates
+    )
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    val calendarPickerMainColor = Color(0xFF722276)
+
+    LaunchedEffect(date.value) {
+        dailyDataViewModel.fetchDailyData(date.value)
+        val parsedDate = dateFormat.parse(date.value)
+        parsedDate?.let {
+            datePickerState.selectedDateMillis = it.time
+            selectedDateLabel.value = it.time.convertMillisToDate()
+            Log.d("Converted", it.time.convertMillisToDate())
+        }
     }
 
     val userViewModel: UserViewModel = viewModel()
@@ -101,18 +117,10 @@ fun Giang(nav: NavHostController) {
     val dinnerRecipes = remember { mutableStateListOf<RecipeFirebase>() }
     val snacksRecipes = remember { mutableStateListOf<RecipeFirebase>() }
 
-    val totalBreakfast = remember { mutableDoubleStateOf(0.0) }
-    val totalLunch = remember { mutableDoubleStateOf(0.0) }
-    val totalDinner = remember { mutableDoubleStateOf(0.0) }
-    val totalSnacks = remember { mutableDoubleStateOf(0.0) }
-
-    val openDialog = remember { mutableStateOf(false) }
-    val selectedDateLabel = remember { mutableStateOf("Today") }
-    val datePickerState = rememberDatePickerState(
-        selectableDates = PastOrPresentSelectableDates
-    )
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-    val calendarPickerMainColor = Color(0xFF722276)
+    val totalBreakfast = remember { mutableStateListOf<Double>() }
+    val totalLunch = remember { mutableStateListOf<Double>() }
+    val totalDinner = remember { mutableStateListOf<Double>() }
+    val totalSnacks = remember { mutableStateListOf<Double>() }
 
     LaunchedEffect(dailyData) {
         breakfastRecipes.clear()
@@ -120,18 +128,30 @@ fun Giang(nav: NavHostController) {
         dinnerRecipes.clear()
         snacksRecipes.clear()
 
+        totalBreakfast.clear()
+        totalLunch.clear()
+        totalDinner.clear()
+        totalSnacks.clear()
+
         breakfastRecipes.addAll(fetchRecipes(dailyData.breakfast))
         lunchRecipes.addAll(fetchRecipes(dailyData.lunch))
         dinnerRecipes.addAll(fetchRecipes(dailyData.dinner))
         snacksRecipes.addAll(fetchRecipes(dailyData.snacks))
 
-        totalBreakfast.doubleValue = calculateTotalCalories(breakfastRecipes, dailyData.breakfast)
-        totalLunch.doubleValue = calculateTotalCalories(lunchRecipes, dailyData.lunch)
-        totalDinner.doubleValue = calculateTotalCalories(dinnerRecipes, dailyData.dinner)
-        totalSnacks.doubleValue = calculateTotalCalories(snacksRecipes, dailyData.snacks)
+        totalBreakfast.addAll(calculateTotalCalories(breakfastRecipes, dailyData.breakfast))
+        totalLunch.addAll(calculateTotalCalories(lunchRecipes, dailyData.lunch))
+        totalDinner.addAll(calculateTotalCalories(dinnerRecipes, dailyData.dinner))
+        totalSnacks.addAll(calculateTotalCalories(snacksRecipes, dailyData.snacks))
+
+
+        dailyDataViewModel.updateTotalIntake(
+            totalBreakfast[0] + totalLunch[0] + totalDinner[0] + totalSnacks[0],
+            totalBreakfast[1] + totalLunch[1] + totalDinner[1] + totalSnacks[1],
+            totalBreakfast[2] + totalLunch[2] + totalDinner[2] + totalSnacks[2],
+            totalBreakfast[3] + totalLunch[3] + totalDinner[3] + totalSnacks[3],
+            date.value
+        )
     }
-
-
 
     Scaffold(
         topBar = {
@@ -215,51 +235,71 @@ fun Giang(nav: NavHostController) {
                     }
                 }
 
-                HeaderRoundedBox (heading = "Breakfast", nav = nav, totalBreakfast.doubleValue) {
+                HeaderRoundedBox (heading = "Breakfast", nav = nav, totalBreakfast.firstOrNull() ?: 0.0) {
                     for ((index, recipe) in breakfastRecipes.withIndex()) {
                         Log.d("Recipe", recipe.toString())
-                        dailyData.breakfast?.get(index)
-                            ?.let { it.quantity?.let { it1 ->
-                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
-                                FoodDescriptionDiary(recipe.name ?: "Nun",
-                                    it1, totalCalories)
-                            } }
+                        if (dailyData.breakfast?.isNotEmpty() == true && index < (dailyData.breakfast?.size ?: 0)) {
+                            dailyData.breakfast?.get(index)
+                                ?.let { it.quantity?.let { it1 ->
+                                    val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                    FoodDescriptionDiary(recipe.name ?: "Nun",
+                                        it1, totalCalories)
+                                } }
+                        }
                     }
                 }
 
-                HeaderRoundedBox (heading = "Lunch", nav = nav, totalLunch.doubleValue) {
+                HeaderRoundedBox (heading = "Lunch", nav = nav, totalLunch.firstOrNull() ?: 0.0) {
                     for ((index, recipe) in lunchRecipes.withIndex()) {
                         Log.d("Recipe", recipe.toString())
-                        dailyData.lunch?.get(index)
-                            ?.let { it.quantity?.let { it1 ->
-                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
-                                FoodDescriptionDiary(recipe.name ?: "Nun",
-                                    it1, totalCalories)
-                            } }
+                        if (dailyData.breakfast?.isNotEmpty() == true && index < (dailyData.breakfast?.size ?: 0)) {
+                            dailyData.lunch?.get(index)
+                                ?.let {
+                                    it.quantity?.let { it1 ->
+                                        val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                        FoodDescriptionDiary(
+                                            recipe.name ?: "Nun",
+                                            it1, totalCalories
+                                        )
+                                    }
+                                }
+                        }
                     }
                 }
 
-                HeaderRoundedBox(heading = "Dinner", nav = nav, totalDinner.doubleValue) {
+                HeaderRoundedBox(heading = "Dinner", nav = nav, totalDinner.firstOrNull() ?: 0.0) {
                     for ((index, recipe) in dinnerRecipes.withIndex()) {
                         Log.d("Recipe", recipe.toString())
-                        dailyData.dinner?.get(index)
-                            ?.let { it.quantity?.let { it1 ->
-                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
-                                FoodDescriptionDiary(recipe.name ?: "Nun",
-                                    it1, totalCalories)
-                            } }
+                        if (dailyData.breakfast?.isNotEmpty() == true && index < (dailyData.breakfast?.size ?: 0)) {
+                            dailyData.dinner?.get(index)
+                                ?.let {
+                                    it.quantity?.let { it1 ->
+                                        val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                        FoodDescriptionDiary(
+                                            recipe.name ?: "Nun",
+                                            it1, totalCalories
+                                        )
+                                    }
+                                }
+                        }
                     }
                 }
 
-                HeaderRoundedBox(heading = "Snack", nav = nav, totalSnacks.doubleValue) {
+                HeaderRoundedBox(heading = "Snack", nav = nav, totalSnacks.firstOrNull() ?: 0.0) {
                     for ((index, recipe) in snacksRecipes.withIndex()) {
                         Log.d("Recipe", recipe.toString())
-                        dailyData.snacks?.get(index)
-                            ?.let { it.quantity?.let { it1 ->
-                                val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
-                                FoodDescriptionDiary(recipe.name ?: "Nun",
-                                    it1, totalCalories)
-                            } }
+                        if (dailyData.breakfast?.isNotEmpty() == true && index < (dailyData.breakfast?.size ?: 0)) {
+                            dailyData.snacks?.get(index)
+                                ?.let {
+                                    it.quantity?.let { it1 ->
+                                        val totalCalories = it1 * (recipe.nutrition?.get(0) ?: 0.0)
+                                        FoodDescriptionDiary(
+                                            recipe.name ?: "Nun",
+                                            it1, totalCalories
+                                        )
+                                    }
+                                }
+                        }
                     }
                 }
 
@@ -282,7 +322,7 @@ fun Giang(nav: NavHostController) {
                             // Action to set the selected date and close the dialog
                             openDialog.value = false
                             datePickerState.selectedDateMillis?.let {
-                                selectedDateFormattedLabel.value = dateFormat.format(Date(it))
+                                date.value = dateFormat.format(Date(it))
                             }
                             selectedDateLabel.value =
                                 datePickerState.selectedDateMillis?.convertMillisToDate() ?: "Today"
@@ -409,12 +449,21 @@ suspend fun fetchRecipes(recipesInDaily: List<RecipeInDaily>?): List<RecipeFireb
     return recipes
 }
 
-fun calculateTotalCalories(recipes: List<RecipeFirebase>, recipesInDaily: List<RecipeInDaily>?): Double {
-    var total = 0.0
+//Tên là TotalNutrion mới đúng, nhưng chưa sửa vì khó merge :D
+fun calculateTotalCalories(recipes: List<RecipeFirebase>, recipesInDaily: List<RecipeInDaily>?): List<Double> {
+    var totalCalories = 0.0
+    var totalProtein = 0.0
+    var totalCarb = 0.0
+    var totalFat = 0.0
     for ((index, recipe) in recipes.withIndex()) {
         val quantity = recipesInDaily?.get(index)?.quantity ?: 1
-        total += (recipe.nutrition?.get(0) ?: 0.0) * quantity
+        totalCalories += (recipe.nutrition?.get(0) ?: 1.0) * quantity
+        Log.d("Nutrition of ${recipe.name}", recipe.nutrition.toString() + " ,quantity: " + quantity)
+        totalProtein += (recipe.nutrition?.get(1) ?: 0.0) * quantity
+        totalCarb += (recipe.nutrition?.get(2) ?: 0.0) * quantity
+        totalFat += (recipe.nutrition?.get(3) ?: 0.0) * quantity
     }
-    return total
+    Log.d("TotalNutrition", listOf(totalCalories, totalProtein, totalCarb, totalFat).toString())
+    return listOf(totalCalories, totalProtein, totalCarb, totalFat)
 }
 

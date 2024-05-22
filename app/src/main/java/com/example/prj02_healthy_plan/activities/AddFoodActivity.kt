@@ -74,6 +74,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.storage
+import kotlin.math.round
 
 class AddFoodActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -148,6 +149,7 @@ fun AddFoodScreen(
         carb.doubleValue = 0.0
         fat.doubleValue = 0.0
 
+
         for (i in 0 until ingredients.intValue) {
             if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
                 val nutrition = ingredientList[nutritionStates[i].value].nutrition
@@ -156,6 +158,11 @@ fun AddFoodScreen(
                     protein.doubleValue += nutrition[1] * ingredientStates[i].value
                     carb.doubleValue += nutrition[2] * ingredientStates[i].value
                     fat.doubleValue += nutrition[3] * ingredientStates[i].value
+                    calories.doubleValue = round(calories.doubleValue * 10) / 10
+                    protein.doubleValue = round(protein.doubleValue * 10) / 10
+                    carb.doubleValue = round(carb.doubleValue * 10) / 10
+                    fat.doubleValue = round(fat.doubleValue * 10) / 10
+
                 }
             }
         }
