@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,7 +75,7 @@ fun UserAddIngredientScreen(nav: NavHostController, ingredientViewModel: Ingredi
                         )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { nav.navigate("explore") }) {
+                    IconButton(onClick = { nav.navigate("explore") }, modifier = Modifier.testTag("UserSearchIngredientBackButton")) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 })
@@ -151,7 +152,8 @@ fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, 
                 RoundedCornerShape(10.dp)
             )
             .fillMaxWidth()
-            .height(70.dp),
+            .height(70.dp)
+            .testTag("IngredientCanAddRow"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -194,7 +196,7 @@ fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, 
                 } else {
                     Log.d("Remove", "Removed $name")
                 }
-            }) {
+            }, modifier = Modifier.testTag("ingredientAddButton")) {
                 Icon(
                     imageVector = if (added) Icons.Default.RemoveCircle else Icons.Default.AddCircle,
                     contentDescription = if (added) "Remove" else "Add",

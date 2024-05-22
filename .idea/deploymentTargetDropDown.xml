@@ -5,6 +5,9 @@
       <entry key="app">
         <State />
       </entry>
+      <entry key="testTopBarTitleDisplayed()">
+        <State />
+      </entry>
       <entry key="testUserInforUI()">
         <State />
       </entry>
