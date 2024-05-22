@@ -81,6 +81,7 @@ import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +94,9 @@ fun Giang(nav: NavHostController, date: MutableState<String>) {
     val datePickerState = rememberDatePickerState(
         selectableDates = PastOrPresentSelectableDates
     )
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
     val calendarPickerMainColor = Color(0xFF722276)
 
     LaunchedEffect(date.value) {

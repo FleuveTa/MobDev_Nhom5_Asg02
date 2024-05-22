@@ -94,6 +94,9 @@ dependencies {
     implementation ("androidx.credentials:credentials-play-services-auth:1.3.0-alpha03")
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
 
     val cameraX_version = "1.3.3"
     implementation("androidx.camera:camera-core:$cameraX_version")

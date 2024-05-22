@@ -2,10 +2,12 @@ package com.example.prj02_healthy_plan.ui.theme
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -54,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -68,10 +72,19 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.google.firebase.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
+import okio.IOException
 import java.io.File
+import java.io.FileOutputStream
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,6 +123,30 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>) {
     // Kiểm tra và cập nhật trạng thái quyền camera khi Composable khởi chạy
     LaunchedEffect(key1 = true) {
         isCameraPermissionGranted = hasCameraPermission(context)
+    }
+
+    LaunchedEffect(imageUri) {
+        val client = OkHttpClient()
+        val contentResolver = context.contentResolver
+        val tempFile = createTempFileFromUri(contentResolver, imageUri, context)
+        tempFile?.let {
+            val reqBody = it.asRequestBody("image/*".toMediaTypeOrNull())
+            val body = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("image", it.name, reqBody)
+                .build()
+
+            val request = Request.Builder()
+                .url("https://vision.foodvisor.io/api/1.0/en/analysis")
+                .addHeader("Authorization", "Api-Key wPyhDwYu.8KyNaAAhCo9QbYrMFOx0EWubReZoWsYg")
+                .post(body)
+                .build()
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                val response = client.newCall(request).execute()
+                if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                Log.d("ScanScreen", "Response: ${response.body?.string()}")
+            }
+        }
     }
 
     Scaffold(
@@ -242,14 +279,41 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>) {
                         tint = Color.White)
 
                 }
-                IconButton(onClick = {  launcher.launch("image/*") }) {
+                IconButton(onClick = {
+                    launcher.launch("image/*")
+                    val client = OkHttpClient()
+//                    imageUri?.path?.let {
+//                        val imageFile = File(it)
+//                        val reqBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+//                        val body = MultipartBody.Part.createFormData("image", imageFile.name, reqBody)
+//
+//                        val request = Request.Builder()
+//                            .url("https://vision.foodvisor.io/api/1.0/en/analysis")
+//                            .addHeader("Authorization", "Api-Key wPyhDwYu.8KyNaAAhCo9QbYrMFOx0EWubReZoWsYg")
+//                            .post(reqBody)
+//                            .build()
+//
+//                        client.newCall(request).execute().use { response ->
+//                            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+//                            Log.d("ScanScreen", "Response: ${response.body?.string()}")
+//                        }
+//                    }
+                }) {
                     Icon(Icons.Default.Image,
                         modifier = Modifier
                             .size(100.dp),
                         contentDescription = "Gallery",
                         tint = Color.White)
-
                 }
+                AsyncImage(
+                    model = imageUri,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .height(200.dp)
+                        .width(200.dp),
+                    contentScale = ContentScale.Crop
+                )
             }
         }
     }
@@ -316,6 +380,42 @@ fun uploadPhotoToFirebase(photoFile: File, onSuccess: (String) -> Unit, onError:
     }.addOnFailureListener { exception ->
         onError(exception)
     }
+}
+
+fun createTempFileFromUri(contentResolver: ContentResolver, uri: Uri?, context: Context): File? {
+    if (uri == null) return null
+
+    val fileName = getFileName(contentResolver, uri)
+    val tempFile = File.createTempFile(fileName, null, context.cacheDir)
+    tempFile.deleteOnExit()
+
+    return try {
+        val inputStream = contentResolver.openInputStream(uri)
+        val outputStream = FileOutputStream(tempFile)
+        inputStream?.use { input ->
+            outputStream.use { output ->
+                input.copyTo(output)
+            }
+        }
+        tempFile
+    } catch (e: IOException) {
+        Log.e("ScanScreen", "Error creating temp file", e)
+        null
+    }
+}
+
+fun getFileName(contentResolver: ContentResolver, uri: Uri): String {
+    var name = "temp_file"
+    val cursor = contentResolver.query(uri, null, null, null, null)
+    cursor?.use {
+        if (it.moveToFirst()) {
+            val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (index != -1) {
+                name = it.getString(index)
+            }
+        }
+    }
+    return name
 }
 
 
