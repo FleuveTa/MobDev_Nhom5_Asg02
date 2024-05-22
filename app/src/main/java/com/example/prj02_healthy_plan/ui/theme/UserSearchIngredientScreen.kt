@@ -141,7 +141,6 @@ fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredien
 @Composable
 fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, isReadOnly: Boolean, onToggle: (Boolean) -> Unit) {
     var added by remember { mutableStateOf(isAdded) }
-
     Row(
         modifier = Modifier
             .padding(5.dp)

@@ -38,22 +38,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
-import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewRecipeResultScreen(nav: NavHostController, recipeViewModel: RecipeViewModel, ingredientViewModel: IngredientViewModel) {
+fun ViewRecipeResultScreen(
+    nav: NavHostController,
+    recipeViewModel: RecipeViewModel,
+    ingredientViewModel: IngredientViewModel
+) {
     val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
@@ -203,16 +202,17 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController, recipeV
                 )
             }
             else {
-                for (recipe in matchedRecipes) {
-                    RecommendedFoods(
-                        recipeId = recipe.id ?: "",
-                        url = recipe.imageUrl ?: "",
-                        title = recipe.name ?: "",
-                        cal = recipe.nutrition?.get(0) ?: 0.0,
-                        nav = nav,
-                        recipeViewModel = recipeViewModel
-                    )
-                }
+//                for (recipe in matchedRecipes) {
+//                    RecommendedFoods(
+//                        recipeId = recipe.id ?: "",
+//                        url = recipe.imageUrl ?: "",
+//                        title = recipe.name ?: "",
+//                        cal = recipe.nutrition?.get(0) ?: 0.0,
+//                        nav = nav,
+//                        recipeViewModel = recipeViewModel,
+//                        rememberedRecipeList = matchedRecipes
+//                    )
+//                }
             }
         }
     }

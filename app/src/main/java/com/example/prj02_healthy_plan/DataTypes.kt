@@ -22,7 +22,8 @@ data class RecipeFirebase(
     val imageUrl: String? = null,
     val instructionUrl: String? = null,
     val ingredients: List<IngredientInRecipe>? = null,
-    val nutrition: List<Double>? = null
+    val nutrition: List<Double>? = null,
+    val forPurpose: Int? = null
 )
 
 data class MyRecipe(

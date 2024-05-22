@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,9 +49,13 @@ import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchResultScreen(nav: NavHostController, searchInfo: MutableState<String>, recipeViewModel: RecipeViewModel) {
+fun SearchResultScreen(
+    nav: NavHostController,
+    searchInfo: MutableState<String>,
+    recipeViewModel: RecipeViewModel
+) {
     var searchQuery by remember { mutableStateOf(searchInfo.value) }
-    val recipeList by recipeViewModel.recipeList.collectAsState()
+    val recipeList = recipeViewModel.recipeList.collectAsState().value
 
     LaunchedEffect(key1 = Unit) {
         recipeViewModel.fetchRecipes()
@@ -116,17 +120,25 @@ fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResults
                 name = recipe.name ?: "",
                 description = recipe.description ?: "",
                 nav = nav,
-                recipeViewModel =  recipeViewModel,
-                isFavorite = false
+                recipeViewModel =  recipeViewModel
             )
         }
     }
 }
 
 @Composable
-fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel, isFavorite: Boolean) {
+fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
+    val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
+    val isFavorite = myRecipeList.any { recipe ->
+        recipe.userId == uId && recipe.recipes?.any { it.id == recipeId } == true
+    }
+    LaunchedEffect(key1 = Unit) {
+        snapshotFlow { myRecipeList }.collect {
+            // Handle any additional logic if needed
+        }
+    }
     Row(
         modifier = Modifier
             .padding(5.dp)
@@ -164,11 +176,8 @@ fun MyRecipeResult(recipeId: String, url: String, name: String, description: Str
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Light
             )
-            IconButton(onClick = {  recipeViewModel.addMyRecipe(uId, recipeId) }) {
-                Icon(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    contentDescription = "Heart Icon",
-                )
+            FavoriteIcon(isFavorite = isFavorite) {
+                recipeViewModel.toggleMyRecipe(uId, recipeId)
             }
         }
     }

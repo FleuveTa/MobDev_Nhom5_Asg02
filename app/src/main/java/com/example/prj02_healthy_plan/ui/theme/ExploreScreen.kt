@@ -1,5 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -27,7 +28,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FoodBank
 import androidx.compose.material3.Button
@@ -50,8 +50,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,13 +61,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.prj02_healthy_plan.MyRecipe
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import androidx.compose.runtime.remember as remember
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,7 +118,7 @@ fun ChienTa(
             ExploreTabScreen(
                 nav = nav,
                 ingredientViewModel = ingredientViewModel,
-                recipeViewModel = recipeViewModel
+                recipeViewModel = recipeViewModel,
             )
         }
     }
@@ -199,7 +203,7 @@ fun SearchBar(
 fun ExploreTabScreen(
     nav: NavHostController,
     ingredientViewModel: IngredientViewModel,
-    recipeViewModel: RecipeViewModel
+    recipeViewModel: RecipeViewModel,
 ) {
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
@@ -231,15 +235,27 @@ fun RecommendedScreen(
     scrollState: ScrollState,
     nav: NavHostController,
     ingredientViewModel: IngredientViewModel,
-    recipeViewModel: RecipeViewModel
+    recipeViewModel: RecipeViewModel,
 ) {
     val recommendedFoodScrollState = rememberScrollState()
     val ingredientSearchScrollState = rememberScrollState()
     val recipeList by recipeViewModel.recipeList.collectAsState()
     val userIngredients = ingredientViewModel.userIngredients
     var showDialog by remember { mutableStateOf(false) }
+    val userViewModel: UserViewModel = viewModel()
+    val user = userViewModel.state.value
+
     LaunchedEffect(key1 = Unit) {
         recipeViewModel.fetchRecipes()
+        userViewModel.getUserInfor()
+    }
+
+    Log.d("User", user.toString())
+    Log.d("User goal", user.goal.toString())
+    Log.d("Recipe list", recipeList.toString())
+    // get the recommended recipe list by filtering user's goal == recipe's purpose
+    val recommendedRecipeList = recipeList.filter { recipe ->
+        user.goal == recipe.forPurpose
     }
     Column(
         modifier = Modifier
@@ -368,7 +384,7 @@ fun RecommendedScreen(
                 .background(Color.White)
                 .horizontalScroll(recommendedFoodScrollState)
         ) {
-            for (recipe in recipeList) {
+            for (recipe in recommendedRecipeList) {
                 RecommendedFoods(
                     recipeId = recipe.id ?: "",
                     url = recipe.imageUrl ?: "",
@@ -381,93 +397,84 @@ fun RecommendedScreen(
         }
     }
 }
-
-@Composable
-fun LoadImage(url: String) {
-    val painter = rememberAsyncImagePainter(model = url)
-    Image(
-        painter = painter,
-        contentDescription = "Food Image",
-        contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize()
-    )
-}
-
-@Composable
-fun RecommendedFoods(
-    recipeId: String,
-    url: String,
-    title: String,
-    cal: Double,
-    nav: NavHostController,
-    recipeViewModel: RecipeViewModel
-) {
-    val auth: FirebaseAuth = Firebase.auth
-    val uId = auth.currentUser?.uid
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .width(160.dp)
-            .padding(end = 5.dp)
-            .clickable {
-                nav.navigate("detailRecipe")
-                recipeViewModel.selectedRecipeName.value = title
-            },
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-
-        ) {
-            LoadImage(url = url)
-        }
-        Text(
-            text = title,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(5.dp)
+    @Composable
+    fun LoadImage(url: String) {
+        val painter = rememberAsyncImagePainter(model = url)
+        Image(
+            painter = painter,
+            contentDescription = "Food Image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
-        Row(
+    }
+
+    @Composable
+    fun RecommendedFoods(
+        recipeId: String,
+        url: String,
+        title: String,
+        cal: Double,
+        nav: NavHostController,
+        recipeViewModel: RecipeViewModel
+    ) {
+        val auth: FirebaseAuth = Firebase.auth
+        val uId = auth.currentUser?.uid
+        val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
+        val isFavorite = myRecipeList.any { recipe ->
+            recipe.userId == uId && recipe.recipes?.any { it.id == recipeId } == true
+        }
+        Column(
             modifier = Modifier
-                .padding(5.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxHeight()
+                .width(160.dp)
+                .padding(end = 5.dp)
+                .clickable {
+                    nav.navigate("detailRecipe")
+                    recipeViewModel.selectedRecipeName.value = title
+                },
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(
-                text = "$cal CALS",
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp
-            )
-            IconButton(
-                onClick = {
-                    recipeViewModel.addMyRecipe(uId, recipeId)
-                }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+
             ) {
-                Icon(
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = "Heart Icon"
+                LoadImage(url = url)
+            }
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(5.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "$cal CALS",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp
                 )
+                FavoriteIcon(isFavorite = isFavorite) {
+                    recipeViewModel.toggleMyRecipe(uId, recipeId)
+                }
             }
         }
     }
-}
-
 
 @Composable
 fun MyRecipesScreen(scrollState: ScrollState, nav: NavHostController, recipeViewModel: RecipeViewModel) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
-
-    LaunchedEffect(key1 = Unit) {
-        recipeViewModel.fetchMyRecipes()
-    }
     val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
-    val myRecipe = myRecipeList.firstOrNull { it.userId == uId }
+    val myRecipe = myRecipeList.find { it.userId == uId }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -530,20 +537,31 @@ fun MyRecipes(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
-               Text(
+            Row {
+                Text(
                     text = "$cal CALS",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
-            IconButton(onClick = {
-                recipeViewModel.deleteMyRecipe(uId, recipeId)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "Heart Icon",
-                    tint = Color.Red
-                )
+                IconButton(onClick = { recipeViewModel.toggleMyRecipe(uId, recipeId) }) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Favorite Icon",
+                        tint = Color.Red
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun FavoriteIcon(isFavorite: Boolean, onToggle: (Boolean) -> Unit) {
+    IconButton(onClick = { onToggle(!isFavorite) }) {
+        Icon(
+            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+            contentDescription = "Favorite Icon",
+            tint = if (isFavorite) Color.Red else Color.Gray
+        )
     }
 }
