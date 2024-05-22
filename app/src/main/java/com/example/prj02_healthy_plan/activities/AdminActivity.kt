@@ -142,12 +142,15 @@ fun AdminScreen(auth: FirebaseAuthWrapper, context: ContextWrapper, viewRecipeMo
             IconButton(
                 onClick = {
                     auth.signOut()
-                    if (context is Activity) {
-                        val intent = Intent(context, MainActivity::class.java)
+                    val c = context.requireActivity()
+                    if (c is Activity) {
+                        val intent = Intent(c, MainActivity::class.java)
                         intent.flags =
                             Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                         context.startActivity(intent)
                         context.finish()
+                    } else {
+                        Log.e("AdminActivity", "Context is not an Activity")
                     }
                 }
             ) {

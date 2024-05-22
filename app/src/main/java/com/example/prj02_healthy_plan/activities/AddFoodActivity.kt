@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,7 +63,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.prj02_healthy_plan.FirestoreCollectionReferenceWrapper
 import com.example.prj02_healthy_plan.Ingredient
+import com.example.prj02_healthy_plan.StorageReferenceWrapper
 import com.example.prj02_healthy_plan.ui.theme.Prj02_Healthy_PlanTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -96,300 +99,309 @@ class AddFoodActivity : ComponentActivity() {
 //            }
         getIngredientListFromDb(ingredientRef, ingredientList)
         setContent {
-            Prj02_Healthy_PlanTheme {
+            AddFoodScreen(ingredientList, FirestoreCollectionReferenceWrapper(recipeRef), StorageReferenceWrapper(storageRef))
+        }
 
-                val context = LocalContext.current
-                val ingredients = remember {
-                    mutableIntStateOf(0)
-                }
-                val nameState = remember { mutableStateOf("Chicken Salad") }
-                val descriptionState = remember { mutableStateOf("Mon ngon moi ngay") }
-                val buttonEnabled = remember { mutableStateOf(true) }
-                val ingredientStates = remember {
-                    mutableStateListOf<MutableState<Double>>()
-                }
-                val savingRecipeState =  remember { mutableStateOf(false) }
-                val nutritionStates = remember {
-                    mutableStateListOf<MutableState<Int>>()
-                }
-                val reload = remember {
-                    mutableStateOf(0)
-                }
-                val calories = remember {
-                    mutableDoubleStateOf(0.0)
-                }
-                val protein = remember {
-                    mutableDoubleStateOf(0.0)
-                }
-                val carb = remember {
-                    mutableDoubleStateOf(0.0)
-                }
-                val fat = remember {
-                    mutableDoubleStateOf(0.0)
-                }
+    }
+}
 
-                LaunchedEffect(ingredientStates.toList(), nutritionStates.toList(), reload.value) {
-                    calories.doubleValue = 0.0
-                    protein.doubleValue = 0.0
-                    carb.doubleValue = 0.0
-                    fat.doubleValue = 0.0
 
-                    for (i in 0 until ingredients.intValue) {
-                        if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
-                            val nutrition = ingredientList[nutritionStates[i].value].nutrition
-                            if (nutrition != null) {
-                                calories.doubleValue += nutrition[0] * ingredientStates[i].value
-                                protein.doubleValue += nutrition[1] * ingredientStates[i].value
-                                carb.doubleValue += nutrition[2] * ingredientStates[i].value
-                                fat.doubleValue += nutrition[3] * ingredientStates[i].value
-                            }
-                        }
-                    }
+@Composable
+fun AddFoodScreen(
+    ingredientList: List<Ingredient>,
+    recipeRef: FirestoreCollectionReferenceWrapper,
+    storageRef: StorageReferenceWrapper
+) {
+    val context = LocalContext.current
+    val ingredients = remember {
+        mutableIntStateOf(0)
+    }
+    val nameState = remember { mutableStateOf("Chicken Salad") }
+    val descriptionState = remember { mutableStateOf("Mon ngon moi ngay") }
+    val buttonEnabled = remember { mutableStateOf(true) }
+    val ingredientStates = remember {
+        mutableStateListOf<MutableState<Double>>()
+    }
+    val savingRecipeState =  remember { mutableStateOf(false) }
+    val nutritionStates = remember {
+        mutableStateListOf<MutableState<Int>>()
+    }
+    val reload = remember {
+        mutableStateOf(0)
+    }
+    val calories = remember {
+        mutableDoubleStateOf(0.0)
+    }
+    val protein = remember {
+        mutableDoubleStateOf(0.0)
+    }
+    val carb = remember {
+        mutableDoubleStateOf(0.0)
+    }
+    val fat = remember {
+        mutableDoubleStateOf(0.0)
+    }
 
+    LaunchedEffect(ingredientStates.toList(), nutritionStates.toList(), reload.value) {
+        calories.doubleValue = 0.0
+        protein.doubleValue = 0.0
+        carb.doubleValue = 0.0
+        fat.doubleValue = 0.0
+
+        for (i in 0 until ingredients.intValue) {
+            if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
+                val nutrition = ingredientList[nutritionStates[i].value].nutrition
+                if (nutrition != null) {
+                    calories.doubleValue += nutrition[0] * ingredientStates[i].value
+                    protein.doubleValue += nutrition[1] * ingredientStates[i].value
+                    carb.doubleValue += nutrition[2] * ingredientStates[i].value
+                    fat.doubleValue += nutrition[3] * ingredientStates[i].value
                 }
+            }
+        }
 
-                Column (
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(text = "Add New Recipe", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold))
-                    RecipeInputBox(title = "Name", des = "Chicken Salad", nameState)
-                    RecipeInputBox(title = "Description", des = "", descriptionState)
-                    Row (
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "Ingredients", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
-                        IconButton(onClick = {
-                            ingredients.intValue++
-                            ingredientStates.add(mutableDoubleStateOf(1.0))
-                            nutritionStates.add(mutableIntStateOf(0))
-                        }) {
-                            Icon(
-                                imageVector = Icons.Outlined.AddCircle,
-                                contentDescription = "Logout Icon",
-                                modifier = Modifier
-                                    .size(30.dp),
-                                tint = Color.Green
-                            )
-                        }
-                    }
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        for (i in 0 until ingredients.intValue) {
-                            IngredientRow(ingredientList, ingredientStates[i], nutritionStates[i], reload)
-                        }
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp),
-                            horizontalArrangement = Arrangement.Start,
-                        ){
-                            Text(text = "Nutrition", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = "Total Calories: ${calories.doubleValue}")
-                            Text(text = "Protein: ${protein.doubleValue}g")
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = "Carbs: ${carb.doubleValue}g")
-                            Text(text = "Fat: ${fat.doubleValue}g")
-                        }
-                        Text(text = "Detail : ", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black))
+    }
+
+    Column (
+        modifier = Modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "Add New Recipe", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold))
+        RecipeInputBox(title = "Name", des = "Chicken Salad", nameState, tag = "foodName")
+        RecipeInputBox(title = "Description", des = "", descriptionState, tag = "foodDescription")
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Ingredients", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
+            IconButton(onClick = {
+                ingredients.intValue++
+                ingredientStates.add(mutableDoubleStateOf(1.0))
+                nutritionStates.add(mutableIntStateOf(0))
+            }) {
+                Icon(
+                    imageVector = Icons.Outlined.AddCircle,
+                    contentDescription = "Logout Icon",
+                    modifier = Modifier
+                        .size(30.dp),
+                    tint = Color.Green
+                )
+            }
+        }
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            for (i in 0 until ingredients.intValue) {
+                IngredientRow(ingredientList, ingredientStates[i], nutritionStates[i], reload)
+            }
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.Start,
+            ){
+                Text(text = "Nutrition", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Total Calories: ${calories.doubleValue}")
+                Text(text = "Protein: ${protein.doubleValue}g")
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Carbs: ${carb.doubleValue}g")
+                Text(text = "Fat: ${fat.doubleValue}g")
+            }
+            Text(text = "Detail : ", style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black))
+            for (i in 0 until ingredients.intValue) {
+                if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
+                    Text(text = "${ingredientList[nutritionStates[i].value].name} : ${ingredientStates[i].value }, nutrition : ${ingredientList[nutritionStates[i].value].nutrition.toString()}")
+                } else {
+                    Text(text = "Add more Ingredient and Quantity to see total nutrition")
+                }
+            }
+
+            var imageUri by remember {
+                mutableStateOf<Uri?>(null)
+            }
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) {
+                imageUri = it
+            }
+
+            var fileUri by remember { mutableStateOf<Uri?>(null) }
+            val filePickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) {
+                fileUri = it
+            }
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.Start,
+            ){
+                Text(text = "Image", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
+            }
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AsyncImage(
+                    model = imageUri,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .height(200.dp)
+                        .width(200.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Button(onClick = {
+                    launcher.launch("image/*")
+                }) {
+                    Text(text = "Choose Image")
+                }
+            }
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.Start,
+            ){
+                Text(text = "Instruction", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
+            }
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "File : $fileUri")
+                Button(onClick = {
+                    filePickerLauncher.launch("text/plain")
+                }) {
+                    Text(text = "Choose File")
+                }
+            }
+
+            Button(
+                onClick = {
+                    if (imageUri == null || fileUri == null) {
+                        Toast.makeText(context, "Please choose image and file", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    } else {
+                        savingRecipeState.value = true
+                        val ingredientInputList = ArrayList<Map<String, Any>>()
                         for (i in 0 until ingredients.intValue) {
                             if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
-                                Text(text = "${ingredientList[nutritionStates[i].value].name} : ${ingredientStates[i].value }, nutrition : ${ingredientList[nutritionStates[i].value].nutrition.toString()}")
-                            } else {
-                                Text(text = "Add more Ingredient and Quantity to see total nutrition")
+                                val ingredient = hashMapOf(
+                                    "name" to (ingredientList[nutritionStates[i].value].name
+                                        ?: ""),
+                                    "unit" to (ingredientList[nutritionStates[i].value].unit
+                                        ?: ""),
+                                    "quantity" to ingredientStates[i].value
+                                )
+                                ingredientInputList.add(ingredient)
                             }
                         }
+                        val recipeData = hashMapOf(
+                            "name" to nameState.value,
+                            "description" to descriptionState.value,
+                            "ingredients" to ingredientInputList,
+                            "nutrition" to arrayListOf(
+                                calories.doubleValue,
+                                protein.doubleValue,
+                                carb.doubleValue,
+                                fat.doubleValue
+                            ),
+                            "imageUrl" to "images/chicken_salad.jpg",
+                            "instructionUrl" to "Cook the chicken, mix with corn and lettuce"
+                        )
 
-                        var imageUri by remember {
-                            mutableStateOf<Uri?>(null)
-                        }
-                        val launcher = rememberLauncherForActivityResult(
-                            contract = ActivityResultContracts.GetContent()
-                        ) {
-                            imageUri = it
-                        }
+                        val imageRef =
+                            storageRef.child("images/${imageUri?.lastPathSegment}")
+                        val fileTextRef =
+                            storageRef.child("texts/${fileUri?.lastPathSegment}")
 
-                        var fileUri by remember { mutableStateOf<Uri?>(null) }
-                        val filePickerLauncher = rememberLauncherForActivityResult(
-                            contract = ActivityResultContracts.GetContent()
-                        ) {
-                            fileUri = it
-                        }
-
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp),
-                            horizontalArrangement = Arrangement.Start,
-                        ){
-                            Text(text = "Image", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
-                        }
-                        Row (
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AsyncImage(
-                                model = imageUri,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(4.dp)
-                                    .height(200.dp)
-                                    .width(200.dp),
-                                contentScale = ContentScale.Crop
-                            )
-                            Button(onClick = {
-                                launcher.launch("image/*")
-                            }) {
-                                Text(text = "Choose Image")
-                            }
-                        }
-
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp),
-                            horizontalArrangement = Arrangement.Start,
-                        ){
-                            Text(text = "Instruction", style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Green))
-                        }
-                        Row (
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = "File : $fileUri")
-                            Button(onClick = {
-                                filePickerLauncher.launch("text/plain")
-                            }) {
-                                Text(text = "Choose File")
-                            }
-                        }
-
-                        Button(
-                            onClick = {
-                                if (imageUri == null || fileUri == null) {
-                                    Toast.makeText(context, "Please choose image and file", Toast.LENGTH_SHORT).show()
-                                    return@Button
-                                } else {
-                                    savingRecipeState.value = true
-                                    val ingredientInputList = ArrayList<Map<String, Any>>()
-                                    for (i in 0 until ingredients.intValue) {
-                                        if (ingredientList.isNotEmpty() && nutritionStates[i].value < ingredientList.size) {
-                                            val ingredient = hashMapOf(
-                                                "name" to (ingredientList[nutritionStates[i].value].name
-                                                    ?: ""),
-                                                "unit" to (ingredientList[nutritionStates[i].value].unit
-                                                    ?: ""),
-                                                "quantity" to ingredientStates[i].value
-                                            )
-                                            ingredientInputList.add(ingredient)
-                                        }
-                                    }
-                                    val recipeData = hashMapOf(
-                                        "name" to nameState.value,
-                                        "description" to descriptionState.value,
-                                        "ingredients" to ingredientInputList,
-                                        "nutrition" to arrayListOf(
-                                            calories.doubleValue,
-                                            protein.doubleValue,
-                                            carb.doubleValue,
-                                            fat.doubleValue
-                                        ),
-                                        "imageUrl" to "images/chicken_salad.jpg",
-                                        "instructionUrl" to "Cook the chicken, mix with corn and lettuce"
-                                    )
-
-                                    val imageRef =
-                                        storageRef.child("images/${imageUri?.lastPathSegment}")
-                                    val fileTextRef =
-                                        storageRef.child("texts/${fileUri?.lastPathSegment}")
-
-                                    val uploadImage = imageRef.putFile(imageUri!!)
+                        val uploadImage = imageRef.putFile(imageUri!!)
+                            .addOnSuccessListener {
+                                Toast.makeText(
+                                    context,
+                                    "Upload Image Success, uploading file text",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                imageRef.downloadUrl.addOnSuccessListener { uri ->
+                                    recipeData["imageUrl"] = uri.toString()
+                                    val uploadFileText = fileTextRef.putFile(fileUri!!)
                                         .addOnSuccessListener {
                                             Toast.makeText(
                                                 context,
-                                                "Upload Image Success, uploading file text",
+                                                "Upload File Text Success, saving recipe to database",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                            imageRef.downloadUrl.addOnSuccessListener { uri ->
-                                                recipeData["imageUrl"] = uri.toString()
-                                                val uploadFileText = fileTextRef.putFile(fileUri!!)
-                                                    .addOnSuccessListener {
+                                            fileTextRef.downloadUrl.addOnSuccessListener { uri ->
+                                                recipeData["instructionUrl"] =
+                                                    uri.toString()
+                                                recipeRef.add(recipeData)
+                                                    .addOnSuccessListener { documentReference ->
+                                                        savingRecipeState.value = false
                                                         Toast.makeText(
                                                             context,
-                                                            "Upload File Text Success, saving recipe to database",
+                                                            "Recipe saved to Firestore with ID: ${documentReference.id}",
                                                             Toast.LENGTH_SHORT
                                                         ).show()
-                                                        fileTextRef.downloadUrl.addOnSuccessListener { uri ->
-                                                            recipeData["instructionUrl"] =
-                                                                uri.toString()
-                                                            recipeRef.add(recipeData)
-                                                                .addOnSuccessListener { documentReference ->
-                                                                    savingRecipeState.value = false
-                                                                    Toast.makeText(
-                                                                        context,
-                                                                        "Recipe saved to Firestore with ID: ${documentReference.id}",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                }
-                                                                .addOnFailureListener { e ->
-                                                                    Log.w(
-                                                                        "TAG",
-                                                                        "Error saving document",
-                                                                        e
-                                                                    )
-                                                                }
-                                                        }
                                                     }
-                                                    .addOnFailureListener {
-                                                        Log.d("TAG", "Upload File Text Failed")
+                                                    .addOnFailureListener { e ->
+                                                        Log.w(
+                                                            "TAG",
+                                                            "Error saving document",
+                                                            e
+                                                        )
                                                     }
                                             }
                                         }
                                         .addOnFailureListener {
-                                            Log.d("TAG", "Upload Image Failed")
+                                            Log.d("TAG", "Upload File Text Failed")
                                         }
                                 }
-                            },
-                            modifier = Modifier
-                                .defaultMinSize(minWidth = 56.dp, minHeight = 56.dp)
-                                .padding(top = 20.dp),
-                            enabled = buttonEnabled.value,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (buttonEnabled.value) Color.Green else Color.Gray
-                            )
-                        ){
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                            Text(text = "Add Recipe", modifier = Modifier.padding(start = 8.dp))
-                            if (savingRecipeState.value) {
-                                CircularProgressIndicator(modifier = Modifier
-                                    .size(30.dp)
-                                    .padding(start = 8.dp))
                             }
-                        }
+                            .addOnFailureListener {
+                                Log.d("TAG", "Upload Image Failed")
+                            }
                     }
+                },
+                modifier = Modifier
+                    .defaultMinSize(minWidth = 56.dp, minHeight = 56.dp)
+                    .padding(top = 20.dp),
+                enabled = buttonEnabled.value,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (buttonEnabled.value) Color.Green else Color.Gray
+                )
+            ){
+                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                Text(text = "Add Recipe", modifier = Modifier.padding(start = 8.dp))
+                if (savingRecipeState.value) {
+                    CircularProgressIndicator(modifier = Modifier
+                        .size(30.dp)
+                        .padding(start = 8.dp))
                 }
             }
         }
     }
 }
+
 
 fun getIngredientListFromDb(
     ingredientRef: CollectionReference,
@@ -407,7 +419,7 @@ fun getIngredientListFromDb(
 
 
 @Composable
-fun RecipeInputBox(title: String, des: String, textState: MutableState<String>) {
+fun RecipeInputBox(title: String, des: String, textState: MutableState<String>, tag: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -427,6 +439,7 @@ fun RecipeInputBox(title: String, des: String, textState: MutableState<String>) 
                 .fillMaxWidth()
                 .requiredHeight(60.dp)
                 .align(Alignment.Center)
+                .testTag(tag)
         )
     }
 }
