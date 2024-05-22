@@ -49,6 +49,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,13 +71,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.prj02_healthy_plan.Ingredient
+import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -89,7 +95,7 @@ import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>) {
+fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>, ingredientViewModel: IngredientViewModel) {
     val CAMERAX_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     val CAMERA_PERMISSION_REQUEST_CODE = 100
     var isCameraPermissionGranted by remember { mutableStateOf(false) }
@@ -99,6 +105,8 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>) {
     var cameraControl by remember { mutableStateOf<CameraControl?>(null) }
     var flashMode by remember { mutableStateOf(false) }
     var flashIcon by remember { mutableStateOf(Icons.Default.FlashOff) }
+
+    val allIngredientList by ingredientViewModel.ingredientList.collectAsState()
 
 
     fun toggleFlash() {
@@ -123,6 +131,7 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>) {
     // Kiểm tra và cập nhật trạng thái quyền camera khi Composable khởi chạy
     LaunchedEffect(key1 = true) {
         isCameraPermissionGranted = hasCameraPermission(context)
+        ingredientViewModel.fetchIngredients()
     }
 
     LaunchedEffect(imageUri) {
@@ -144,7 +153,21 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>) {
             kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
                 val response = client.newCall(request).execute()
                 if (!response.isSuccessful) throw IOException("Unexpected code $response")
-                Log.d("ScanScreen", "Response: ${response.body?.string()}")
+                val jsonData = response.body?.string()
+                Log.d("ScanScreen", "Response: $jsonData")
+                if (!jsonData.isNullOrEmpty()) {
+                    val matchedList = processJsonData(jsonData, allIngredientList)
+                    Log.d("ScanScreen", "Matched: $matchedList")
+                    val ingredientNames = ingredientViewModel.userIngredients.map {ingredient ->
+                        ingredient.name
+                    }
+
+                    for (ingredient in matchedList) {
+                        if (!ingredientNames.contains(ingredient.name)) {
+                            ingredientViewModel.userIngredients.add(ingredient)
+                        }
+                    }
+                }
             }
         }
     }
@@ -281,23 +304,6 @@ fun ScanScreen(nav: NavHostController, urlMutable: MutableState<String>) {
                 }
                 IconButton(onClick = {
                     launcher.launch("image/*")
-                    val client = OkHttpClient()
-//                    imageUri?.path?.let {
-//                        val imageFile = File(it)
-//                        val reqBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
-//                        val body = MultipartBody.Part.createFormData("image", imageFile.name, reqBody)
-//
-//                        val request = Request.Builder()
-//                            .url("https://vision.foodvisor.io/api/1.0/en/analysis")
-//                            .addHeader("Authorization", "Api-Key wPyhDwYu.8KyNaAAhCo9QbYrMFOx0EWubReZoWsYg")
-//                            .post(reqBody)
-//                            .build()
-//
-//                        client.newCall(request).execute().use { response ->
-//                            if (!response.isSuccessful) throw IOException("Unexpected code $response")
-//                            Log.d("ScanScreen", "Response: ${response.body?.string()}")
-//                        }
-//                    }
                 }) {
                     Icon(Icons.Default.Image,
                         modifier = Modifier
@@ -416,6 +422,46 @@ fun getFileName(contentResolver: ContentResolver, uri: Uri): String {
         }
     }
     return name
+}
+
+@Serializable
+data class FoodInfo(
+    val display_name: String
+)
+@Serializable
+data class FoodItem(
+    val confidence: Double,
+    val food_info: FoodInfo,
+)
+
+@Serializable
+data class FoodGroup(
+    val food: List<FoodItem>
+)
+
+@Serializable
+data class ApiResponse(
+    val items: List<FoodGroup>
+)
+fun processJsonData(jsonData: String, allIngredient: List<Ingredient>) : List<Ingredient> {
+    val matched = mutableListOf<Ingredient>()
+    val json = Json { ignoreUnknownKeys = true }
+    val apiResponse = json.decodeFromString(ApiResponse.serializer(), jsonData)
+    Log.d("ScanScreen", "APIResponse: $apiResponse")
+
+    for (group in apiResponse.items) {
+        for (item in group.food) {
+            val ingredientName = item.food_info.display_name
+            if (item.confidence > 0.8) {
+                val matchedIngredient = allIngredient.find { it.name == ingredientName }
+                if (matchedIngredient != null) {
+                    matched.add(matchedIngredient)
+                }
+            }
+        }
+    }
+
+    return matched
 }
 
 

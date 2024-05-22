@@ -2,7 +2,21 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
+
+//buildscript {
+//    repositories {
+//        maven {
+//            url = uri("https://plugins.gradle.org/m2/")
+//        }
+//    }
+//    dependencies {
+//        classpath("org.jetbrains.kotlin:kotlin-serialization:2.0.0")
+//    }
+//}
+
+apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
 android {
     namespace = "com.example.prj02_healthy_plan"
@@ -97,6 +111,8 @@ dependencies {
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
 
     val cameraX_version = "1.3.3"
     implementation("androidx.camera:camera-core:$cameraX_version")

@@ -66,6 +66,19 @@ class DailyDataViewModel : ViewModel() {
         }
     }
 
+    fun minusWater() {
+        val newDailyData = _dailyData.value.copy()
+        newDailyData.water = newDailyData.water?.minus(1)
+
+        _dailyData.value = newDailyData
+
+        viewModelScope.launch {
+            db.collection("dailyData")
+                .document(_dailyData.value.id?:"")
+                .update("water", _dailyData.value.water)
+        }
+    }
+
     fun updateMeal(mealType: String, date: String, recipe: RecipeInDaily, context: Context) {
         //val recipeRef = db.collection("recipes").document("recipeId")
         viewModelScope.launch {
@@ -90,9 +103,6 @@ class DailyDataViewModel : ViewModel() {
         _dailyData.value = newDailyData
 
         viewModelScope.launch {
-//            db.collection("dailyData")
-//                .document(_dailyData.value.id?:"")
-//                .update("intake", _dailyData.value.intake)
             val dailyDataRef = db.collection("dailyData")
             val query = dailyDataRef
                 .whereEqualTo("user", userRef)
@@ -121,7 +131,6 @@ class DailyDataViewModel : ViewModel() {
             snacks = listOf()
         )
 
-        // Chuyển đổi DailyData thành HashMap
         val dailyDataMap = hashMapOf(
             "user" to newDailyData.user,
             "water" to newDailyData.water,

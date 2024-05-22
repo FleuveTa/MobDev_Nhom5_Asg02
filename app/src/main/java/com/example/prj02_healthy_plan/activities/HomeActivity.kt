@@ -183,7 +183,7 @@ fun AppNavBar() {
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
                 composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController, recipeViewModel)}
                 composable(Screens.ViewRecipeResult.screen) { ViewRecipeResultScreen(nav = navigationController, recipeViewModel, ingredientViewModel) }
-                composable(Screens.Scan.screen) { ScanScreen(nav = navigationController, ingredientSearchResult) }
+                composable(Screens.Scan.screen) { ScanScreen(nav = navigationController, ingredientSearchResult, ingredientViewModel) }
                 // composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
                 composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, recipeViewModel) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController, date = selectedDateFormattedLabel) }
