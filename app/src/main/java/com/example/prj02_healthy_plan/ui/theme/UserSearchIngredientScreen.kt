@@ -1,7 +1,6 @@
 package com.example.prj02_healthy_plan.ui.theme
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,7 +47,7 @@ import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserAddIngredientScreen(nav: NavHostController, ingredientViewModel: IngredientViewModel){
+fun UserSearchIngredientScreen(nav: NavHostController, ingredientViewModel: IngredientViewModel){
     val allIngredientList by ingredientViewModel.ingredientList.collectAsState()
     val (filteredIngredientList, setFilteredIngredientList) = remember { mutableStateOf(allIngredientList) }
     val (isSearching, setIsSearching) = remember { mutableStateOf(false) }
@@ -87,21 +86,21 @@ fun UserAddIngredientScreen(nav: NavHostController, ingredientViewModel: Ingredi
         ) {
             SearchBar(nav = nav) { query ->
                 if (query.isNotEmpty()) {
-                    setIsSearching(true) // Đánh dấu là đang tìm kiếm
+                    setIsSearching(true) // Mark as searching
                     setFilteredIngredientList(allIngredientList.filter { it.name?.contains(query, ignoreCase = true) == true })
                 } else {
-                    setIsSearching(false) // Đánh dấu là không tìm kiếm
+                    setIsSearching(false) // Mark as not searching
                     setFilteredIngredientList(allIngredientList)
                 }
             }
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // Hiển thị tất cả các mục khi không tìm kiếm hoặc khi kết quả tìm kiếm rỗng
+            // Show the list of ingredients
             if (!isSearching || filteredIngredientList.isEmpty()) {
                 UserAddIngredientTabScreen(viewModel = ingredientViewModel)
             } else {
-                // Hiển thị kết quả tìm kiếm
+                // Show the filtered list of ingredients
                 AllIngredientScreen(scrollState = rememberScrollState(), ingredientList = filteredIngredientList, viewModel = ingredientViewModel)
             }
         }
@@ -131,7 +130,8 @@ fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredien
                 name = ingredient.name ?: "",
                 unit = ingredient.unit ?: "",
                 cal = ingredient.nutrition?.get(0) ?: 0.0,
-                isAdded = userIngredients.contains(ingredient)
+                isAdded = userIngredients.contains(ingredient),
+                isReadOnly = false
             ) {
                 viewModel.toggleIngredient(ingredient)
             }
@@ -139,7 +139,7 @@ fun AllIngredientScreen(scrollState: ScrollState, ingredientList: List<Ingredien
     }
 }
 @Composable
-fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, onToggle: (Boolean) -> Unit) {
+fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, isReadOnly: Boolean, onToggle: (Boolean) -> Unit) {
     var added by remember { mutableStateOf(isAdded) }
 
     Row(
@@ -187,13 +187,10 @@ fun IngredientCanAdd(name: String, unit: String, cal: Number, isAdded: Boolean, 
             // Add button here, when click on it, the ingredient will be added to the user's ingredient list and
             // the icon will change to a remove icon, when click on it again, the ingredient will be removed from the user's ingredient list
             IconButton(onClick = {
-                added = !added
-                onToggle(added)
-                if (added) {
-                    Log.d("Add", "Added $name")
-                } else {
-                    Log.d("Remove", "Removed $name")
+                if (!isReadOnly) {
+                    added = !added
                 }
+                onToggle(added)
             }) {
                 Icon(
                     imageVector = if (added) Icons.Default.RemoveCircle else Icons.Default.AddCircle,

@@ -204,7 +204,7 @@ fun ExploreTabScreen(
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Recommended", "My Recipes")
     val exploreTabScreenScrollState = rememberScrollState()
-
+    val myRecipeTabScreenScrollState = rememberScrollState()
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex) {
             tabs.forEachIndexed { index, title ->
@@ -221,7 +221,7 @@ fun ExploreTabScreen(
                 ingredientViewModel = ingredientViewModel,
                 recipeViewModel = recipeViewModel
             )
-            1 -> MyRecipesScreen(scrollState = exploreTabScreenScrollState, nav = nav,  recipeViewModel = recipeViewModel)
+            1 -> MyRecipesScreen(scrollState = myRecipeTabScreenScrollState, nav = nav,  recipeViewModel = recipeViewModel)
         }
     }
 }
@@ -234,6 +234,7 @@ fun RecommendedScreen(
     recipeViewModel: RecipeViewModel
 ) {
     val recommendedFoodScrollState = rememberScrollState()
+    val ingredientSearchScrollState = rememberScrollState()
     val recipeList by recipeViewModel.recipeList.collectAsState()
     val userIngredients = ingredientViewModel.userIngredients
     var showDialog by remember { mutableStateOf(false) }
@@ -302,7 +303,7 @@ fun RecommendedScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .verticalScroll(recommendedFoodScrollState)
+                        .verticalScroll(ingredientSearchScrollState)
                 ) {
                     if (userIngredients.isNotEmpty()) {
                         for (ingredient in userIngredients) {
@@ -310,7 +311,8 @@ fun RecommendedScreen(
                                 name = ingredient.name ?: "",
                                 unit = ingredient.unit ?: "",
                                 cal = ingredient.nutrition?.get(0) ?: 0.0,
-                                isAdded = true
+                                isAdded = true,
+                                isReadOnly = true
                             ) {
                                 ingredientViewModel.toggleIngredient(ingredient)
                             }
@@ -455,47 +457,16 @@ fun RecommendedFoods(
     }
 }
 
-@Composable
-fun Ingredients(name: String, amount: Number) {
-    Row(
-        modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth()
-            .height(60.dp)
-            .background(Color.White),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text(
-                text = name,
-                fontWeight = FontWeight.Medium,
-                fontSize = 16.sp
-            )
-            Text(
-                text = amount.toString() + "g",
-                fontWeight = FontWeight.Light
-            )
-        }
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(
-                imageVector = Icons.Filled.RemoveCircle,
-                contentDescription = "Remove Icon",
-                tint = Color.Red
-            )
-        }
-    }
-}
 
 @Composable
 fun MyRecipesScreen(scrollState: ScrollState, nav: NavHostController, recipeViewModel: RecipeViewModel) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
-    val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
         recipeViewModel.fetchMyRecipes()
     }
+    val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
     val myRecipe = myRecipeList.firstOrNull { it.userId == uId }
     Column(
         modifier = Modifier
