@@ -53,7 +53,7 @@ android {
 dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
     implementation ("androidx.compose.runtime:runtime-livedata:1.7.0-beta01")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
@@ -75,23 +75,35 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
     implementation("com.google.firebase:firebase-messaging:24.0.0")
     implementation("androidx.navigation:navigation-testing:2.7.7")
+    implementation("androidx.compose.ui:ui-test-android:1.6.7")
+    implementation("androidx.compose.ui:ui-test-junit4-android:1.6.7")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.7.0")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     androidTestImplementation("io.mockk:mockk-android:1.12.0")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1")
-    androidTestImplementation("org.mockito:mockito-android:2.24.5")
+    // To use the androidx.test.core APIs
+    androidTestImplementation("androidx.test:core:1.5.0")
+    // Kotlin extensions for androidx.test.core
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    // To use the androidx.test.espresso
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+    // To use the JUnit Extension APIs
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    // Kotlin extensions for androidx.test.ext.junit
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
+    // To use the Truth Extension APIs
+    androidTestImplementation("androidx.test.ext:truth:1.5.0")
+    // To use the androidx.test.runner APIs
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    // To use android test orchestrator
+    androidTestUtil("androidx.test:orchestrator:1.4.2")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
 
-    implementation("androidx.credentials:credentials:1.3.0-alpha03")
-    implementation ("androidx.credentials:credentials-play-services-auth:1.3.0-alpha03")
+    implementation("androidx.credentials:credentials:1.3.0-alpha04")
+    implementation ("androidx.credentials:credentials-play-services-auth:1.3.0-alpha04")
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 
 
@@ -104,4 +116,5 @@ dependencies {
     implementation("androidx.camera:camera-extensions:$cameraX_version")
 
     implementation("com.google.guava:guava:31.1-jre")
+
 }

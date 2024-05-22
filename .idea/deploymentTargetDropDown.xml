@@ -2,13 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="MyRecipeTabTest">
+        <State />
+      </entry>
+      <entry key="SearchResultScreenTest">
+        <State />
+      </entry>
       <entry key="app">
         <State />
       </entry>
-      <entry key="testTopBarTitleDisplayed()">
+      <entry key="testMyRecipeTab()">
         <State />
       </entry>
-      <entry key="testUserInforUI()">
+      <entry key="testRecipeResultCanToggle()">
+        <State />
+      </entry>
+      <entry key="testSearchRecipeWithEmptySearchInfo()">
         <State />
       </entry>
     </value>

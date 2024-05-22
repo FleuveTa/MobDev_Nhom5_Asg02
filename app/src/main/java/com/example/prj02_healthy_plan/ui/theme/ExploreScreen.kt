@@ -52,7 +52,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,7 +65,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.prj02_healthy_plan.MyRecipe
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
@@ -100,6 +98,7 @@ fun ChienTa(
                             fontWeight = FontWeight.Bold
                         )
                     )
+
                 },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
@@ -480,6 +479,7 @@ fun MyRecipesScreen(scrollState: ScrollState, nav: NavHostController, recipeView
     val myRecipe = myRecipeList.find { it.userId == uId }
     Column(
         modifier = Modifier
+            .testTag("myRecipesScreen")
             .fillMaxSize()
             .padding(5.dp)
             .verticalScroll(scrollState)
@@ -510,6 +510,7 @@ fun MyRecipes(
     val uId = auth.currentUser?.uid
     Row(
         modifier = Modifier
+            .testTag("myRecipeRow")
             .padding(5.dp)
             .fillMaxWidth()
             .height(100.dp)
@@ -560,6 +561,7 @@ fun MyRecipes(
 fun FavoriteIcon(isFavorite: Boolean, onToggle: (Boolean) -> Unit) {
     IconButton(onClick = { onToggle(!isFavorite) }) {
         Icon(
+
             imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
             contentDescription = "Favorite Icon",
             tint = if (isFavorite) Color.Red else Color.Gray

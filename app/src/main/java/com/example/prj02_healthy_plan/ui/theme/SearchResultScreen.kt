@@ -36,6 +36,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -112,6 +113,7 @@ fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResults
             .fillMaxSize()
             .padding(5.dp)
             .verticalScroll(scrollState)
+            .testTag("resultList")
     ) {
         recipeResultsList.forEach { recipe ->
             MyRecipeResult(
@@ -120,15 +122,14 @@ fun ResultScreen(scrollState: ScrollState, nav: NavHostController, recipeResults
                 name = recipe.name ?: "",
                 description = recipe.description ?: "",
                 nav = nav,
-                recipeViewModel =  recipeViewModel,
-                isFavorite = false
+                recipeViewModel =  recipeViewModel
             )
         }
     }
 }
 
 @Composable
-fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel, isFavorite: Boolean) {
+fun MyRecipeResult(recipeId: String, url: String, name: String, description: String, nav: NavHostController, recipeViewModel: RecipeViewModel) {
     val auth: FirebaseAuth = Firebase.auth
     val uId = auth.currentUser?.uid
     val myRecipeList by recipeViewModel.myRecipeList.collectAsState()
@@ -137,6 +138,7 @@ fun MyRecipeResult(recipeId: String, url: String, name: String, description: Str
     }
     Row(
         modifier = Modifier
+            .testTag("recipeResult")
             .padding(5.dp)
             .fillMaxWidth()
             .height(100.dp)
