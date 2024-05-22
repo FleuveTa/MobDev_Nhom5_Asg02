@@ -1,6 +1,8 @@
 package com.example.prj02_healthy_plan
 
 import com.google.firebase.firestore.DocumentReference
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 
 
 data class Ingredient(
