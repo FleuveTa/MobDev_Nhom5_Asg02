@@ -5,16 +5,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
 
-//buildscript {
-//    repositories {
-//        maven {
-//            url = uri("https://plugins.gradle.org/m2/")
-//        }
-//    }
-//    dependencies {
-//        classpath("org.jetbrains.kotlin:kotlin-serialization:2.0.0")
-//    }
-//}
 
 apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 

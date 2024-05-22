@@ -60,6 +60,7 @@ import com.example.prj02_healthy_plan.ui.theme.SearchResultScreen
 import com.example.prj02_healthy_plan.ui.theme.SecurityUI
 import com.example.prj02_healthy_plan.ui.theme.UserAddFoodScreen
 import com.example.prj02_healthy_plan.ui.theme.UserInforUI
+import com.example.prj02_healthy_plan.ui.theme.UserSearchIngredientScreen
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
 import com.google.firebase.Firebase
@@ -187,7 +188,7 @@ fun AppNavBar() {
                 // composable(Screens.SearchChoice.screen) { SearchChoiceScreen(nav = navigationController) }
                 composable(Screens.SearchResult.screen) { SearchResultScreen(nav = navigationController, recipeSearchName, recipeViewModel) }
                 composable(Screens.UserAddFood.screen) { UserAddFoodScreen(nav = navigationController, date = selectedDateFormattedLabel) }
-//                composable(Screens.UserAddIngredient.screen) { UserAddIngredientScreen( nav = navigationController, ingredientViewModel) }
+                composable(Screens.UserAddIngredient.screen) { UserSearchIngredientScreen( nav = navigationController, ingredientViewModel) }
                 composable(Screens.SecurityUI.screen) { SecurityUI( nav = navigationController) }
             }
         }
