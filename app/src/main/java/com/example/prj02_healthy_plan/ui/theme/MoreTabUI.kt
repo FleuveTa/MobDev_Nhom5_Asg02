@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -70,7 +71,10 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
+import com.example.prj02_healthy_plan.ContextWrapper
+import com.example.prj02_healthy_plan.FirebaseAuthWrapper
 import com.example.prj02_healthy_plan.R
+import com.example.prj02_healthy_plan.User
 import com.example.prj02_healthy_plan.activities.MainActivity
 import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import com.google.common.io.ByteStreams.readBytes
@@ -86,13 +90,12 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
+fun MoreTabUI(auth: FirebaseAuthWrapper, context: ContextWrapper, nav: NavController, user: User) {
     val transparentButtonColors = ButtonDefaults.buttonColors(
         containerColor = Color.Transparent,
         contentColor = Color.Black // Set text color
     )
-    val userViewModel: UserViewModel = viewModel()
-    val user = userViewModel.state.value
+
     val avatarValue = remember(user.avatar) {
         mutableStateOf(user.avatar ?: "")
     }
@@ -174,11 +177,12 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                             )
                     ) {
                         IconButton(onClick = {
+                            val cont = context.getContext()
                             pickPhotoLauncher.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                             selectedImageUri?.let {
-                                uploadToStorage(it, context, auth.currentUser?.uid ?: "")
+                                uploadToStorage(it, cont, auth.getUID())
                             }
                         }) {
                             Icon(
@@ -203,22 +207,20 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                     .fillMaxWidth()
             )
 
-            auth.currentUser?.let {
-                it.email?.let { it1 ->
-                    Text(
-                        text = it1,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 1.43.em,
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            letterSpacing = 0.25.sp
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-            }
+            var email: String = ""
+            email = auth.getEmail()
+
+            Text(
+                text = email,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                lineHeight = 1.43.em,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    letterSpacing = 0.25.sp
+                ),
+                modifier = Modifier
+                    .fillMaxWidth())
 
             Spacer(modifier = Modifier.height(30.dp))
             Box(Modifier.fillMaxWidth()) {
@@ -237,7 +239,7 @@ fun MoreTabUI(auth: FirebaseAuth, context: Context, nav: NavController) {
                     Button(colors = transparentButtonColors,
                         onClick = {
                             nav.navigate("userInfor")
-                        }) {
+                        }, modifier = Modifier.testTag("changeInforButton")) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()

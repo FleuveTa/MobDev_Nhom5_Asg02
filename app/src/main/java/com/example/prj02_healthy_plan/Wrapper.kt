@@ -19,11 +19,27 @@ import kotlinx.coroutines.tasks.await
 
 interface FirebaseAuthWrapper {
     fun signOut()
+    fun getAuth() : FirebaseAuth
+    fun getEmail() : String
+    fun getUID() : String
+
 }
 
 class FirebaseAuthWrapperImpl(private val firebaseAuth: FirebaseAuth) : FirebaseAuthWrapper {
     override fun signOut() {
         firebaseAuth.signOut()
+    }
+
+    override fun getAuth(): FirebaseAuth {
+        return firebaseAuth
+    }
+
+    override fun getEmail(): String {
+        return firebaseAuth.currentUser?.email.toString()
+    }
+
+    override fun getUID(): String {
+        return firebaseAuth.currentUser?.uid.toString()
     }
 }
 
@@ -32,7 +48,7 @@ interface ContextWrapper {
     fun startActivity(intent: Intent)
     fun finish()
     abstract fun requireActivity(): Any
-    abstract fun getContext(): Any
+    abstract fun getContext(): Context
 }
 
 class ContextWrapperImpl(private val context: Context) : ContextWrapper {

@@ -106,7 +106,8 @@ fun UserInforUI(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(245, 250, 255)),
+            .background(Color(245, 250, 255))
+            .testTag("userInfor"),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserInforHeader(navController)
