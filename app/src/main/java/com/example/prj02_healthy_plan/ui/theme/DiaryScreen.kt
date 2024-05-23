@@ -82,6 +82,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -462,6 +463,11 @@ fun calculateTotalCalories(recipes: List<RecipeFirebase>, recipesInDaily: List<R
         totalProtein += (recipe.nutrition?.get(1) ?: 0.0) * quantity
         totalCarb += (recipe.nutrition?.get(2) ?: 0.0) * quantity
         totalFat += (recipe.nutrition?.get(3) ?: 0.0) * quantity
+
+        totalCalories = round(totalCalories * 10) / 10
+        totalProtein = round(totalProtein * 10) / 10
+        totalCarb = round(totalCarb * 10) / 10
+        totalFat = round(totalFat * 10) / 10
     }
     Log.d("TotalNutrition", listOf(totalCalories, totalProtein, totalCarb, totalFat).toString())
     return listOf(totalCalories, totalProtein, totalCarb, totalFat)

@@ -202,17 +202,16 @@ fun RecipeResultScreen(scrollState: ScrollState, nav: NavHostController, recipeV
                 )
             }
             else {
-//                for (recipe in matchedRecipes) {
-//                    RecommendedFoods(
-//                        recipeId = recipe.id ?: "",
-//                        url = recipe.imageUrl ?: "",
-//                        title = recipe.name ?: "",
-//                        cal = recipe.nutrition?.get(0) ?: 0.0,
-//                        nav = nav,
-//                        recipeViewModel = recipeViewModel,
-//                        rememberedRecipeList = matchedRecipes
-//                    )
-//                }
+                for (recipe in matchedRecipes) {
+                    RecommendedFoods(
+                        recipeId = recipe.id ?: "",
+                        url = recipe.imageUrl ?: "",
+                        title = recipe.name ?: "",
+                        cal = recipe.nutrition?.get(0) ?: 0.0,
+                        nav = nav,
+                        recipeViewModel = recipeViewModel
+                    )
+                }
             }
         }
     }
