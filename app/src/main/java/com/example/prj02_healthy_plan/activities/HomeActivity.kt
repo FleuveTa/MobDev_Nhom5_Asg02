@@ -41,10 +41,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.prj02_healthy_plan.ContextWrapperImpl
+import com.example.prj02_healthy_plan.FirebaseAuthWrapper
+import com.example.prj02_healthy_plan.FirebaseAuthWrapperImpl
 import com.example.prj02_healthy_plan.R
 import com.example.prj02_healthy_plan.ui.theme.ChienTa
 import com.example.prj02_healthy_plan.ui.theme.DetailRecipeScreen
@@ -63,6 +67,7 @@ import com.example.prj02_healthy_plan.ui.theme.UserInforUI
 import com.example.prj02_healthy_plan.ui.theme.UserSearchIngredientScreen
 import com.example.prj02_healthy_plan.uiModel.IngredientViewModel
 import com.example.prj02_healthy_plan.uiModel.RecipeViewModel
+import com.example.prj02_healthy_plan.uiModel.UserViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -180,7 +185,11 @@ fun AppNavBar() {
                 composable(Screens.Home.screen) { TungAnh(nav = navigationController, date = selectedDateFormattedLabel)}
                 composable(Screens.Diary.screen) { Giang(nav = navigationController, date = selectedDateFormattedLabel)}
                 composable(Screens.Explore.screen) { ChienTa(nav = navigationController, recipeSearchName, ingredientViewModel, recipeViewModel) }
-                composable(Screens.More.screen) { MoreTabUI(auth = FirebaseAuth.getInstance(), context = context, nav = navigationController)}
+                composable(Screens.More.screen) {
+                    val userViewModel: UserViewModel = viewModel()
+                    val user = userViewModel.state.value
+                    MoreTabUI(auth = FirebaseAuthWrapperImpl(FirebaseAuth.getInstance()), context = ContextWrapperImpl(context), nav = navigationController, user)
+                }
                 composable(Screens.UserInfor.screen) { UserInforUI(navController = navigationController)}
                 composable(Screens.DetailRecipe.screen) {DetailRecipeScreen(nav = navigationController, recipeViewModel)}
                 composable(Screens.ViewRecipeResult.screen) { ViewRecipeResultScreen(nav = navigationController, recipeViewModel, ingredientViewModel) }

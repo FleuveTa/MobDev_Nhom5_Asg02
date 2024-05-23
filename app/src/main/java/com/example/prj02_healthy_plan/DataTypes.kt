@@ -56,6 +56,7 @@ data class User(
     val avatar: String? = null
 )
 
+
 data class RecipeInDaily(
     val recipe: DocumentReference? = null,
     val quantity: Int? = null

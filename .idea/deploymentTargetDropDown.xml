@@ -5,7 +5,7 @@
       <entry key="GetStartedTest">
         <State />
       </entry>
-      <entry key="ShowSearchChoiceDialogTest">
+      <entry key="MoreTabUITest">
         <State />
       </entry>
       <entry key="SignUpUITest">
@@ -14,7 +14,7 @@
       <entry key="app">
         <State />
       </entry>
-      <entry key="testShowSearchChoiceDialogUIComponents()">
+      <entry key="testMoreTabScreen()">
         <State />
       </entry>
       <entry key="testSignUpUI()">
