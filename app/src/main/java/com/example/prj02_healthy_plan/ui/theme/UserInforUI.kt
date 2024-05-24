@@ -102,6 +102,9 @@ fun UserInforUI(navController: NavController) {
     val goalValue = remember(user.goal) {
         mutableIntStateOf(user.goal ?: 3)
     }
+    val avatarValue = remember(user.avatar) {
+        mutableStateOf(user.avatar ?: "")
+    }
 
     Column(
         modifier = Modifier
@@ -141,7 +144,8 @@ fun UserInforUI(navController: NavController) {
                     nutrientGoalValue,
                     weightValue,
                     targetWeightValue,
-                    goalValue
+                    goalValue,
+                    avatarValue
                 )
             }
             Toast.makeText(context, "Changes saved", Toast.LENGTH_SHORT).show()
@@ -165,7 +169,8 @@ fun saveUserChanges(
     nutrientGoalValue: MutableIntState,
     weightValue: MutableIntState,
     targetWeightValue: MutableIntState,
-    goalValue: MutableIntState
+    goalValue: MutableIntState,
+    avatarValue: MutableState<String>
 ) {
     db.collection("users").document(uId).set(
         hashMapOf(
@@ -180,6 +185,7 @@ fun saveUserChanges(
             "weight" to weightValue.intValue,
             "targetWeight" to targetWeightValue.intValue,
             "goal" to goalValue.intValue,
+            "avatar" to avatarValue.value
         )
     )
 }

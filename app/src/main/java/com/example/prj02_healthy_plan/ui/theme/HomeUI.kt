@@ -353,7 +353,7 @@ fun Content(
         ) {
             Row(
                 modifier = Modifier
-                    .width(180.dp)
+                    .fillMaxWidth()
                     .height(130.dp)
                     .clip(shape = RoundedCornerShape(30.dp))
                     .background(
@@ -391,7 +391,7 @@ fun Content(
                     )
 
                     Text(
-                        text = dailyData.water.toString() + " liters",
+                        text = dailyData.water.toString() + " cups",
                         color = textProgressColor,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
@@ -419,49 +419,49 @@ fun Content(
                 }
             }
 
-            Spacer(modifier = Modifier.width(15.dp))
-
-            Column(
-                modifier = Modifier
-                    .width(180.dp)
-                    .height(130.dp)
-                    .clip(shape = RoundedCornerShape(30.dp))
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(Color(0xFFF0F0FF), Color.White),
-                            start = Offset(200f, 200f),
-                            end = Offset(0f, 100f)
-                        ),
-                        shape = RoundedCornerShape(30.dp)
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "7,550",
-                        fontWeight = FontWeight.ExtraBold,
-                        color = textProgressColor,
-                        fontSize = 16.sp
-                    )
-
-                    CircularProgressIndicator(
-                        progress = 0.3f,
-                        color = Color.Green,
-                        strokeWidth = 10.dp,
-                        modifier = Modifier.size(70.dp)
-                    )
-                }
-
-                Text(
-                    text = "Steps Walked",
-                    color = textProgressColor,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+//            Spacer(modifier = Modifier.width(15.dp))
+//
+//            Column(
+//                modifier = Modifier
+//                    .width(180.dp)
+//                    .height(130.dp)
+//                    .clip(shape = RoundedCornerShape(30.dp))
+//                    .background(
+//                        brush = Brush.linearGradient(
+//                            colors = listOf(Color(0xFFF0F0FF), Color.White),
+//                            start = Offset(200f, 200f),
+//                            end = Offset(0f, 100f)
+//                        ),
+//                        shape = RoundedCornerShape(30.dp)
+//                    ),
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.SpaceEvenly
+//            ) {
+//                Box(
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text(
+//                        text = "7,550",
+//                        fontWeight = FontWeight.ExtraBold,
+//                        color = textProgressColor,
+//                        fontSize = 16.sp
+//                    )
+//
+//                    CircularProgressIndicator(
+//                        progress = 0.3f,
+//                        color = Color.Green,
+//                        strokeWidth = 10.dp,
+//                        modifier = Modifier.size(70.dp)
+//                    )
+//                }
+//
+//                Text(
+//                    text = "Steps Walked",
+//                    color = textProgressColor,
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Bold
+//                )
+//            }
         }
 
         Box(
@@ -545,12 +545,12 @@ fun Content(
                 IconButton(
                     onClick = { /*TODO*/ }
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.baseline_add_circle_24),
-                        contentDescription = "Add",
-                        modifier = Modifier.size(40.dp),
-                        tint = Color.Green
-                    )
+//                    Icon(
+//                        painter = painterResource(R.drawable.baseline_add_circle_24),
+//                        contentDescription = "Add",
+//                        modifier = Modifier.size(40.dp),
+//                        tint = Color.Green
+//                    )
                 }
             }
         }
